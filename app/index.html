@@ -11,25 +11,25 @@
 		
 			<h1>Download/Upload</h1>
 
-		<form>
+		<form id="frm1">
 			<fieldset>
 				<legend>Information</legend>
-					<label for="username"> Username </label>
-					<input type="text" id="username" name="name" autofocus>
+					<label class="label" for="username"> Username </label>
+					<input type="text" id="username" name="name">
 
                     <br><br>
 
-                    <label for="password"> Password </label>
+                    <label class="label" for="password"> Password </label>
                     <input type="password" id="password" name="pass">
 
                 <br><br>
 
-                    <label for="serverName"> Server Name </label>
+                    <label class="label" for="serverName"> Server Name </label>
                     <input type="text" id="serverName" name="server">
 
                 <br><br>
 
-                    <label for="path1"> Sender Path </label>
+                    <label class="label" for="path1"> Sender Path </label>
                     <input type="text" id="path1" name="serverPath">
 
                 <br><br>
@@ -39,7 +39,7 @@
 
                 <br><br>-->
 
-                    <label for="path2"> Receiver Path </label>
+                    <label class="label" for="path2"> Receiver Path </label>
                     <input type="text" id="path2" name="localPath">
 
 			</fieldset>
@@ -47,14 +47,20 @@
             <input type="submit" value="Download">
             <input type="submit" value="Upload">
             <input type="submit" value="Switch">
+
+            <input type="button" id="print" onclick="myFunction()" value="Print Info">
             <br><br>
             <textarea cols="40" rows="5">
 
             </textarea>
 
 
+
 		</form>
 
+            <p id="area"></p>
+
+    <script src="js/simpleSshTest.js"></script>
 	</body>
 
 

@@ -6,6 +6,15 @@ h1{
 	float: left;
 }
 
-.right{
+#print{
+	/*width: 5em;*/
+}
 
+.label{
+	display: inline-block;
+	float: left;
+	width: 10em;
+	vertical-align: top;
+	text-align: right;
+	margin-right: 15px;
 }
