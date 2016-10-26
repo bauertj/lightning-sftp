@@ -15,17 +15,17 @@
 			<fieldset id="test">
 				<legend>Information</legend>
 					<label class="label" for="username"> Username </label>
-					<input type="text" id="username" name="name">
+					<input type="text" id="username" name="name" value="bauertj">
 
                     <br><br>
 
                     <label class="label" for="password"> Password </label>
-                    <input type="password" id="password" name="pass">
+                    <input type="password" id="password" name="pass" autofocus>
 
                 <br><br>
 
                     <label class="label" for="serverName"> Server Name </label>
-                    <input type="text" id="serverName" name="server">
+                    <input type="text" id="serverName" name="server" value="haven.cs.plu.edu">
 
                 <br><br>
 
@@ -48,7 +48,7 @@
             <input type="button" value="Upload">
             <input type="button" value="Switch">
 
-            <input type="button" id="print" onclick="myFunction()" value="Print Info">
+            <input type="button" id="print" onclick="getInfo()" value="Print Info">
             <br><br>
             <textarea id="area" cols="40" rows="5">
 

@@ -1,4 +1,4 @@
-//var SSH = require('simple-ssh');
+var SSH = require('simple-ssh');
 
 
 function myFunction() {
@@ -19,32 +19,30 @@ var username, password, server, path1, path2;
 function getInfo() {
     var x = document.getElementById("frm1");
 
-    username = x.elements[0].value;
-    password = x.elements[1].value;
-    server = x.elements[2].value;
-    path1 = x.elements[3].value;
-    path2 = x.elements[4].value;
+    username = x.elements[1].value;
+    password = x.elements[2].value;
+    server = x.elements[3].value;
+    path1 = x.elements[4].value;
+    path2 = x.elements[5].value;
+
+    var ssh = new SSH({
+        host: server,
+        user: username,
+        pass: password
+    });
+
+
+    ssh.exec('sftp '+username+':'+password+ '@'+server+':/taylor.txt C:/Users/Taylor/Desktop', {
+        out: function (stdout) {
+            console.log(stdout);
+            document.getElementById("area").innerHTML = stdout;
+        }
+    }).start();
+
+    ssh.exec('ls', {
+        out: function (stdout) {
+            console.log(stdout);
+        }
+    }).start();
 
 }
-
-var ssh = new SSH({
-    host: server,
-    user: username,
-    pass: password
-});
-
-ssh.exec('echo $PATH', {
-    out: function(stdout) {
-        console.log(stdout);
-    }
-}).start();
-
-/*** Using the `args` options instead ***/
-ssh.exec('echo', {
-    args: ['$PATH'],
-    out: function(stdout) {
-        console.log(stdout);
-    }
-}).start();
-
-console.log('test');
