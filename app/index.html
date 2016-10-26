@@ -12,7 +12,7 @@
 			<h1>Download/Upload</h1>
 
 		<form id="frm1">
-			<fieldset>
+			<fieldset id="test">
 				<legend>Information</legend>
 					<label class="label" for="username"> Username </label>
 					<input type="text" id="username" name="name">
@@ -44,13 +44,13 @@
 
 			</fieldset>
             <br>
-            <input type="submit" value="Download">
-            <input type="submit" value="Upload">
-            <input type="submit" value="Switch">
+            <input type="button" value="Download">
+            <input type="button" value="Upload">
+            <input type="button" value="Switch">
 
             <input type="button" id="print" onclick="myFunction()" value="Print Info">
             <br><br>
-            <textarea cols="40" rows="5">
+            <textarea id="area" cols="40" rows="5">
 
             </textarea>
 
@@ -58,7 +58,7 @@
 
 		</form>
 
-            <p id="area"></p>
+
 
     <script src="js/simpleSshTest.js"></script>
 	</body>

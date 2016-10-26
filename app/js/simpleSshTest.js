@@ -6,7 +6,7 @@ function myFunction() {
     var text = "";
     var i;
     for (i = 0; i < x.length ;i++) {
-        text += x.elements[i].id + ": "+ x.elements[i].value + "<br>";
+        text += x.elements[i].id + ": "+ x.elements[i].value + "\n";
     }
     document.getElementById("area").innerHTML = text;
 }
