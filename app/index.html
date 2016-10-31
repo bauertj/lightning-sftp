@@ -12,25 +12,29 @@
 			<h1>Download/Upload</h1>
 
 		<form id="frm1">
-			<fieldset id="test">
-				<legend>Information</legend>
-					<label class="label" for="username"> Username </label>
-					<input type="text" id="username" name="name" value="mayornk">
+            <fieldset id="userInfo">
 
-                    <br><br>
-
-                    <label class="label" for="password"> Password </label>
-                    <input type="password" id="password" name="pass" autofocus>
+                <legend>User Info</legend>
+                <label class="label" for="username"> Username </label>
+                <input type="text" id="username" name="name" value="">
 
                 <br><br>
 
-                    <label class="label" for="serverName"> Server Name </label>
-                    <input type="text" id="serverName" name="server" value="river.cs.plu.edu">
+                <label class="label" for="password"> Password </label>
+                <input type="password" id="password" name="pass" autofocus>
 
                 <br><br>
 
-                    <label class="label" for="path1"> Sender Path </label>
-                    <input type="text" id="path1" name="serverPath">
+                <label class="label" for="serverName"> Server Name </label>
+                <input type="text" id="serverName" name="server" value="river.cs.plu.edu">
+
+            </fieldset>
+            <br>
+			<fieldset id="uploadForm">
+
+                <legend>Upload</legend>
+                    <label class="label" for="localFileDir"> Local File </label>
+                    <input type="file" id="localFileDir" name="localDirectory">
 
                 <br><br>
 
@@ -43,6 +47,20 @@
                     <input type="text" id="path2" name="localPath">
 
 			</fieldset>
+
+            <br>
+            <fieldset id="downloadForm">
+                <legend>Download</legend>
+
+                <label class="label" for="serverFile"> Server File </label>
+                <input type="text" id="serverFile" name="serverPath">
+
+                <br><br>
+
+                <label class="label" for="localFilePath"> Local Path </label>
+                <input type="text" id="localFilePath" name="localFile">
+
+            </fieldset>
             <br>
             <input type="button" id="download" onclick="downloadFile()" value="Download">
             <input type="button" id="upload" onclick="uploadFile()" value="Upload">
@@ -50,9 +68,7 @@
 
             <input type="button" value="Print Info">
             <br><br>
-            <textarea id="area" cols="40" rows="5">
-
-            </textarea>
+            <textarea id="area" cols="100" rows="15" disabled></textarea>
 
 
 

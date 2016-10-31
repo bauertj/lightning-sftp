@@ -37,17 +37,21 @@ function uploadFile() {
     conn.on('ready', function(){
         conn.sftp(function(err, sftp){
             if(err) throw err;
+
+            var selectedFile = document.getElementById('localFileDir').files[0];
+            var pathToSend = document.getElementById('path2');
+            console.log(pathToSend.value);
             //use sftp here
             var fs = require("fs");
-            var read = fs.createReadStream("C:/Users/Nate/Desktop/nate5.txt");
-            var write = sftp.createWriteStream("public_html/nate5.txt");
+            var read = fs.createReadStream(selectedFile.path);
+            var write = sftp.createWriteStream(pathToSend.value);
 
             write.on('close',function (){
-                console.log( "- file transferred successfully" );
+                document.getElementById("area").innerHTML += selectedFile.name + "- file transferred successfully" + "\n";
             });
 
             write.on('end', function() {
-                console.log( "sftp conn closed");
+                document.getElementById("area").innerHTML += "sftp conn closed" + "\n";
                 conn.close();
             });
             read.pipe(write)
@@ -79,17 +83,21 @@ function downloadFile(){
     conn.on('ready', function(){
         conn.sftp(function(err, sftp){
             if(err) throw err;
+
+            var selectedFile = document.getElementById('serverFile');
+            var pathToSend = document.getElementById('localFilePath');
+
             //use sftp here
             var fs = require("fs");
-            var read = sftp.createReadStream("public_html/nate5.txt");
-            var write = fs.createWriteStream("C:/Users/Nate/Desktop/nate5.txt");
+            var read = sftp.createReadStream(selectedFile.value);
+            var write = fs.createWriteStream(pathToSend.value);
 
             write.on('close',function (){
-                console.log( "- file transferred successfully" );
+                document.getElementById("area").innerHTML += selectedFile.value + "- file transferred successfully\n";
             });
 
             write.on('end', function() {
-                console.log( "sftp conn closed");
+                document.getElementById("area").innerHTML += "sftp conn closed\n";
                 conn.close();
             });
             read.pipe(write)
