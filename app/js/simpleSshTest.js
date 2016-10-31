@@ -1,4 +1,5 @@
-var SSH = require('simple-ssh');
+
+var Client = require('ssh2').Client;
 
 
 function myFunction() {
@@ -13,36 +14,44 @@ function myFunction() {
 
 
 
-var username, password, server, path1, path2;
+var uname, pass, server, path1, path2;
 
 //Initializes info from form
 function getInfo() {
     var x = document.getElementById("frm1");
 
-    username = x.elements[1].value;
-    password = x.elements[2].value;
+    uname = x.elements[1].value;
+    pass = x.elements[2].value;
     server = x.elements[3].value;
     path1 = x.elements[4].value;
     path2 = x.elements[5].value;
 
-    var ssh = new SSH({
-        host: server,
-        user: username,
-        pass: password
-    });
+    var connSettings = {
+        host:       'river.cs.plu.edu',
+        port:       22,
+        username:   uname,
+        password:   pass
+    };
 
+    var conn = new Client();
+    conn.on('ready', function(){
+        conn.sftp(function(err, sftp){
+            if(err) throw err;
+            //use sftp here
+            var fs = require("fs");
+            var read = fs.createReadStream("C:/Users/Nate/Desktop/nate5.txt");
+            var write = sftp.createWriteStream("public_html/nate5.txt");
 
-    ssh.exec('sftp '+username+':'+password+ '@'+server+':/taylor.txt C:/Users/Taylor/Desktop', {
-        out: function (stdout) {
-            console.log(stdout);
-            document.getElementById("area").innerHTML = stdout;
-        }
-    }).start();
+            write.on('close',function (){
+                console.log( "- file transferred successfully" );
+            });
 
-    ssh.exec('ls', {
-        out: function (stdout) {
-            console.log(stdout);
-        }
-    }).start();
+            write.on('end', function() {
+                console.log( "sftp conn closed");
+                conn.close();
+            });
+            read.pipe(write)
+        });
+    }).connect(connSettings);
 
 }
