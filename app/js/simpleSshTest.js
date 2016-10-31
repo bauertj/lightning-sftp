@@ -1,6 +1,6 @@
 
 var Client = require('ssh2').Client;
-
+var log = require('electron-log');
 /*
 function myFunction() {
     var x = document.getElementById("frm1");
@@ -48,10 +48,12 @@ function uploadFile() {
 
             write.on('close',function (){
                 document.getElementById("area").innerHTML += selectedFile.name + "- file transferred successfully" + "\n";
+                log.info(selectedFile.name + "- file transferred successfully" + "\n");
             });
 
             write.on('end', function() {
                 document.getElementById("area").innerHTML += "sftp conn closed" + "\n";
+                log.info("sftp conn closed" + "\n");
                 conn.close();
             });
             read.pipe(write)
@@ -94,10 +96,12 @@ function downloadFile(){
 
             write.on('close',function (){
                 document.getElementById("area").innerHTML += selectedFile.value + "- file transferred successfully\n";
+                log.info(selectedFile.value + "- file transferred successfully\n");
             });
 
             write.on('end', function() {
                 document.getElementById("area").innerHTML += "sftp conn closed\n";
+                log.info("sftp conn closed\n");
                 conn.close();
             });
             read.pipe(write)
