@@ -1,30 +1,24 @@
 
 var Client = require('ssh2').Client;
 var log = require('electron-log');
+var fs = require("fs");
 /*
-function myFunction() {
-    var x = document.getElementById("frm1");
-    var text = "";
-    var i;
-    for (i = 0; i < x.length ;i++) {
-        text += x.elements[i].id + ": "+ x.elements[i].value + "\n";
-    }
-    document.getElementById("area").innerHTML = text;
-}
-*/
+ function myFunction() {
+ var x = document.getElementById("frm1");
+ var text = "";
+ var i;
+ for (i = 0; i < x.length ;i++) {
+ text += x.elements[i].id + ": "+ x.elements[i].value + "\n";
+ }
+ document.getElementById("area").innerHTML = text;
+ }
+ */
 
-//Initializes info from form
 function uploadFile() {
 
-    var uname, pass, server, path1, path2;
-
-    var x = document.getElementById("frm1");
-
-    uname = x.elements[1].value;
-    pass = x.elements[2].value;
-    server = x.elements[3].value;
-    path1 = x.elements[4].value;
-    path2 = x.elements[5].value;
+    var uname = document.getElementById("username").value;
+    var pass = document.getElementById("password").value;
+    var server = document.getElementById("serverName").value;
 
     var connSettings = {
         host:       'river.cs.plu.edu',
@@ -42,13 +36,17 @@ function uploadFile() {
             var pathToSend = document.getElementById('path2');
             console.log(pathToSend.value);
             //use sftp here
-            var fs = require("fs");
             var read = fs.createReadStream(selectedFile.path);
             var write = sftp.createWriteStream(pathToSend.value);
 
             write.on('close',function (){
                 document.getElementById("area").innerHTML += selectedFile.name + "- file transferred successfully" + "\n";
                 log.info(selectedFile.name + "- file transferred successfully" + "\n");
+
+                // adds connection to history
+                var history = fs.createWriteStream('ConnectionHistory.txt');
+                history.write(server+"\n");
+
             });
 
             write.on('end', function() {
@@ -64,15 +62,9 @@ function uploadFile() {
 
 function downloadFile(){
 
-    var uname, pass, server, path1, path2;
-
-    var x = document.getElementById("frm1");
-
-    uname = x.elements[1].value;
-    pass = x.elements[2].value;
-    server = x.elements[3].value;
-    path1 = x.elements[4].value;
-    path2 = x.elements[5].value;
+    var uname = document.getElementById("username").value;
+    var pass = document.getElementById("password").value;
+    var server = document.getElementById("serverName").value;
 
     var connSettings = {
         host:       'river.cs.plu.edu',
@@ -90,7 +82,6 @@ function downloadFile(){
             var pathToSend = document.getElementById('localFilePath');
 
             //use sftp here
-            var fs = require("fs");
             var read = sftp.createReadStream(selectedFile.value);
             var write = fs.createWriteStream(pathToSend.value);
 

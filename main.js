@@ -9,6 +9,8 @@ app.on('ready', function() {
     mainWindow = new BrowserWindow({
         height: 600,
         width: 800,
+        fullscreenable: false,
+        title: "Lightning SFTP"
     });
 
     mainWindow.loadURL('file://' + __dirname + '/app/index.html');
