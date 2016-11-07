@@ -3,6 +3,7 @@ var Client = require('ssh2').Client;
 var conn = new Client();
 var log = require('electron-log');
 var fs = require("fs");
+var jsonfile = require('jsonfile');
 /*
  function myFunction() {
  var x = document.getElementById("frm1");
@@ -16,6 +17,11 @@ var fs = require("fs");
  */
 
 var connSettings, uname, pass, server;
+// Sets up connection history json file
+var file = 'ConnectionHistory.json';
+var contents = fs.readFileSync("ConnectionHistory.json");
+var jsonContent = JSON.parse(contents);
+
 
 
 
@@ -24,16 +30,26 @@ function notALoginFunction() {
     pass = document.getElementById("password").value;
     server = document.getElementById("serverName").value;
 
+
+
+
     connSettings = {
-        host:       'river.cs.plu.edu',
+        host:       server,
         port:       22,
         username:   uname,
         password:   pass
     };
+
+
+    console.log(jsonContent.connectionHistory);
+    var obj = {host: connSettings.host, port: connSettings.port, username: connSettings.username};
+
+
     conn.on('ready', function(){
-
-
         console.log("You are now connected");
+
+        jsonContent.connectionHistory.push(obj);
+        jsonfile.writeFileSync(file, jsonContent);
 
     }).connect(connSettings);
 
