@@ -4,6 +4,17 @@
 
 	<head>
 		<link href="css/index.css" rel="stylesheet" type="text/css"/>
+
+        <script>
+            // Will click the login button when you press enter
+            document
+                    .addEventListener("keyup", function(event) {
+                        event.preventDefault();
+                        if(event.keyCode == 13) {
+                            document.getElementById("login").click();
+                        }
+                    });
+        </script>
 	</head>
 
 
@@ -28,6 +39,8 @@
                 <label class="label" for="serverName"> Server Name </label>
                 <input type="text" id="serverName" name="server" value="river.cs.plu.edu">
 
+                <br><br>
+                <input type="button" id="login" onclick="notALoginFunction()" value="Log In">
             </fieldset>
             <br>
 			<fieldset id="uploadForm">
@@ -36,6 +49,8 @@
                     <label class="label" for="localFileDir"> Local File </label>
                     <input type="file" id="localFileDir" name="localDirectory">
 
+                    <!--<div id="localFileDir" class="localTree"></div>-->
+
                 <br><br>
 
                     <!--<label for="filename"> File name </label>
@@ -43,8 +58,8 @@
 
                 <br><br>-->
 
-                    <label class="label" for="path2"> Receiver Path </label>
-                    <input type="text" id="path2" name="localPath">
+                    <label class="label" for="uploadReceiverPath"> Receiver Path </label>
+                    <input type="text" id="uploadReceiverPath" name="localPath">
 
 			</fieldset>
 

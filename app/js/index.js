@@ -1,5 +1,6 @@
 
 var Client = require('ssh2').Client;
+var conn = new Client();
 var log = require('electron-log');
 var fs = require("fs");
 /*
@@ -14,26 +15,40 @@ var fs = require("fs");
  }
  */
 
-function uploadFile() {
+var connSettings, uname, pass, server;
 
-    var uname = document.getElementById("username").value;
-    var pass = document.getElementById("password").value;
-    var server = document.getElementById("serverName").value;
 
-    var connSettings = {
+
+function notALoginFunction() {
+    uname = document.getElementById("username").value;
+    pass = document.getElementById("password").value;
+    server = document.getElementById("serverName").value;
+
+    connSettings = {
         host:       'river.cs.plu.edu',
         port:       22,
         username:   uname,
         password:   pass
     };
+    conn.on('ready', function(){
 
-    var conn = new Client();
+
+        console.log("You are now connected");
+
+    }).connect(connSettings);
+
+
+}
+
+
+function uploadFile() {
+
     conn.on('ready', function(){
         conn.sftp(function(err, sftp){
             if(err) throw err;
 
             var selectedFile = document.getElementById('localFileDir').files[0];
-            var pathToSend = document.getElementById('path2');
+            var pathToSend = document.getElementById('uploadReceiverPath');
             console.log(pathToSend.value);
             //use sftp here
             var read = fs.createReadStream(selectedFile.path);
@@ -62,18 +77,6 @@ function uploadFile() {
 
 function downloadFile(){
 
-    var uname = document.getElementById("username").value;
-    var pass = document.getElementById("password").value;
-    var server = document.getElementById("serverName").value;
-
-    var connSettings = {
-        host:       'river.cs.plu.edu',
-        port:       22,
-        username:   uname,
-        password:   pass
-    };
-
-    var conn = new Client();
     conn.on('ready', function(){
         conn.sftp(function(err, sftp){
             if(err) throw err;
