@@ -1,9 +1,14 @@
+'use strict';
 
+var electron = require('electron');
 var Client = require('ssh2').Client;
 var conn = new Client();
 var log = require('electron-log');
 var fs = require("fs");
 var jsonfile = require('jsonfile');
+
+// password hashing library
+var passwordHash = require('password-hash');
 /*
  function myFunction() {
  var x = document.getElementById("frm1");
@@ -17,6 +22,7 @@ var jsonfile = require('jsonfile');
  */
 
 var connSettings, uname, pass, server;
+
 // Sets up connection history json file
 var file = 'ConnectionHistory.json';
 var contents = fs.readFileSync("ConnectionHistory.json");
@@ -24,15 +30,18 @@ var jsonContent = JSON.parse(contents);
 
 
 
+// Will attempt to connect to server when log in button is pressed
+// Connection will stay active ( for now )
+function loginFunction() {
 
-function notALoginFunction() {
+    // Initializes variables, gets from html
     uname = document.getElementById("username").value;
     pass = document.getElementById("password").value;
     server = document.getElementById("serverName").value;
 
+    console.log(server);
 
-
-
+    // Initialize connection settings, default port for now is 22
     connSettings = {
         host:       server,
         port:       22,
@@ -40,20 +49,32 @@ function notALoginFunction() {
         password:   pass
     };
 
+    // Creates a hashed password using password-hash
+    var hashedPassword = passwordHash.generate(pass);
 
-    console.log(jsonContent.connectionHistory);
-    var obj = {host: connSettings.host, port: connSettings.port, username: connSettings.username};
+    if(passwordHash.verify(pass, hashedPassword)){
+        console.log("True");
+    }
+    if(!passwordHash.verify("testing", hashedPassword)){
+        console.log("False");
+    }
+
+    // Retrieves current date and adds to JSON file for connection history data
+    var curDate = new Date();
+    var curTime = curDate.getHours()+":"+curDate.getMinutes()+":"+curDate.getSeconds();
+    var curDay = (curDate.getMonth()+1) + "-" + curDate.getDate() + "-" + (curDate.getYear()+1900);
+    var obj = {host: connSettings.host, port: connSettings.port, username: connSettings.username, password: hashedPassword, time: curTime, day: curDay};
 
 
+    // Connects to server with connection settings the user inputted, pushes connection onto ConnectionHistory JSON file
     conn.on('ready', function(){
         console.log("You are now connected");
-
+        document.getElementById("loginText").innerHTML = "Connected to " + server;
         jsonContent.connectionHistory.push(obj);
         jsonfile.writeFileSync(file, jsonContent);
 
+
     }).connect(connSettings);
-
-
 }
 
 
@@ -119,3 +140,10 @@ function downloadFile(){
     }).connect(connSettings);
 
 }
+
+const {ipcRenderer} = require('electron');
+
+var settingsEl = document.querySelector('.connection');
+settingsEl.addEventListener('click', function () {
+    ipcRenderer.send('open-history-window');
+});

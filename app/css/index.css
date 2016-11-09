@@ -1,13 +1,5 @@
-h1{
-	color: blue;
-}
-
 .left{
 	float: left;
-}
-
-#print{
-	/*width: 5em;*/
 }
 
 .label{
@@ -31,4 +23,6 @@ h1{
 	padding: 5px;
 }
 
+.loginButton{
 
+}

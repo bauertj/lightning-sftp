@@ -20,7 +20,7 @@
 
 	<body>
 		
-			<h1>Download/Upload</h1>
+			<h1>Lightning SFTP</h1>
 
 		<form id="frm1">
             <fieldset id="userInfo">
@@ -36,15 +36,16 @@
 
                 <br><br>
 
-                <label class="label"> Server Name </label>
+                <label class="label" for="serverName"> Server Name </label>
               <!--  <input type="text" id="serverName" name="server" value="river.cs.plu.edu"> -->
-                <input list="serverList" name="servers">
+                <input list="serverList" name="servers" id="serverName">
                 <datalist id="serverList">
 
                 </datalist>
 
                 <br><br>
-                <input type="button" id="login" onclick="notALoginFunction()" value="Log In">
+                <input type="button" class="loginButton" id="login" onclick="loginFunction()" value="Log In">
+                <div id="loginText"></div>
             </fieldset>
             <br>
 			<fieldset id="uploadForm">
@@ -83,7 +84,7 @@
             <br>
             <input type="button" id="download" onclick="downloadFile()" value="Download">
             <input type="button" id="upload" onclick="uploadFile()" value="Upload">
-            <input type="button" value="Connection History">
+            <input type="button" value="Connection History" class="connection">
             <br><br>
             <textarea id="area" cols="100" rows="15" disabled></textarea>
 

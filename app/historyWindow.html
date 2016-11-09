@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>History Window</title>
+</head>
+
+<body>
+    <style>
+        .historyBox{
+            border: 1px solid black;
+            position: relative;
+            height: 75%;
+            width: 95%;
+            margin-right: 10px;
+            overflow: scroll;
+        }
+
+        .connectionDiv{
+            position: absolute;
+            display: inline;
+            height: 75%;
+            width: 95%;
+        }
+        .checkboxAlign{
+            display: inline-block;
+
+        }
+
+        .buttonBox{
+
+        }
+
+    </style>
+    <div id="connectionHistoryDiv" class="connectionDiv">
+        <select id="connectionHistoryInfo" class="historyBox" multiple>
+        </select>
+
+        <br><br>
+
+        <div class="buttonBox">
+            <input type="button" class="removeAll" value="Remove All">
+            <input type="button" class="removeSelected" value="Remove Selected">
+            <input type="button" class="bookmarkSelected" value="Bookmark Selected">
+            <input type="button" class="connectHere" value="Connect Here">
+        </div>
+
+    </div>
+
+
+
+    <script>
+        var box = document.getElementById("connectionHistoryInfo");
+
+        var fs = require("fs");
+        var jQuery = require("jquery");
+        var jsonfile = require("jsonfile");
+
+        var contents = fs.readFileSync("ConnectionHistory.json");
+        var jsonContent = JSON.parse(contents);
+        console.log(jsonContent.connectionHistory);
+        for(var i = 0; i < jsonContent.connectionHistory.length; i++){
+            box.innerHTML += "<div class='checkboxAlign'><option id='json"+i+"'></div>Host: " + jsonContent.connectionHistory[i].host + " Port: " + jsonContent.connectionHistory[i].port +
+            " Username: " + jsonContent.connectionHistory[i].username + " Time Accessed: " + jsonContent.connectionHistory[i].time +
+            " Date Accessed: " + jsonContent.connectionHistory[i].day+"</option><br>";
+
+
+        }
+
+        // removes all history
+        jQuery(document).on('click', ".removeAll", function() {
+               jsonContent.connectionHistory.length = 0;
+               jsonfile.writeFileSync('ConnectionHistory.json', jsonContent);
+                window.location.reload();
+        });
+
+    </script>
+</body>
+
+</html>
