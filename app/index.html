@@ -38,10 +38,26 @@
 
                 <label class="label" for="serverName"> Server Name </label>
               <!--  <input type="text" id="serverName" name="server" value="river.cs.plu.edu"> -->
-                <input list="serverList" name="servers" id="serverName">
-                <datalist id="serverList">
+                <input list="serverList" id="serverName" type="text"/>
+                    <datalist id="serverList">
+                        <option value="Testing" />
+                    </datalist>
+                        <!--<script>
+                            // this will fill the choices with past server connections
+                            var fs = require("fs");
+                            var jsonfile = require("jsonfile");
+                            var list = '';
 
-                </datalist>
+                            var contents = fs.readFileSync("ConnectionHistory.json");
+                            var jsonContent = JSON.parse(contents);
+                            for(var i = 0; i < jsonContent.connectionHistory.length; i++) {
+                                list += '<option value="' + jsonContent.connectionHistory[i].host + '" />';
+                                console.log(jsonContent.connectionHistory[i].host);
+                            }
+
+                            document.getElementById("serverList").innerHTML = list;
+                        </script>-->
+
 
                 <br><br>
                 <input type="button" class="loginButton" id="login" onclick="loginFunction()" value="Log In">

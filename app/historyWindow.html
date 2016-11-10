@@ -59,6 +59,8 @@
         var contents = fs.readFileSync("ConnectionHistory.json");
         var jsonContent = JSON.parse(contents);
         console.log(jsonContent.connectionHistory);
+
+        // loads all history into text
         for(var i = 0; i < jsonContent.connectionHistory.length; i++){
             box.innerHTML += "<div class='checkboxAlign'><option id='json"+i+"'></div>Host: " + jsonContent.connectionHistory[i].host + " Port: " + jsonContent.connectionHistory[i].port +
             " Username: " + jsonContent.connectionHistory[i].username + " Time Accessed: " + jsonContent.connectionHistory[i].time +
@@ -71,7 +73,19 @@
         jQuery(document).on('click', ".removeAll", function() {
                jsonContent.connectionHistory.length = 0;
                jsonfile.writeFileSync('ConnectionHistory.json', jsonContent);
-                window.location.reload();
+            window.location.reload();
+        });
+
+        // remove selected
+        jQuery(document).on('click', ".removeSelected", function () {
+            for(var i = 0; i < jsonContent.connectionHistory.length; i++){
+                var temp = document.getElementById("json"+i);
+                if(temp.selected){
+                    jsonContent.connectionHistory.splice(i, 1);
+                    jsonfile.writeFile('ConnectionHistory.json', jsonContent);
+                    window.location.reload();
+                }
+            }
         });
 
     </script>
