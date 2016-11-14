@@ -108,7 +108,7 @@ function uploadFile() {
                 log.info("sftp conn closed" + "\n");
                 conn.close();
             });
-            read.pipe(write)
+            read.pipe(write);
         });
 }
 
@@ -119,22 +119,27 @@ function downloadFile(){
             var selectedFile = document.getElementById('serverFile');
             var pathToSend = document.getElementById('localFilePath');
 
-            //use sftp here
-            var read = sftp.createReadStream(selectedFile.value);
-            var write = fs.createWriteStream(pathToSend.value);
-
-            write.on('close',function (){
-                document.getElementById("area").innerHTML += selectedFile.value + "- file transferred successfully\n";
-                log.info(selectedFile.value + "- file transferred successfully\n");
-            });
-
-            write.on('end', function() {
-                document.getElementById("area").innerHTML += "sftp conn closed\n";
-                log.info("sftp conn closed\n");
-                conn.close();
-            });
-            read.pipe(write)
+            download(sftp, selectedFile.value, pathToSend.value) ;
         });
+}
+
+function download(sftp, selectedFile, pathToSend){
+    conn.sftp(function(err, sftp){
+        var read = sftp.createReadStream(selectedFile);
+        var write = fs.createWriteStream(pathToSend);
+
+        write.on('close',function (){
+            document.getElementById("area").innerHTML += selectedFile.value + "- file transferred successfully\n";
+            log.info(selectedFile.value + "- file transferred successfully\n");
+        });
+
+        write.on('end', function() {
+            document.getElementById("area").innerHTML += "sftp conn closed\n";
+            log.info("sftp conn closed\n");
+            conn.close();
+        });
+        read.pipe(write);
+    });
 }
 
 const {ipcRenderer} = require('electron');
@@ -153,3 +158,40 @@ function receiveInfo() {
 
 }
 
+function downloadFolder(){
+    conn.sftp(function(err, sftp){
+        if(err) throw err;
+        //get folder to download eg. dir0
+        var selectedFile = document.getElementById('serverFile');
+
+        //get folder to download location eg. C:/Users/Name/Desktop/dir0
+        var pathToSend = document.getElementById('localFilePath');
+
+        //creates base dir eg. makes C:/Users/Name/Desktop/dir0
+        fs.mkdir(pathToSend.value,function(err){});
+
+        //recursively go into each folder and create dir and download files inside it
+        recurDownload(sftp, selectedFile.value, pathToSend.value) ;
+    });
+}
+
+function recurDownload(sftp, selectedFile, pathToSend) {
+        sftp.readdir(selectedFile, function (err, list) {
+            if (err) throw err;
+            //for each file in the dir
+            for(var i=0; i<list.length; i++) {
+                //for each file, set new selected filename string and path to send string
+                var newPath = selectedFile + "/" + list[i].filename;
+                var newSend = pathToSend + "/" + list[i].filename;
+                //if file is a dir, create local copy, then recursively go into each folder and create dir and download files inside it
+                if (list[i].longname.toString().charAt(0) == "d") {
+                    fs.mkdir(newSend,function(err){});
+                    recurDownload(sftp, newPath, newSend);
+                }
+                //else, it is a file, so download it locally
+                else{
+                    download(sftp, newPath, newSend) ;
+                }
+            }
+        });
+}
