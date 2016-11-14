@@ -81,14 +81,24 @@
 
         // remove selected
         jQuery(document).on('click', ".removeSelected", function () {
+            contents = fs.readFileSync("ConnectionHistory.json");
+            jsonContent = JSON.parse(contents);
+
+            var selectArray = [];
             for(var i = 0; i < jsonContent.connectionHistory.length; i++){
                 var temp = document.getElementById("json"+i);
                 if(temp.selected){
-                    jsonContent.connectionHistory.splice(i, 1);
-                    jsonfile.writeFile('ConnectionHistory.json', jsonContent);
-                    window.location.reload();
+                    selectArray.push(i);
+                    //jsonContent.connectionHistory.splice(i, 1);
+                   // jsonfile.writeFile('ConnectionHistory.json', jsonContent);
                 }
             }
+
+            for(var i = selectArray.length-1; i >= 0; i--){
+                jsonContent.connectionHistory.splice(selectArray[i], 1);
+            }
+            jsonfile.writeFile('ConnectionHistory.json', jsonContent);
+            window.location.reload();
         });
 
         // connect here

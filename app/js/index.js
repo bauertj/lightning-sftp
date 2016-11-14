@@ -2,7 +2,7 @@
 
 var electron = require('electron');
 var Client = require('ssh2').Client;
-var conn = new Client();
+var conn;
 var log = require('electron-log');
 var fs = require("fs");
 var jsonfile = require('jsonfile');
@@ -21,25 +21,26 @@ var passwordHash = require('password-hash');
  }
  */
 
-var connSettings, uname, pass, server;
 
-// Sets up connection history json file
-var file = 'ConnectionHistory.json';
-var contents = fs.readFileSync("ConnectionHistory.json");
-var jsonContent = JSON.parse(contents);
+
+
 
 
 
 // Will attempt to connect to server when log in button is pressed
 // Connection will stay active ( for now )
 function loginFunction() {
-
-    conn.end();
-
+    conn = new Client();
+    var connSettings, uname, pass, server;
     // Initializes variables, gets from html
     uname = document.getElementById("username").value;
     pass = document.getElementById("password").value;
     server = document.getElementById("serverName").value;
+
+    // Sets up connection history json file
+    var file = 'ConnectionHistory.json';
+    var contents = fs.readFileSync("ConnectionHistory.json");
+    var jsonContent = JSON.parse(contents);
 
     // Initialize connection settings, default port for now is 22
     connSettings = {
@@ -77,8 +78,6 @@ function loginFunction() {
                document.getElementById("loginText").innerHTML = "Connected to " + server;
                jsonContent.connectionHistory.push(obj);
                jsonfile.writeFileSync(file, jsonContent);
-
-
            }).connect(connSettings);
        }
    } catch(err){
@@ -88,8 +87,6 @@ function loginFunction() {
 
 
 function uploadFile() {
-
-    conn.on('ready', function(){
         conn.sftp(function(err, sftp){
             if(err) throw err;
 
@@ -104,10 +101,6 @@ function uploadFile() {
                 document.getElementById("area").innerHTML += selectedFile.name + "- file transferred successfully" + "\n";
                 log.info(selectedFile.name + "- file transferred successfully" + "\n");
 
-                // adds connection to history
-                var history = fs.createWriteStream('ConnectionHistory.txt');
-                history.write(server+"\n");
-
             });
 
             write.on('end', function() {
@@ -117,13 +110,9 @@ function uploadFile() {
             });
             read.pipe(write)
         });
-    }).connect(connSettings);
-
 }
 
 function downloadFile(){
-
-    conn.on('ready', function(){
         conn.sftp(function(err, sftp){
             if(err) throw err;
 
@@ -146,8 +135,6 @@ function downloadFile(){
             });
             read.pipe(write)
         });
-    }).connect(connSettings);
-
 }
 
 const {ipcRenderer} = require('electron');
