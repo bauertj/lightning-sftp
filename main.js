@@ -26,10 +26,11 @@ const template = [
                 accelerator: 'CmdOrCtrl+N',
                 click() {
                     var connectionWindow = new BrowserWindow({
-                        height: 300,
+                        height: 350,
                         width: 350,
                         alwaysOnTop: true,
-                        resizable: false
+                        resizable: false,
+                        autoHideMenuBar: true
                     });
 
                     connectionWindow.loadURL('file://' + __dirname + '/app/connectionWindow.html');
@@ -103,4 +104,52 @@ ipcMain.on('open-history-window', function () {
         historyWindow = null;
     });
 
+});
+
+var connectionWindow = null;
+ipcMain.on('open-connection-window', function () {
+
+    if(connectionWindow){
+        return;
+    }
+
+    connectionWindow = new BrowserWindow({
+        height: 350,
+        width: 350,
+        alwaysOnTop: true,
+        resizable: false,
+        autoHideMenuBar: true
+    });
+
+    connectionWindow.loadURL('file://' + __dirname + '/app/connectionWindow.html');
+
+    connectionWindow.on('closed', function () {
+        connectionWindow = null;
+    });
+});
+
+var passwordWindow = null;
+ipcMain.on('open-enter-password-window', function () {
+
+    if(passwordWindow){
+        return;
+    }
+
+    passwordWindow = new BrowserWindow({
+        height: 100,
+        width: 275,
+        alwaysOnTop: true,
+        resizable: false,
+        autoHideMenuBar: true
+    });
+
+    passwordWindow.loadURL('file://' + __dirname + '/app/passwordWindow.html');
+
+    passwordWindow.on('closed', function () {
+        passwordWindow = null;
+    });
+});
+
+ipcMain.on('receive-info', function () {
+    console.log("Received Info");
 });

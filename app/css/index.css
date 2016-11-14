@@ -23,6 +23,35 @@
 	padding: 5px;
 }
 
-.loginButton{
+header{
+    padding: 5px;
+}
 
+.container > div {
+    display: inline-block;
+    zoom: 1; /* Trigger hasLayout */
+    margin-left: 2%;
+    width: 18%;
+    text-align: center;
+}
+
+.container > div:first-child {
+    margin-left: 0;
+}
+
+.btn {
+    border-radius: 28px;
+    text-shadow: 4px 3px 1px #666666;
+    font-family: Arial;
+    color: #ffffff;
+    font-size: 15px;
+    background: #59bd5c;
+    padding: 10px 20px 10px 20px;
+    text-decoration: none;
+}
+
+.btn:hover {
+    background: #3cb0fd;
+    background-image: linear-gradient(to bottom, #3cb0fd, #3498db);
+    text-decoration: none;
 }

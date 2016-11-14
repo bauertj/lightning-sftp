@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>New Connection</title>
+    <link href="css/index.css" rel="stylesheet" type="text/css"/>
 </head>
 <body>
     <form id="newConnectionForm">
@@ -23,17 +24,20 @@
             <!--  <input type="text" id="serverName" name="server" value="river.cs.plu.edu"> -->
             <input list="serverList" name="servers" id="serverName">
             <datalist id="serverList">
-
             </datalist>
 
             <br><br>
-            <input type="button" class="loginButton" id="login" onclick="loginFunction()" value="Connect">
-            <div id="loginText"></div>
+
+            <input type="checkbox" id="bookmarked">
+            Bookmark
+
+
+            <br><br>
+            <input type="button" class="loginButton" id="addNewLogin" value="Add">
 
         </fieldset>
     </form>
 
     <script src="js/index.js"></script>
-
 </body>
 </html>

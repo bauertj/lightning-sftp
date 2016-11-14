@@ -27,13 +27,13 @@
 
         }
 
-        .buttonBox{
-
+        .hidden{
+            visibility: hidden;
         }
 
     </style>
     <div id="connectionHistoryDiv" class="connectionDiv">
-        <select id="connectionHistoryInfo" class="historyBox" multiple>
+        <select id="connectionHistoryInfo" class="historyBox" multiple="multiple">
         </select>
 
         <br><br>
@@ -42,8 +42,11 @@
             <input type="button" class="removeAll" value="Remove All">
             <input type="button" class="removeSelected" value="Remove Selected">
             <input type="button" class="bookmarkSelected" value="Bookmark Selected">
-            <input type="button" class="connectHere" value="Connect Here">
+            <input type="button" class="connectHere" onclick="receiveInfo()" value="Connect Here">
         </div>
+        <div class="hidden" id="username"></div>
+        <div class="hidden" id="server"></div>
+        <div class="hidden" id="port"></div>
 
     </div>
 
@@ -88,7 +91,51 @@
             }
         });
 
+        // connect here
+        const {ipcRenderer} = require('electron');
+
+
+
+            var settingsEl = document.querySelector('.connectHere');
+            settingsEl.addEventListener('click', function () {
+                var selections = document.getElementById("connectionHistoryInfo");
+
+                var opts = [], opt;
+
+                var position;
+                // loop through options in select list
+                for (var i=0, len=selections.options.length; i<len; i++) {
+                    opt = selections.options[i];
+
+                    // check if selected
+                    if ( opt.selected ) {
+                        // add to array of option elements to return from this function
+                        opts.push(opt);
+
+                        position = i;
+                    }
+                }
+
+                if(opts.length > 1){
+                    console.log("Only 1 connection");
+                    alert("Only 1 connection");
+                }
+                else if(opts.length == 0){
+                    console.log("Select 1 connection");
+                    alert("Select 1 connection");
+                }
+                else {
+                    document.getElementById("username").innerHTML = jsonContent.connectionHistory[position].username;
+                    document.getElementById("server").innerHTML = jsonContent.connectionHistory[position].host;
+                    document.getElementById("port").innerHTML = jsonContent.connectionHistory[position].port;
+                    ipcRenderer.send('open-enter-password-window');
+                }
+            });
+
+
     </script>
+
+    <script src="js/index.js"></script>
 </body>
 
 </html>

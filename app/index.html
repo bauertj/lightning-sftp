@@ -20,7 +20,18 @@
 
 	<body>
 		
-			<h1>Lightning SFTP</h1>
+        <header>
+            <form>
+                <div class="container">
+                    <div><input type="button" id="newConnection" value="New Connection" class="btn"></div>
+                    <div><input type="button" id="ftp" value="FTP" class="btn"></div>
+                    <div><input type="button" id="webdav" value="Web Dav" class="btn"></div>
+                    <div><input type="button" value="Connection History" id="connection" class="btn"></div>
+                    <div><input type="button" value="Bookmarks" id="bookmark" class="btn"></div>
+                </div>
+
+            </form>
+        </header>
 
 		<form id="frm1">
             <fieldset id="userInfo">
@@ -57,9 +68,12 @@
 
                             document.getElementById("serverList").innerHTML = list;
                         </script>-->
-
+                <br><br>
+                <label class="label" for="port"> Port </label>
+                <input type="text" id="port" size="10">
 
                 <br><br>
+                <label class="label">&nbsp;</label>
                 <input type="button" class="loginButton" id="login" onclick="loginFunction()" value="Log In">
                 <div id="loginText"></div>
             </fieldset>
@@ -100,7 +114,7 @@
             <br>
             <input type="button" id="download" onclick="downloadFile()" value="Download">
             <input type="button" id="upload" onclick="uploadFile()" value="Upload">
-            <input type="button" value="Connection History" class="connection">
+
             <br><br>
             <textarea id="area" cols="100" rows="15" disabled></textarea>
 
