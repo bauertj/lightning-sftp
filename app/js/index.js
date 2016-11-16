@@ -129,7 +129,7 @@ function upload(sftp, selectedFile, pathToSend){
     var write = sftp.createWriteStream(pathToSend);
 
     write.on('close',function (){
-        document.getElementById("area").innerHTML += selectedFile.name + "- file transferred successfully" + "\n";
+        document.getElementById("area").innerHTML += selectedFile + "- file transferred successfully" + "\n";
         log.info(selectedFile.name + "- file transferred successfully" + "\n");
 
     });
