@@ -85,6 +85,16 @@ function loginFunction() {
    }
 }
 
+function downloadFile(){
+    conn.sftp(function(err, sftp){
+        if(err) throw err;
+
+        var selectedFile = document.getElementById('serverFile');
+        var pathToSend = document.getElementById('localFilePath');
+
+        download(sftp, selectedFile.value, pathToSend.value) ;
+    });
+}
 
 function uploadFile() {
         conn.sftp(function(err, sftp){
@@ -92,68 +102,44 @@ function uploadFile() {
 
             var selectedFile = document.getElementById('localFileDir').files[0];
             var pathToSend = document.getElementById('uploadReceiverPath');
-            console.log(pathToSend.value);
-            //use sftp here
-            var read = fs.createReadStream(selectedFile.path);
-            var write = sftp.createWriteStream(pathToSend.value);
 
-            write.on('close',function (){
-                document.getElementById("area").innerHTML += selectedFile.name + "- file transferred successfully" + "\n";
-                log.info(selectedFile.name + "- file transferred successfully" + "\n");
-
-            });
-
-            write.on('end', function() {
-                document.getElementById("area").innerHTML += "sftp conn closed" + "\n";
-                log.info("sftp conn closed" + "\n");
-                conn.close();
-            });
-            read.pipe(write);
-        });
-}
-
-function downloadFile(){
-        conn.sftp(function(err, sftp){
-            if(err) throw err;
-
-            var selectedFile = document.getElementById('serverFile');
-            var pathToSend = document.getElementById('localFilePath');
-
-            download(sftp, selectedFile.value, pathToSend.value) ;
+            upload(sftp, selectedFile.path, pathToSend.value);
         });
 }
 
 function download(sftp, selectedFile, pathToSend){
-        var read = sftp.createReadStream(selectedFile);
-        var write = fs.createWriteStream(pathToSend);
+    var read = sftp.createReadStream(selectedFile);
+    var write = fs.createWriteStream(pathToSend);
 
-        write.on('close',function (){
-            document.getElementById("area").innerHTML += selectedFile + "- file transferred successfully\n";
-            log.info(selectedFile + "- file transferred successfully\n");
-        });
+    write.on('close',function (){
+        document.getElementById("area").innerHTML += selectedFile + "- file transferred successfully\n";
+        log.info(selectedFile + "- file transferred successfully\n");
+    });
 
-        write.on('end', function() {
-            document.getElementById("area").innerHTML += "sftp conn closed\n";
-            log.info("sftp conn closed\n");
-            conn.close();
-        });
-        read.pipe(write);
+    write.on('end', function() {
+        document.getElementById("area").innerHTML += "sftp conn closed\n";
+        log.info("sftp conn closed\n");
+        conn.close();
+    });
+    read.pipe(write);
 }
 
-const {ipcRenderer} = require('electron');
+function upload(sftp, selectedFile, pathToSend){
+    var read = fs.createReadStream(selectedFile);
+    var write = sftp.createWriteStream(pathToSend);
 
-var settingsEl = document.querySelector('#connection');
-settingsEl.addEventListener('click', function () {
-    ipcRenderer.send('open-history-window');
-});
+    write.on('close',function (){
+        document.getElementById("area").innerHTML += selectedFile.name + "- file transferred successfully" + "\n";
+        log.info(selectedFile.name + "- file transferred successfully" + "\n");
 
-var settingsE2 = document.querySelector('#newConnection');
-settingsE2.addEventListener('click', function () {
-   ipcRenderer.send('open-connection-window');
-});
+    });
 
-function receiveInfo() {
-
+    write.on('end', function() {
+        document.getElementById("area").innerHTML += "sftp conn closed" + "\n";
+        log.info("sftp conn closed" + "\n");
+        conn.close();
+    });
+    read.pipe(write);
 }
 
 function downloadFolder(){
@@ -173,23 +159,82 @@ function downloadFolder(){
     });
 }
 
-function recurDownload(sftp, selectedFile, pathToSend) {
-        sftp.readdir(selectedFile, function (err, list) {
-            if (err) throw err;
-            //for each file in the dir
-            for(var i=0; i<list.length; i++) {
-                //for each file, set new selected filename string and path to send string
-                var newPath = selectedFile + "/" + list[i].filename;
-                var newSend = pathToSend + "/" + list[i].filename;
-                //if file is a dir, create local copy, then recursively go into each folder and create dir and download files inside it
-                if (list[i].longname.toString().charAt(0) == "d") {
-                    fs.mkdir(newSend,function(err){});
-                    recurDownload(sftp, newPath, newSend);
-                }
-                //else, it is a file, so download it locally
-                else{
-                    download(sftp, newPath, newSend) ;
-                }
+function uploadFolder(){
+    conn.sftp(function(err, sftp){
+        if(err) throw err;
+        //get folder to download eg. dir0
+        var selectedFile = document.getElementById('uploadLocalPath');
+
+        //get folder to download location eg. C:/Users/Name/Desktop/dir0
+        var pathToSend = document.getElementById('uploadReceiverPath');
+
+        //creates base dir eg. makes C:/Users/Name/Desktop/dir0
+        sftp.mkdir(pathToSend.value,function(err){});
+
+        //recursively go into each folder and create dir and download files inside it
+        recurUpload(sftp, selectedFile.value, pathToSend.value) ;
+        //console.log("pathToSend = " + pathToSend.value);
+        //console.log("selectedFile = " + selectedFile.value);
+    });
+}
+
+function recurUpload(sftp, selectedFile, pathToSend){
+    fs.readdir(selectedFile, function (err, files) {
+        if (err) throw err;
+        //console.log(files) ;
+
+        //for each file in the dir
+        for(var i=0; i<files.length; i++) {
+            //for each file, set new selected filename string and path to send string
+            var newPath = selectedFile + "/" + files[i];
+            var newSend = pathToSend + "/" + files[i];
+            //if file is a dir, create local copy, then recursively go into each folder and create dir and download files inside it
+            if (fs.lstatSync(newPath).isDirectory()) {
+                sftp.mkdir(newSend,function(err){});
+                recurUpload(sftp, newPath, newSend);
             }
-        });
+            //else, it is a file, so download it locally
+            else{
+                upload(sftp, newPath, newSend) ;
+            }
+            //console.log("file logged: " + files[i] );
+        }
+    });
+}
+
+function recurDownload(sftp, selectedFile, pathToSend) {
+    sftp.readdir(selectedFile, function (err, list) {
+        if (err) throw err;
+        //for each file in the dir
+        for(var i=0; i<list.length; i++) {
+            //for each file, set new selected filename string and path to send string
+            var newPath = selectedFile + "/" + list[i].filename;
+            var newSend = pathToSend + "/" + list[i].filename;
+            //if file is a dir, create local copy, then recursively go into each folder and create dir and download files inside it
+            if (list[i].longname.toString().charAt(0) == "d") {
+                fs.mkdir(newSend,function(err){});
+                recurDownload(sftp, newPath, newSend);
+            }
+            //else, it is a file, so download it locally
+            else{
+                download(sftp, newPath, newSend) ;
+            }
+        }
+    });
+}
+
+const {ipcRenderer} = require('electron');
+
+var settingsEl = document.querySelector('#connection');
+settingsEl.addEventListener('click', function () {
+    ipcRenderer.send('open-history-window');
+});
+
+var settingsE2 = document.querySelector('#newConnection');
+settingsE2.addEventListener('click', function () {
+   ipcRenderer.send('open-connection-window');
+});
+
+function receiveInfo() {
+
 }
