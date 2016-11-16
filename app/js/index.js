@@ -124,13 +124,12 @@ function downloadFile(){
 }
 
 function download(sftp, selectedFile, pathToSend){
-    conn.sftp(function(err, sftp){
         var read = sftp.createReadStream(selectedFile);
         var write = fs.createWriteStream(pathToSend);
 
         write.on('close',function (){
-            document.getElementById("area").innerHTML += selectedFile.value + "- file transferred successfully\n";
-            log.info(selectedFile.value + "- file transferred successfully\n");
+            document.getElementById("area").innerHTML += selectedFile + "- file transferred successfully\n";
+            log.info(selectedFile + "- file transferred successfully\n");
         });
 
         write.on('end', function() {
@@ -139,7 +138,6 @@ function download(sftp, selectedFile, pathToSend){
             conn.close();
         });
         read.pipe(write);
-    });
 }
 
 const {ipcRenderer} = require('electron');
