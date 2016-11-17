@@ -17,6 +17,7 @@ app.on('ready', function() {
     mainWindow.loadURL('file://' + __dirname + '/app/index.html');
 });
 
+
 const template = [
     {
         label: 'File',
@@ -85,6 +86,7 @@ ipcMain.on('close-main-window', function () {
 });
 
 
+
 var historyWindow = null;
 ipcMain.on('open-history-window', function () {
 
@@ -103,6 +105,13 @@ ipcMain.on('open-history-window', function () {
     historyWindow.on('closed', function () {
         historyWindow = null;
     });
+
+});
+
+ipcMain.on('close-history-window', function (arg) {
+
+    mainWindow.webContents.send('close-history-window', arg);
+    historyWindow.close();
 
 });
 
@@ -127,6 +136,9 @@ ipcMain.on('open-connection-window', function () {
         connectionWindow = null;
     });
 });
+ipcMain.on('close-connection-window', function () {
+   connectionWindow = null;
+});
 
 var passwordWindow = null;
 ipcMain.on('open-enter-password-window', function () {
@@ -139,7 +151,7 @@ ipcMain.on('open-enter-password-window', function () {
         height: 100,
         width: 275,
         alwaysOnTop: true,
-        resizable: false,
+        resizable: true,
         autoHideMenuBar: true
     });
 
@@ -148,6 +160,9 @@ ipcMain.on('open-enter-password-window', function () {
     passwordWindow.on('closed', function () {
         passwordWindow = null;
     });
+});
+ipcMain.on('close-password-window', function () {
+    passwordWindow.close();
 });
 
 ipcMain.on('receive-info', function () {

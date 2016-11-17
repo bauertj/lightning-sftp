@@ -23,24 +23,12 @@ var passwordHash = require('password-hash');
 
 
 
-
-
-
-
-// Will attempt to connect to server when log in button is pressed
-// Connection will stay active ( for now )
-function loginFunction() {
-    conn = new Client();
+function getLoginInfo(){
     var connSettings, uname, pass, server;
     // Initializes variables, gets from html
     uname = document.getElementById("username").value;
     pass = document.getElementById("password").value;
     server = document.getElementById("serverName").value;
-
-    // Sets up connection history json file
-    var file = 'ConnectionHistory.json';
-    var contents = fs.readFileSync("ConnectionHistory.json");
-    var jsonContent = JSON.parse(contents);
 
     // Initialize connection settings, default port for now is 22
     connSettings = {
@@ -50,7 +38,6 @@ function loginFunction() {
         password:   pass
     };
 
-    // Creates a hashed password using password-hash
     var hashedPassword = passwordHash.generate(pass);
 
     if(passwordHash.verify(pass, hashedPassword)){
@@ -60,28 +47,44 @@ function loginFunction() {
         console.log("False");
     }
 
+    return connSettings;
+}
+
+
+
+// Will attempt to connect to server when log in button is pressed
+// Connection will stay active ( for now )
+function loginFunction( connSettings ) {
+    conn = new Client();
+
+    // Sets up connection history json file
+    var file = 'ConnectionHistory.json';
+    var contents = fs.readFileSync("ConnectionHistory.json");
+    var jsonContent = JSON.parse(contents);
+
+
     // Retrieves current date and adds to JSON file for connection history data
     var curDate = new Date();
     var curTime = curDate.getHours()+":"+curDate.getMinutes()+":"+curDate.getSeconds();
     var curDay = (curDate.getMonth()+1) + "-" + curDate.getDate() + "-" + (curDate.getYear()+1900);
-    var obj = {host: connSettings.host, port: connSettings.port, username: connSettings.username, password: hashedPassword, time: curTime, day: curDay};
+    var obj = {host: connSettings.host, port: connSettings.port, username: connSettings.username, password: "", time: curTime, day: curDay};
 
 
     // Connects to server with connection settings the user inputted, pushes connection onto ConnectionHistory JSON file
    try {
-       if(server=="" || uname=="" || pass==""){
+       if(connSettings.host=="" || connSettings.username=="" || connSettings.password==""){
            alert("Please enter all required information");
        }
        else {
            conn.on('ready', function (err) {
                console.log("You are now connected");
-               document.getElementById("loginText").innerHTML = "Connected to " + server;
+               document.getElementById("loginText").innerHTML = "Connected to " + connSettings.host;
                jsonContent.connectionHistory.push(obj);
                jsonfile.writeFileSync(file, jsonContent);
            }).connect(connSettings);
        }
    } catch(err){
-       alert(err);
+       throw err;
    }
 }
 
@@ -140,21 +143,7 @@ function download(sftp, selectedFile, pathToSend){
         read.pipe(write);
 }
 
-const {ipcRenderer} = require('electron');
 
-var settingsEl = document.querySelector('#connection');
-settingsEl.addEventListener('click', function () {
-    ipcRenderer.send('open-history-window');
-});
-
-var settingsE2 = document.querySelector('#newConnection');
-settingsE2.addEventListener('click', function () {
-   ipcRenderer.send('open-connection-window');
-});
-
-function receiveInfo() {
-
-}
 
 function downloadFolder(){
     conn.sftp(function(err, sftp){
@@ -192,4 +181,27 @@ function recurDownload(sftp, selectedFile, pathToSend) {
                 }
             }
         });
+}
+
+
+function loginFromHistoryWindow(){
+    var newUsername, newServer, newPort, newPassword;
+
+    newUsername = document.getElementById("username").value;
+    newServer = document.getElementById("server").value;
+    newPort = document.getElementById("port").value;
+    newPassword = document.getElementById("newPassword").value;
+    console.log(newUsername + " " + newServer + " " + newPort);
+
+    var connSettings = {
+        host:       newServer,
+        port:       22,
+        username:   newUsername,
+        password:   newPassword
+    };
+
+    ipcRenderer.send('close-history-window', loginFunction(connSettings));
+
+
+
 }

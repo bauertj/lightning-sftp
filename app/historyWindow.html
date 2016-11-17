@@ -42,11 +42,12 @@
             <input type="button" class="removeAll" value="Remove All">
             <input type="button" class="removeSelected" value="Remove Selected">
             <input type="button" class="bookmarkSelected" value="Bookmark Selected">
-            <input type="button" class="connectHere" onclick="receiveInfo()" value="Connect Here">
+            <input type="button" class="connectHere" onclick="updateInfo()" value="Connect Here">
+            <div id="enterPassword"></div>
         </div>
-        <div class="hidden" id="username"></div>
-        <div class="hidden" id="server"></div>
-        <div class="hidden" id="port"></div>
+        <textarea class="hidden" id="username"></textarea>
+        <textarea class="hidden" id="server"></textarea>
+        <textarea class="hidden" id="port"></textarea>
 
     </div>
 
@@ -105,42 +106,42 @@
         const {ipcRenderer} = require('electron');
 
 
+       function updateInfo(){
+            var selections = document.getElementById("connectionHistoryInfo");
 
-            var settingsEl = document.querySelector('.connectHere');
-            settingsEl.addEventListener('click', function () {
-                var selections = document.getElementById("connectionHistoryInfo");
+            var opts = [], opt;
 
-                var opts = [], opt;
+            var position;
+            // loop through options in select list
+            for (var i=0, len=selections.options.length; i<len; i++) {
+                opt = selections.options[i];
 
-                var position;
-                // loop through options in select list
-                for (var i=0, len=selections.options.length; i<len; i++) {
-                    opt = selections.options[i];
+                // check if selected
+                if ( opt.selected ) {
+                    // add to array of option elements to return from this function
+                    opts.push(opt);
 
-                    // check if selected
-                    if ( opt.selected ) {
-                        // add to array of option elements to return from this function
-                        opts.push(opt);
-
-                        position = i;
-                    }
+                    position = i;
                 }
+            }
 
-                if(opts.length > 1){
-                    console.log("Only 1 connection");
-                    alert("Only 1 connection");
-                }
-                else if(opts.length == 0){
-                    console.log("Select 1 connection");
-                    alert("Select 1 connection");
-                }
-                else {
-                    document.getElementById("username").innerHTML = jsonContent.connectionHistory[position].username;
-                    document.getElementById("server").innerHTML = jsonContent.connectionHistory[position].host;
-                    document.getElementById("port").innerHTML = jsonContent.connectionHistory[position].port;
-                    ipcRenderer.send('open-enter-password-window');
-                }
-            });
+            if(opts.length > 1){
+                console.log("Only 1 connection");
+                alert("Only 1 connection");
+            }
+            else if(opts.length == 0){
+                console.log("Select 1 connection");
+                alert("Select 1 connection");
+            }
+            else {
+                document.getElementById("username").innerHTML = jsonContent.connectionHistory[position].username;
+                document.getElementById("server").innerHTML = jsonContent.connectionHistory[position].host;
+                document.getElementById("port").innerHTML = jsonContent.connectionHistory[position].port;
+                document.getElementById("enterPassword").innerHTML = '<br>Enter Password: &nbsp; <input type="password" id="newPassword" autofocus>&nbsp;<input type="button" id="loginAgain" onclick="loginFromHistoryWindow()" value="Go">';
+            }
+        }
+
+
 
 
     </script>
