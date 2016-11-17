@@ -88,13 +88,13 @@
 
                 <br><br>
 
-                    <!--<label for="filename"> File name </label>
-                    <input type="text" id="filename" name="file">
+                    <label class="label" for="uploadLocalPath"> Local Dir Path </label>
+                    <input type="text" id="uploadLocalPath" name="localPath">
 
-                <br><br>-->
+                <br><br>
 
                     <label class="label" for="uploadReceiverPath"> Receiver Path </label>
-                    <input type="text" id="uploadReceiverPath" name="localPath">
+                    <input type="text" id="uploadReceiverPath" name="remotePath">
 
 			</fieldset>
 
@@ -115,6 +115,7 @@
             <input type="button" id="download" onclick="downloadFile()" value="Download">
             <input type="button" id="upload" onclick="uploadFile()" value="Upload">
             <input type="button" id="recurDL" onclick="downloadFolder()" value="RecursiveDL">
+            <input type="button" id="recurUL" onclick="uploadFolder()" value="RecursiveUL">
 
             <br><br>
             <textarea id="area" cols="100" rows="15" disabled></textarea>
