@@ -5,6 +5,7 @@ var app = electron.app;
 var BrowserWindow = electron.BrowserWindow;
 var mainWindow = null;
 var {Menu} = require('electron');
+var fs = require('fs');
 
 app.on('ready', function() {
     mainWindow = new BrowserWindow({
@@ -12,6 +13,15 @@ app.on('ready', function() {
         width: 1500,
         fullscreenable: false,
         title: "Lightning SFTP"
+    });
+
+    fs.stat("ConnectionHistory.json", function (err, stat) {
+        if(err == null){
+            console.log("File Exists");
+        }
+        else if(err.code == 'ENOENT'){
+            fs.writeFile("ConnectionHistory.json", '{"connectionHistory":[]}');
+        }
     });
 
     mainWindow.loadURL('file://' + __dirname + '/app/index.html');

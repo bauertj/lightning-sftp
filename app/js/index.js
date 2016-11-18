@@ -22,7 +22,6 @@ var passwordHash = require('password-hash');
  */
 
 
-
 function getLoginInfo(){
     var connSettings, uname, pass, server;
     // Initializes variables, gets from html
@@ -59,10 +58,10 @@ function loginFunction( connSettings ) {
 
     // Sets up connection history json file
     var file = 'ConnectionHistory.json';
+
     var contents = fs.readFileSync("ConnectionHistory.json");
     var jsonContent = JSON.parse(contents);
-
-
+    
     // Retrieves current date and adds to JSON file for connection history data
     var curDate = new Date();
     var curTime = curDate.getHours()+":"+curDate.getMinutes()+":"+curDate.getSeconds();
