@@ -118,11 +118,9 @@ ipcMain.on('open-history-window', function () {
 
 });
 
-ipcMain.on('close-history-window', function (arg) {
-
+ipcMain.on('close-history-window', function (event, arg) {
     mainWindow.webContents.send('close-history-window', arg);
     historyWindow.close();
-
 });
 
 var connectionWindow = null;

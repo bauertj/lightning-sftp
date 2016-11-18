@@ -10,6 +10,6 @@ settingsE2.addEventListener('click', function () {
     ipcRenderer.send('open-connection-window');
 });
 
-ipcRenderer.on('close-history-window', function (arg) {
-
+ipcRenderer.on('close-history-window', function (event, arg) {
+    loginFunction(arg);
 });

@@ -61,7 +61,7 @@ function loginFunction( connSettings ) {
 
     var contents = fs.readFileSync("ConnectionHistory.json");
     var jsonContent = JSON.parse(contents);
-    
+
     // Retrieves current date and adds to JSON file for connection history data
     var curDate = new Date();
     var curTime = curDate.getHours()+":"+curDate.getMinutes()+":"+curDate.getSeconds();
@@ -243,7 +243,7 @@ function loginFromHistoryWindow(){
         password:   newPassword
     };
 
-    ipcRenderer.send('close-history-window', loginFunction(connSettings));
+    ipcRenderer.send('close-history-window', connSettings);
 
 
 
