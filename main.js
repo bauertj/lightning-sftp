@@ -9,7 +9,7 @@ var fs = require('fs');
 
 app.on('ready', function() {
     mainWindow = new BrowserWindow({
-        height: 900,
+        height: 1100,
         width: 1500,
         fullscreenable: false,
         title: "Lightning SFTP"
@@ -175,4 +175,21 @@ ipcMain.on('close-password-window', function () {
 
 ipcMain.on('receive-info', function () {
     console.log("Received Info");
+});
+
+var bookmarksWindow = null;
+ipcMain.on('open-bookmarks-window', function () {
+    if(bookmarksWindow){
+        return;
+    }
+
+    bookmarksWindow = new BrowserWindow({
+        autoHideMenuBar: true
+    });
+
+    bookmarksWindow.loadURL('file://' + __dirname + '/app/bookmarksWindow.html');
+
+    bookmarksWindow.on('closed', function () {
+        bookmarksWindow = null;
+    });
 });

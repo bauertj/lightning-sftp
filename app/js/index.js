@@ -106,6 +106,8 @@ function uploadFile() {
         var selectedFile = document.getElementById('localFileDir').files[0];
         var pathToSend = document.getElementById('uploadReceiverPath');
 
+
+
         upload(sftp, selectedFile.path, pathToSend.value);
     });
 }
@@ -113,6 +115,12 @@ function uploadFile() {
 function download(sftp, selectedFile, pathToSend){
     var read = sftp.createReadStream(selectedFile);
     var write = fs.createWriteStream(pathToSend);
+
+    fs.readFile(pathToSend, function (err, file) {
+        if(err) throw err;
+
+        console.log(file);
+    })
 
     write.on('close',function (){
         document.getElementById("area").innerHTML += selectedFile + "- file transferred successfully\n";
@@ -186,11 +194,53 @@ function recurUpload(sftp, selectedFile, pathToSend){
         if (err) throw err;
         //console.log(files) ;
 
+        document.getElementById("myBar").style.width = 1 + '%';
+
+        var size = 0;
+        var amountOfItems = 0;
+
+        for(var i = 0; i < files.length; i++){
+            // Total size of the folder being downloaded, sum of all the files within folder will be recursively solved
+            var temp = fs.lstatSync(selectedFile + "/" + files[i]);
+
+            size += temp["size"];
+            amountOfItems++;
+        }
+
+        var percentage = 0;
+
         //for each file in the dir
         for(var i=0; i<files.length; i++) {
             //for each file, set new selected filename string and path to send string
             var newPath = selectedFile + "/" + files[i];
             var newSend = pathToSend + "/" + files[i];
+
+            var stat = fs.lstatSync(newPath);
+            var fileSize = stat["size"];
+            percentage += fileSize / size;
+
+            var elem = document.getElementById("myBar");
+            var width = 1;
+            var id = setInterval(frame, 10);
+            //noinspection JSAnnotator
+            function frame() {
+                if (width >= 100) {
+                    clearInterval(id);
+                } else {
+                    width++;
+                    elem.style.width = (percentage * 100) + '%';
+                }
+            }
+
+            setTimeout(function()
+            {
+                var textArea = document.getElementById('area');
+                textArea.scrollTop = textArea.scrollHeight;
+            }, 10);
+
+            document.getElementById('numberOfItems').innerHTML = (i + 1) + " / " + amountOfItems + "<br>" + newSend ;
+
+
             //if file is a dir, create local copy, then recursively go into each folder and create dir and download files inside it
             if (fs.lstatSync(newPath).isDirectory()) {
                 sftp.mkdir(newSend,function(err){});
@@ -205,14 +255,57 @@ function recurUpload(sftp, selectedFile, pathToSend){
     });
 }
 
+var size = 0;
 function recurDownload(sftp, selectedFile, pathToSend) {
     sftp.readdir(selectedFile, function (err, list) {
         if (err) throw err;
+
+
+        document.getElementById("myBar").style.width = 1 + '%';
+
+        size = 0;
+        var amountOfItems = 0;
+
+        for(var i = 0; i < list.length; i++){
+            // Total size of the folder being downloaded, sum of all the files within folder will be recursively solved
+            size += list[i].attrs.size;
+            amountOfItems++;
+        }
+
+        var percentage = 0;
+
         //for each file in the dir
         for(var i=0; i<list.length; i++) {
             //for each file, set new selected filename string and path to send string
             var newPath = selectedFile + "/" + list[i].filename;
             var newSend = pathToSend + "/" + list[i].filename;
+
+            var fileSize = list[i].attrs.size;
+            percentage += fileSize / size;
+
+            var elem = document.getElementById("myBar");
+            var width = 1;
+            var id = setInterval(frame, 10);
+            //noinspection JSAnnotator
+            function frame() {
+                if (width >= 100) {
+                    clearInterval(id);
+                } else {
+                    width++;
+                    elem.style.width = (percentage * 100) + '%';
+                }
+            }
+
+            setTimeout(function()
+            {
+                var textArea = document.getElementById('area');
+                textArea.scrollTop = textArea.scrollHeight;
+            }, 10);
+
+            document.getElementById('numberOfItems').innerHTML = (i + 1) + " / " + amountOfItems + "<br>" + newPath ;
+
+
+
             //if file is a dir, create local copy, then recursively go into each folder and create dir and download files inside it
             if (list[i].longname.toString().charAt(0) == "d") {
                 fs.mkdir(newSend,function(err){});
@@ -223,7 +316,22 @@ function recurDownload(sftp, selectedFile, pathToSend) {
                 download(sftp, newPath, newSend) ;
             }
         }
+
     });
+}
+
+function move() {
+    var elem = document.getElementById("myBar");
+    var width = 1;
+    var id = setInterval(frame, 10);
+    function frame() {
+        if (width >= 100) {
+            clearInterval(id);
+        } else {
+            width++;
+            elem.style.width = width + '%';
+        }
+    }
 }
 
 

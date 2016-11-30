@@ -48,10 +48,33 @@ header{
     background: #59bd5c;
     padding: 10px 20px 10px 20px;
     text-decoration: none;
+    width: 100%;
 }
 
 .btn:hover {
     background: #3cb0fd;
     background-image: linear-gradient(to bottom, #3cb0fd, #3498db);
     text-decoration: none;
+}
+
+footer{
+    border-top: 1px solid black;
+}
+
+#myProgress {
+    position: relative;
+    width: 20%;
+    height: 30px;
+    background-color: grey;
+    margin-top:25px;
+}
+#myBar {
+    position: absolute;
+    width: 1%;
+    height: 100%;
+    background-color: green;
+}
+
+textarea{
+    overflow: auto;
 }

@@ -10,6 +10,12 @@ settingsE2.addEventListener('click', function () {
     ipcRenderer.send('open-connection-window');
 });
 
+var settingsE3 = document.querySelector('#bookmark');
+settingsE3.addEventListener('click', function () {
+   ipcRenderer.send('open-bookmarks-window');
+});
+
 ipcRenderer.on('close-history-window', function (event, arg) {
     loginFunction(arg);
 });
+
