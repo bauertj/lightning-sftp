@@ -356,3 +356,22 @@ function loginFromHistoryWindow(){
 
 
 }
+
+function loginFromBookmarksWindow() {
+    var newUsername, newServer, newPort, newPassword;
+
+    newUsername = document.getElementById("username").value;
+    newServer = document.getElementById("server").value;
+    newPort = document.getElementById("port").value;
+    newPassword = document.getElementById("newPassword").value;
+    console.log(newUsername + " " + newServer + " " + newPort);
+
+    var connSettings = {
+        host:       newServer,
+        port:       22,
+        username:   newUsername,
+        password:   newPassword
+    };
+
+    ipcRenderer.send('close-bookmarks-window', connSettings);
+}

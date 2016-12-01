@@ -23,6 +23,14 @@ app.on('ready', function() {
             fs.writeFile("ConnectionHistory.json", '{"connectionHistory":[]}');
         }
     });
+    fs.stat("Bookmarks.json", function (err, stat) {
+        if(err == null){
+            console.log("File Exists");
+        }
+        else if(err.code == 'ENOENT'){
+            fs.writeFile("Bookmarks.json", '{"Bookmarks":[]}');
+        }
+    });
 
     mainWindow.loadURL('file://' + __dirname + '/app/index.html');
 });
@@ -192,4 +200,8 @@ ipcMain.on('open-bookmarks-window', function () {
     bookmarksWindow.on('closed', function () {
         bookmarksWindow = null;
     });
+});
+ipcMain.on('close-bookmarks-window', function (event, arg) {
+    mainWindow.webContents.send('close-bookmarks-window', arg);
+   bookmarksWindow.close();
 });

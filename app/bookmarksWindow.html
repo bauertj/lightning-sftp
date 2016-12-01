@@ -5,6 +5,140 @@
     <title>Bookmarks</title>
 </head>
 <body>
+<style>
+    .historyBox{
+        border: 1px solid black;
+        position: relative;
+        height: 75%;
+        width: 95%;
+        margin-right: 10px;
+        overflow: scroll;
+    }
 
+    .connectionDiv{
+        position: absolute;
+        display: inline;
+        height: 75%;
+        width: 95%;
+    }
+    .checkboxAlign{
+        display: inline-block;
+
+    }
+
+    .hidden{
+        visibility: hidden;
+    }
+
+</style>
+<div id="connectionHistoryDiv" class="connectionDiv">
+    <select id="connectionHistoryInfo" class="historyBox" multiple="multiple">
+    </select>
+
+    <br><br>
+
+    <div class="buttonBox">
+        <input type="button" class="removeAll" value="Remove All">
+        <input type="button" class="removeSelected" value="Remove Selected">
+        <input type="button" class="connectHere" onclick="updateInfo()" value="Connect Here">
+        <div id="enterPassword"></div>
+    </div>
+    <textarea class="hidden" id="username"></textarea>
+    <textarea class="hidden" id="server"></textarea>
+    <textarea class="hidden" id="port"></textarea>
+
+</div>
+
+<script>
+    var box = document.getElementById("connectionHistoryInfo");
+
+    var fs = require("fs");
+    var jQuery = require("jquery");
+    var jsonfile = require("jsonfile");
+
+    var contents = fs.readFileSync("Bookmarks.json");
+    var jsonContent = JSON.parse(contents);
+    console.log(jsonContent.Bookmarks);
+
+    // loads all bookmarks into text
+    for(var i = 0; i < jsonContent.Bookmarks.length; i++){
+        box.innerHTML += "<div class='checkboxAlign'><option id='json"+i+"'></div>Username: " + jsonContent.Bookmarks[i].username +
+                " Host: " + jsonContent.Bookmarks[i].host + " Port: " + jsonContent.Bookmarks[i].port + "</option><br>";
+    }
+
+    // removes all bookmarks
+    jQuery(document).on('click', ".removeAll", function() {
+        jsonContent.Bookmarks.length = 0;
+        jsonfile.writeFileSync('Bookmarks.json', jsonContent);
+        window.location.reload();
+    });
+
+    // remove selected
+    jQuery(document).on('click', ".removeSelected", function () {
+        contents = fs.readFileSync("Bookmarks.json");
+        jsonContent = JSON.parse(contents);
+
+        var selectArray = [];
+        for(var i = 0; i < jsonContent.Bookmarks.length; i++){
+            var temp = document.getElementById("json"+i);
+            if(temp.selected){
+                selectArray.push(i);
+                //jsonContent.connectionHistory.splice(i, 1);
+                // jsonfile.writeFile('ConnectionHistory.json', jsonContent);
+            }
+        }
+
+        for(var i = selectArray.length-1; i >= 0; i--){
+            jsonContent.Bookmarks.splice(selectArray[i], 1);
+        }
+        jsonfile.writeFile('Bookmarks.json', jsonContent);
+        window.location.reload();
+    });
+
+    // connect here
+    const {ipcRenderer} = require('electron');
+
+
+    function updateInfo(){
+        var selections = document.getElementById("connectionHistoryInfo");
+
+        var opts = [], opt;
+
+        var position;
+        // loop through options in select list
+        for (var i=0, len=selections.options.length; i<len; i++) {
+            opt = selections.options[i];
+
+            // check if selected
+            if ( opt.selected ) {
+                // add to array of option elements to return from this function
+                opts.push(opt);
+
+                position = i;
+            }
+        }
+
+        if(opts.length > 1){
+            console.log("Only 1 connection");
+            alert("Only 1 connection");
+        }
+        else if(opts.length == 0){
+            console.log("Select 1 connection");
+            alert("Select 1 connection");
+        }
+        else {
+            document.getElementById("username").innerHTML = jsonContent.Bookmarks[position].username;
+            document.getElementById("server").innerHTML = jsonContent.Bookmarks[position].host;
+            document.getElementById("port").innerHTML = jsonContent.Bookmarks[position].port;
+            document.getElementById("enterPassword").innerHTML = '<br>Enter Password: &nbsp; <input type="password" id="newPassword" autofocus>&nbsp;<input type="button" id="loginAgain" onclick="loginFromBookmarksWindow()" value="Go">';
+        }
+    }
+
+
+
+
+</script>
+
+<script src="js/index.js"></script>
 </body>
 </html>

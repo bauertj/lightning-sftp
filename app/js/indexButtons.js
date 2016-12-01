@@ -19,3 +19,6 @@ ipcRenderer.on('close-history-window', function (event, arg) {
     loginFunction(arg);
 });
 
+ipcRenderer.on('close-bookmarks-window', function (event, arg) {
+   loginFunction(arg);
+});

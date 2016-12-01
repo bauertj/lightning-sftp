@@ -41,8 +41,8 @@
         <div class="buttonBox">
             <input type="button" class="removeAll" value="Remove All">
             <input type="button" class="removeSelected" value="Remove Selected">
-            <input type="button" class="bookmarkSelected" value="Bookmark Selected">
             <input type="button" class="connectHere" onclick="updateInfo()" value="Connect Here">
+            <input type="button" class="bookmarkThis" value="Bookmark Selected">
             <div id="enterPassword"></div>
         </div>
         <textarea class="hidden" id="username"></textarea>
@@ -78,6 +78,26 @@
                jsonContent.connectionHistory.length = 0;
                jsonfile.writeFileSync('ConnectionHistory.json', jsonContent);
             window.location.reload();
+        });
+
+        // adds selected connections to bookmarks
+        jQuery(document).on('click', ".bookmarkThis", function () {
+            var bookmarkContents = fs.readFileSync("Bookmarks.json");
+            var bookmarkJson = JSON.parse(bookmarkContents);
+            for(var i = 0; i < jsonContent.connectionHistory.length; i++){
+                var temp = document.getElementById("json"+i);
+                if(temp.selected) {
+
+                    var obj = {
+                        username: jsonContent.connectionHistory[i].username,
+                        host: jsonContent.connectionHistory[i].host,
+                        port: jsonContent.connectionHistory[i].port
+                    };
+                }
+            }
+
+            bookmarkJson.Bookmarks.push(obj);
+            jsonfile.writeFileSync("Bookmarks.json", bookmarkJson);
         });
 
         // remove selected
