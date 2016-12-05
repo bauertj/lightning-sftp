@@ -1,5 +1,8 @@
-.left{
-	float: left;
+fieldset{
+    display:        inline;
+    vertical-align: top;
+    min-width:      45%;
+    min-height:     500px;
 }
 
 .label{
@@ -9,18 +12,6 @@
 	vertical-align: top;
 	text-align: right;
 	margin-right: 15px;
-}
-
-.localTree{
-	width: 200px;
-	height: 400px;
-	border-top: solid 1px #BBB;
-	border-left: solid 1px #BBB;
-	border-bottom: solid 1px #FFF;
-	border-right: solid 1px #FFF;
-	background: #FFF;
-	overflow: scroll;
-	padding: 5px;
 }
 
 header{

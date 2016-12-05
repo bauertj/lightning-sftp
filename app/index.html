@@ -5,8 +5,8 @@
 	<head>
 		<link href="css/index.css" rel="stylesheet" type="text/css"/>
 
+        <!-- Script will click the login button when you press enter -->
         <script>
-            // Will click the login button when you press enter
             document
                     .addEventListener("keyup", function(event) {
                         event.preventDefault();
@@ -19,7 +19,8 @@
 
 
 	<body>
-		
+
+    <!-- Contains buttons for use-->
         <header>
             <form>
                 <div class="container">
@@ -33,91 +34,64 @@
             </form>
         </header>
 
+        <div class="wrap">
+            <div class="left">
+
+            </div>
+
+            <div class="right">
+
+            </div>
+
+        </div>
+
 		<form id="frm1">
+            <fieldset id="fileForm">
+
+                <legend>File Information</legend>
+
+                <label class="label" for="localPath"> Local Path </label>
+                <input type="text" id="localPath" name="localPath">
+                <br><br>
+
+                <label class="label" for="remotePath"> Remote Path </label>
+                <input type="text" id="remotePath" name="remotePath">
+
+            </fieldset>
+
             <fieldset id="userInfo">
 
                 <legend>User Info</legend>
+
                 <label class="label" for="username"> Username </label>
                 <input type="text" id="username" name="name" value="" autofocus>
-
                 <br><br>
 
                 <label class="label" for="password"> Password </label>
                 <input type="password" id="password" name="pass">
-
                 <br><br>
 
                 <label class="label" for="serverName"> Server Name </label>
-              <!--  <input type="text" id="serverName" name="server" value="river.cs.plu.edu"> -->
-                <input list="serverList" id="serverName" type="text"/>
-                    <datalist id="serverList">
-                        <option value="Testing" />
-                    </datalist>
-                        <!--<script>
-                            // this will fill the choices with past server connections
-                            var fs = require("fs");
-                            var jsonfile = require("jsonfile");
-                            var list = '';
-
-                            var contents = fs.readFileSync("ConnectionHistory.json");
-                            var jsonContent = JSON.parse(contents);
-                            for(var i = 0; i < jsonContent.connectionHistory.length; i++) {
-                                list += '<option value="' + jsonContent.connectionHistory[i].host + '" />';
-                                console.log(jsonContent.connectionHistory[i].host);
-                            }
-
-                            document.getElementById("serverList").innerHTML = list;
-                        </script>-->
+                <input type="text" id="serverName" name="server" value="river.cs.plu.edu">
                 <br><br>
+
                 <label class="label" for="port"> Port </label>
                 <input type="text" id="port" size="10">
-
                 <br><br>
+
                 <label class="label">&nbsp;</label>
                 <input type="button" class="loginButton" id="login" onclick="loginFunction(getLoginInfo())" value="Log In">
                 <div id="loginText"></div>
-            </fieldset>
-            <br>
-			<fieldset id="uploadForm">
-
-                <legend>Upload</legend>
-                    <label class="label" for="localFileDir"> Local File </label>
-                    <input type="file" id="localFileDir" name="localDirectory">
-
-                    <!--<div id="localFileDir" class="localTree"></div>-->
-
-                <br><br>
-
-                    <label class="label" for="uploadLocalPath"> Local Dir Path </label>
-                    <input type="text" id="uploadLocalPath" name="localPath">
-
-                <br><br>
-
-                    <label class="label" for="uploadReceiverPath"> Receiver Path </label>
-                    <input type="text" id="uploadReceiverPath" name="remotePath">
-
-			</fieldset>
-
-            <br>
-            <fieldset id="downloadForm">
-                <legend>Download</legend>
-
-                <label class="label" for="serverFile"> Server File </label>
-                <input type="text" id="serverFile" name="serverPath">
-
-                <br><br>
-
-                <label class="label" for="localFilePath"> Local Path </label>
-                <input type="text" id="localFilePath" name="localFile">
 
             </fieldset>
-            <br>
-            <input type="button" id="download" onclick="downloadFile()" value="Download">
-            <input type="button" id="upload" onclick="uploadFile()" value="Upload">
-            <input type="button" id="recurDL" onclick="downloadFolder()" value="RecursiveDL">
-            <input type="button" id="recurUL" onclick="uploadFolder()" value="RecursiveUL">
 
             <br><br>
+
+            <input type="button" id="selectUpload" onclick="selectUpload()" value="Upload">
+            <input type="button" id="selectDownload" onclick="selectDownload()" value="Download">
+
+            <br><br>
+
             <textarea id="area" cols="100" rows="15" disabled></textarea>
 
 
