@@ -191,6 +191,51 @@ function download(sftp, selectedFile, pathToSend){
     var read = sftp.createReadStream(selectedFile);
     var write = fs.createWriteStream(pathToSend);
 
+    sftp.lstat(selectedFile, function (err, stats) {
+        read.on('data', (chunk) => {
+
+            var bytesWritten = write.bytesWritten;
+            var fileSize = stats.size;
+            var bytesPerSecond = 0;
+
+            var interval = 1;
+            setInterval(increment, 1000);
+            function increment(){
+                interval = interval + 1;
+            }
+
+            bytesPerSecond = 0;
+            setInterval(getBytesPerSecond, 1000);
+            function getBytesPerSecond(){
+                bytesPerSecond = bytesWritten / interval;
+            }
+
+            setTimeout(function()
+            {
+                var textArea = document.getElementById('area');
+                textArea.scrollTop = textArea.scrollHeight;
+            }, 10);
+
+            document.getElementById('numberOfItems').innerHTML = selectedFile;
+
+            var elem = document.getElementById("myBar");
+            var width = 1;
+            var id = setInterval(frame, 10);
+            var percentage = 0;
+            //noinspection JSAnnotator
+            function frame() {
+                if (width >= 100) {
+                    clearInterval(id);
+                } else {
+                    width++;
+                    bytesWritten = write.bytesWritten;
+                    percentage = bytesWritten/fileSize;
+                    elem.style.width = (percentage * 100) + '%';
+                }
+            }
+        });
+    });
+
     write.on('close',function (){
         document.getElementById("area").innerHTML += selectedFile + "- file transferred successfully\n";
         log.info(selectedFile + "- file transferred successfully\n");
