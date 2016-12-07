@@ -87,6 +87,48 @@ function loginFunction( connSettings ) {
    }
 }
 
+function selectDownload(){
+    //create connection to sftp
+    conn.sftp(function(err, sftp){
+        if(err) throw err;
+        //get file/folder names
+        var selectedFile = document.getElementById('remotePath');
+        var pathToSend = document.getElementById('localPath');
+
+        if(selectedFile.value == "" || pathToSend.value == ""){
+            alert("Local Path or Remote Path is empty");
+        }
+        else{
+            var isDir = null;   //used to determine which function to call
+            //determine if file or folder
+            sftp.lstat(selectedFile.value, function(err, stats){
+                if (err){
+                    alert("Error: remote file does not exist");
+                }
+                else{
+                    isDir = stats.isDirectory() ;
+                    //if folder, recursive download
+                    if(isDir == true){
+                        if(fs.existsSync(pathToSend.value) == false){
+                            fs.mkdir(pathToSend.value,function(err){
+                                if (err) throw err;
+                            });
+                        }
+                        recurDownload(sftp, selectedFile.value, pathToSend.value) ;
+                    }
+                    //if file, call download
+                    else if(isDir == false){
+                        download(sftp, selectedFile.value, pathToSend.value);
+                    }
+                    else{
+                        alert("something's gone wrong. isDir is null.");
+                        console.log(isDir) ;
+                    }
+                }
+            });
+        }
+    });
+}
 
 function selectUpload(){
     //create connection to sftp
@@ -95,6 +137,9 @@ function selectUpload(){
         //get file/folder names
         var selectedFile = document.getElementById('localPath');
         var pathToSend = document.getElementById('remotePath');
+
+        console.log("selected file: " + selectedFile.value);
+        console.log("path to send: " + pathToSend.value);
 
         if(selectedFile.value == "" || pathToSend.value == ""){
             alert("Local Path or Remote Path is empty");
@@ -112,21 +157,29 @@ function selectUpload(){
             }
             //if folder, recursive upload
             if(isDir == true){
+                /*
                 sftp.lstat(pathToSend.value, function(err, stats){
                     if (err) {
-                        sftp.mkdir(selectedFile.value,function(err){
-                            if (err) alert("wtf");
+                        sftp.mkdir(pathToSend.value,function(err){
+                            if (err) alert("Error: make dir pathToSend");
                         });
                     }
+                });
+                */
+                sftp.mkdir(pathToSend.value,function(err){
+                    if (err) console.log("Error: make dir pathToSend");
                 });
                 recurUpload(sftp, selectedFile.value, pathToSend.value) ;
             }
             //if file, call upload
             else if(isDir == false){
+                console.log("selected file: " + selectedFile.value);
+                console.log("path to send: " + pathToSend.value);
+
                 upload(sftp, selectedFile.value, pathToSend.value);
             }
             else{
-                alert("something's gone wrong. isDir is null.");
+                //alert("something's gone wrong. isDir is null.");
                 console.log(isDir) ;
             }
         }
@@ -181,14 +234,7 @@ function recurUpload(sftp, selectedFile, pathToSend){
             var newSend = pathToSend + "/" + files[i];
             //if file is a dir, create local copy, then recursively go into each folder and create dir and download files inside it
             if (fs.lstatSync(newPath).isDirectory()) {
-                sftp.lstat(newSend, function(err, stats){
-                    if (err) {
-                        sftp.mkdir(newSend,function(err){
-                            if (err) alert("wtf");
-                        });
-                    }
-                })
-
+                sftp.mkdir(newSend,function(err){});
                 recurUpload(sftp, newPath, newSend);
             }
             //else, it is a file, so download it locally
@@ -210,8 +256,12 @@ function recurDownload(sftp, selectedFile, pathToSend) {
             var newSend = pathToSend + "/" + list[i].filename;
             //if file is a dir, create local copy, then recursively go into each folder and create dir and download files inside it
             if (list[i].longname.toString().charAt(0) == "d") {
-                fs.mkdir(newSend,function(err){});
-                recurDownload(sftp, newPath, newSend);
+                if(fs.existsSync(newSend) == false){
+                    fs.mkdir(newSend,function(err){
+                        if (err) throw err;
+                    });
+                }
+                recurDownload(sftp, newPath, newSend) ;
             }
             //else, it is a file, so download it locally
             else{
@@ -273,3 +323,4 @@ function loginFromBookmarksWindow() {
 
     ipcRenderer.send('close-bookmarks-window', connSettings);
 }
+
