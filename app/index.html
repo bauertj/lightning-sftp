@@ -40,11 +40,11 @@
                 <legend>File Information</legend>
 
                 <label class="label" for="localPath"> Local Path </label>
-                <input type="text" id="localPath" name="localPath">
+                <input type="text" id="localPath" value="">
                 <br><br>
 
                 <label class="label" for="remotePath"> Remote Path </label>
-                <input type="text" id="remotePath" name="remotePath">
+                <input type="text" id="remotePath" value="">
 
             </fieldset>
 
@@ -61,7 +61,7 @@
                 <br><br>
 
                 <label class="label" for="serverName"> Server Name </label>
-                <input type="text" id="serverName" name="server" value="river.cs.plu.edu">
+                <input type="text" id="serverName" name="server" value="">
                 <br><br>
 
                 <label class="label" for="port"> Port </label>
@@ -76,8 +76,8 @@
 
             <br><br>
 
-            <input type="button" id="selectUpload" onclick="selectUpload()" value="Upload">
-            <input type="button" id="selectDownload" onclick="selectDownload()" value="Download">
+            <input type="button" id="tryUpload"      onclick="selectUpload()"    value="Upload">
+            <input type="button" id="tryDownload"    onclick="selectDownload()"  value="Download">
 
             <br><br>
 
@@ -85,7 +85,7 @@
 
 
 
-		</form>
+		    </form>
 
         <footer>
             <div id="myProgress">
