@@ -70,3 +70,9 @@ textarea{
     overflow: auto;
     width: 99%;
 }
+
+#progressLabel{
+    text-align: center;
+    line-height: 30px;
+    color: white;
+}
