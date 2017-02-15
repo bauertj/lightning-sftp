@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>jsTree test</title>
+    <!-- 2 load the theme CSS file -->
+    <script src="https://code.jquery.com/jquery-2.2.0.min.js"></script>
+    <link rel="stylesheet" href="css/themes/default/style.min.css" />
+</head>
+<body>
+
+<div id="jstree">
+
+    <ul id="main">
+
+    </ul>
+</div>
+
+
+<script>
+
+    var _getAllFilesFromFolder = function(dir) {
+
+        var filesystem = require("fs");
+        var results = [];
+
+        filesystem.readdirSync(dir).forEach(function(file) {
+
+            // runs statSync on path, catches if it is not a path.
+            // handle json formatting within here for both directories and files
+            try{
+                var stat = filesystem.statSync(file);
+                results.push(file);
+            }
+            catch(err){
+                results.push(file);
+            }
+
+        });
+
+        return results;
+
+    };
+
+
+    var results = _getAllFilesFromFolder("/home/");
+
+    for(i = 0; i < results.length; i++){
+        var temp = document.createElement("li");
+        var text = document.createTextNode(results[i]);
+        temp.appendChild(text);
+
+        var element = document.getElementById("main");
+        element.appendChild(temp);
+    }
+
+    var $ = require("jquery");
+
+    $(document).ready(function () {
+
+        $(function () {
+            $('#jstree').jstree();
+
+            $('#jstree').on("changed.jstree", function (e, data) {
+                console.log(data.selected);
+            });
+
+        });
+
+    })
+</script>
+
+<script src="js/jstree.min.js"></script>
+</body>
+</html>

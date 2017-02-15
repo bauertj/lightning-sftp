@@ -31,6 +31,14 @@ app.on('ready', function() {
             fs.writeFile("Bookmarks.json", '{"Bookmarks":[]}');
         }
     });
+    fs.stat("fileDir.json", function (err, stat) {
+        if(err == null){
+            console.log("File Exists");
+        }
+        else if(err.code == 'ENOENT'){
+            fs.writeFile("fileDir.json");
+        }
+    });
 
     mainWindow.loadURL('file://' + __dirname + '/app/index.html');
 });
@@ -103,7 +111,26 @@ ipcMain.on('close-main-window', function () {
    app.quit();
 });
 
+var testTree = null;
+ipcMain.on('open-test-window', function () {
 
+    if(testTree){
+        return;
+    }
+
+    testTree = new BrowserWindow({
+        height: 500,
+        width: 1024,
+        alwaysOnTop: true
+    });
+
+    testTree.loadURL('file://' + __dirname + '/app/testTree.html');
+
+    testTree.on('closed', function () {
+        testTree = null;
+    });
+
+});
 
 var historyWindow = null;
 ipcMain.on('open-history-window', function () {

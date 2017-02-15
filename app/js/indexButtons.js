@@ -15,6 +15,11 @@ settingsE3.addEventListener('click', function () {
    ipcRenderer.send('open-bookmarks-window');
 });
 
+var settingsE4 = document.querySelector('#testTree');
+settingsE4.addEventListener('click', function () {
+    ipcRenderer.send('open-test-window');
+});
+
 ipcRenderer.on('close-history-window', function (event, arg) {
     loginFunction(arg);
 });
