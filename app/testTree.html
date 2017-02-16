@@ -22,19 +22,21 @@
     var _getAllFilesFromFolder = function(dir) {
 
         var filesystem = require("fs");
-        var results = [];
+        var results = [[]];
 
         filesystem.readdirSync(dir).forEach(function(file) {
 
-            // runs statSync on path, catches if it is not a path.
-            // handle json formatting within here for both directories and files
-            try{
-                var stat = filesystem.statSync(file);
-                results.push(file);
-            }
-            catch(err){
-                results.push(file);
-            }
+                filesystem.stat(file, function (err, stats) {
+                    if(stats.isFile()){
+                        results.push([file, "jstree-file"]);
+                    }
+                    else if(stats.isDirectory()){
+                        results.push([file, ""]);
+                    }
+                });
+
+
+
 
         });
 
@@ -67,18 +69,20 @@
 
     $(document).ready(function () {
 
-        var jsonContent = [{}];
+        var jsonContent = [];
 
-        for(i=0; i<results.length; i++){
-            var obj = {text: results[i]};
+        for(i=1; i<results.length; i++){
+            var obj = {text: results[i][0], icon: results[i][1]};
             jsonContent.push(obj);
         }
 
         $(function () {
             $('#jstree').jstree({
                 core: {
-                    data: jsonContent
-                }
+                    data: jsonContent,
+                    check_callback: true
+                },
+                plugins: ["dnd", "sort"]
             });
 
             $('#jstree').on("changed.jstree", function (e, data) {

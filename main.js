@@ -120,8 +120,7 @@ ipcMain.on('open-test-window', function () {
 
     testTree = new BrowserWindow({
         height: 500,
-        width: 1024,
-        alwaysOnTop: true
+        width: 1024
     });
 
     testTree.loadURL('file://' + __dirname + '/app/testTree.html');
