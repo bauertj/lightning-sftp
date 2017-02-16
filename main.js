@@ -31,12 +31,12 @@ app.on('ready', function() {
             fs.writeFile("Bookmarks.json", '{"Bookmarks":[]}');
         }
     });
-    fs.stat("fileDir.json", function (err, stat) {
+    fs.stat("tree.json", function (err, stat) {
         if(err == null){
             console.log("File Exists");
         }
         else if(err.code == 'ENOENT'){
-            fs.writeFile("fileDir.json");
+            fs.writeFile("tree.json", '{"core":{"data":[]}}');
         }
     });
 

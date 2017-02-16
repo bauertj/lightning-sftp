@@ -43,8 +43,13 @@
     };
 
 
-    var results = _getAllFilesFromFolder("/home/");
+    var results = _getAllFilesFromFolder("C://");
 
+    var fs = require("fs");
+    var jsonfile = require('jsonfile');
+    var $ = require("jquery");
+
+    /*
     for(i = 0; i < results.length; i++){
         var temp = document.createElement("li");
         var text = document.createTextNode(results[i]);
@@ -53,13 +58,31 @@
         var element = document.getElementById("main");
         element.appendChild(temp);
     }
+    */
 
-    var $ = require("jquery");
+
+
+
+
 
     $(document).ready(function () {
+        var file = 'tree.json' ;
+        var contents = fs.readFileSync("tree.json");
+        var jsonContent = JSON.parse(contents);
 
+        for(i=0; i<results.length; i++){
+
+            var obj = {text: results[i]};
+
+            jsonContent.core.data.push(obj);
+            jsonfile.writeFileSync(file, jsonContent);
+        }
+        var trythis = JSON.stringify(jsonContent) ;
+        console.log(trythis);
         $(function () {
-            $('#jstree').jstree();
+            $('#jstree').jstree({
+                trythis
+            });
 
             $('#jstree').on("changed.jstree", function (e, data) {
                 console.log(data.selected);
