@@ -43,7 +43,7 @@
     };
 
 
-    var results = _getAllFilesFromFolder("C://");
+    var results = _getAllFilesFromFolder("./");
 
     var fs = require("fs");
     var jsonfile = require('jsonfile');
@@ -66,22 +66,19 @@
 
 
     $(document).ready(function () {
-        var file = 'tree.json' ;
-        var contents = fs.readFileSync("tree.json");
-        var jsonContent = JSON.parse(contents);
+
+        var jsonContent = [{}];
 
         for(i=0; i<results.length; i++){
-
             var obj = {text: results[i]};
-
-            jsonContent.core.data.push(obj);
-            jsonfile.writeFileSync(file, jsonContent);
+            jsonContent.push(obj);
         }
-        var trythis = JSON.stringify(jsonContent) ;
-        console.log(trythis);
+
         $(function () {
             $('#jstree').jstree({
-                trythis
+                core: {
+                    data: jsonContent
+                }
             });
 
             $('#jstree').on("changed.jstree", function (e, data) {
