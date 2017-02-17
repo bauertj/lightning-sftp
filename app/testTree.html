@@ -25,13 +25,19 @@
         var results = [[]];
 
         filesystem.readdirSync(dir).forEach(function(file) {
+                var fullDir = dir + file;
 
-                filesystem.stat(file, function (err, stats) {
+                filesystem.stat(fullDir, function (err, stats) {
+                    if(err){
+                        console.log("File: " + file);
+                    }
                     if(stats.isFile()){
-                        results.push([file, "jstree-file"]);
+                        results.push([file, "jstree-file", fullDir]);
                     }
                     else if(stats.isDirectory()){
-                        results.push([file, ""]);
+                        results.push([file, "", fullDir]);
+                        //console.log("fullDir: " + fullDir);
+                        //_getAllFilesFromFolder(fullDir+"/");
                     }
                 });
 
@@ -46,36 +52,18 @@
 
 
     var results = _getAllFilesFromFolder("./");
-
-    var fs = require("fs");
-    var jsonfile = require('jsonfile');
     var $ = require("jquery");
-
-    /*
-    for(i = 0; i < results.length; i++){
-        var temp = document.createElement("li");
-        var text = document.createTextNode(results[i]);
-        temp.appendChild(text);
-
-        var element = document.getElementById("main");
-        element.appendChild(temp);
-    }
-    */
-
-
-
-
-
-
+    console.log(results);
     $(document).ready(function () {
 
         var jsonContent = [];
 
         for(i=1; i<results.length; i++){
-            var obj = {text: results[i][0], icon: results[i][1]};
+            var obj = {text: results[i][0], icon: results[i][1], id: results[i][2]};
             jsonContent.push(obj);
         }
 
+        console.log(jsonContent);
         $(function () {
             $('#jstree').jstree({
                 core: {
