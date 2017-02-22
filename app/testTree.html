@@ -18,7 +18,7 @@
 
 
 <script>
-    (function() {
+
         var filesystem = require("fs");
 
         var _getAllFilesFromFolder = function (dir) {
@@ -26,28 +26,51 @@
 
             filesystem.readdirSync(dir).forEach(function (file) {
                 var fullDir = dir + file;
-              //  results1.push(fullDir);
-                var stats = filesystem.statSync(fullDir);
-               /* filesystem.statSync(fullDir, function (err, stats) {
-                    if (err) {
-                        console.log("File: " + file);
-                    }*/
+
+                try {
+                    var stats = filesystem.statSync(fullDir);
+
                     if (stats.isFile()) {
-                        results1.push([file, "jstree-file", fullDir]);
+                        results1.push([file, "jstree-file", fullDir, ""]);
                     }
                     else if (stats.isDirectory()) {
-                        results1.push([file, "", fullDir]);
-                        //console.log("fullDir: " + fullDir);
-                        //_getAllFilesFromFolder(fullDir+"/");
+                        var children = _getFilesSecondLayer(fullDir + "/");
+                        results1.push([file, "", fullDir, children]);
                     }
-                //});
-
-
+                }
+                catch(err){
+                    console.log(err);
+                }
             });
 
             return results1;
-
         };
+
+        var _getFilesSecondLayer = function(dir){
+            var results = [];
+
+            filesystem.readdirSync(dir).forEach(function (file){
+                var fullDir = dir + file;
+
+                try {
+                    var stats = filesystem.statSync(fullDir);
+
+                    if (stats.isFile()) {
+                        results.push([file, "jstree-file", fullDir, "", dir]);
+                    }
+                    else if (stats.isDirectory()) {
+
+                        results.push([file, "", fullDir, "", dir]);
+                    }
+                }
+                catch(err){
+                    console.log(err);
+                }
+
+            })
+
+            return results;
+        }
 
 
         var $ = require("jquery");
@@ -58,8 +81,18 @@
                 var jsonContent = [];
 
                 for (i = 0; i < result.length; i++) {
-                    var obj = {text: result[i][0], icon: result[i][1], id: result[i][2]};
+
+                    var obj = {text: result[i][0], icon: result[i][1], id: result[i][2], parent: "#"};
                     jsonContent.push(obj);
+
+                    // if the data is a directory it will create the children for it
+                    if(result[i][3] != ""){
+                        var temp = result[i][3];
+                        for(j = 0; j < temp.length; j++){
+                            var child = {text: temp[j][0], icon: temp[j][1], id: temp[j][2], parent: obj.id};
+                            jsonContent.push(child);
+                        }
+                    }
                 }
 
                     $(function () {
@@ -75,11 +108,35 @@
                 console.log(data.selected);
             });
 
+            // TODO In progress: Load nodes when folder is opened
+            $('#jstree').on("open_node.jstree", function(e, data){
+
+                var newChildren = _getAllFilesFromFolder(data.node.id + "/");
+
+                for(i = 0; i < newChildren.length; i++){
+
+                    if(newChildren[i][3] != ""){
+                        //var obj = {text: newChildren[i][0], icon: newChildren[i][1], id: newChildren[i][2], parent: "#"};
+                        var temp = newChildren[i][3];
+
+                        console.log(temp);
+                        for(j = 0; j < temp.length; j++){
+                            var subs = temp[j][4].substring(0, temp[j][4].length-1);
+                            var child = {text: temp[j][0], icon: temp[j][1], id: temp[j][2], parent: subs};
+
+                            jsonContent.push(child);
+
+                        }
+                    }
+                }
+                $('#jstree').jstree().redraw_children();
+
+            })
         });
 
     }
         )
-        })();
+
 </script>
 
 <script src="js/jstree.min.js"></script>
