@@ -76,3 +76,9 @@ textarea{
     line-height: 30px;
     color: white;
 }
+
+#fileForm{
+    overflow: scroll;
+    max-height: 500px;
+    max-width: 45%;
+}
