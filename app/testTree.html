@@ -123,13 +123,23 @@
 
                             var child = {text: temp[j][0], icon: temp[j][1], id: temp[j][2]};
 
-                            $('#jstree').jstree('create_node', subs, child);
+                            if(!($('#jstree').jstree(true).get_node(child.id))){
+                                $('#jstree').jstree('create_node', subs, child);
+                            }
+
 
                         }
                     }
                 }
-            })
+            });
+
+
+            $('#jstree').on("dnd_move.vakata", function(data, element, helper, event){
+                console.log(data);
+            });
         });
+
+
 
     }
         )
