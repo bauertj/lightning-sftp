@@ -77,7 +77,7 @@
         //console.log(results);
 
         $(document).ready(function () {
-                var result = _getAllFilesFromFolder("./");
+                var result = _getAllFilesFromFolder("C://Users/Taylor/Desktop/list Test/");
                 var jsonContent = [];
 
                 for (i = 0; i < result.length; i++) {
@@ -116,21 +116,18 @@
                 for(i = 0; i < newChildren.length; i++){
 
                     if(newChildren[i][3] != ""){
-                        //var obj = {text: newChildren[i][0], icon: newChildren[i][1], id: newChildren[i][2], parent: "#"};
                         var temp = newChildren[i][3];
 
-                        console.log(temp);
                         for(j = 0; j < temp.length; j++){
                             var subs = temp[j][4].substring(0, temp[j][4].length-1);
-                            var child = {text: temp[j][0], icon: temp[j][1], id: temp[j][2], parent: subs};
 
-                            jsonContent.push(child);
+                            var child = {text: temp[j][0], icon: temp[j][1], id: temp[j][2]};
+
+                            $('#jstree').jstree('create_node', subs, child);
 
                         }
                     }
                 }
-                $('#jstree').jstree().redraw_children();
-
             })
         });
 
