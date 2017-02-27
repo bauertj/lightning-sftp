@@ -6,7 +6,7 @@ var conn;
 var log = require('electron-log');
 var fs = require("fs");
 var jsonfile = require('jsonfile');
-
+var $ = require("jquery");
 // password hashing library
 var passwordHash = require('password-hash');
 /*
@@ -77,16 +77,97 @@ function loginFunction( connSettings ) {
        else {
            conn.on('ready', function (err) {
                console.log("You are now connected");
-               document.getElementById("loginText").innerHTML = "Connected to " + connSettings.host;
+               //document.getElementById("loginText").innerHTML = "Connected to " + connSettings.host;
                jsonContent.connectionHistory.push(obj);
                jsonfile.writeFileSync(file, jsonContent);
+
            }).connect(connSettings);
+
        }
    } catch(err){
        throw err;
    }
+   retrieveData("./");
 }
 
+function retrieveData(dir){
+    var jsonData = [];
+
+        conn.on('ready', function(err){
+            conn.sftp(function(err, sftp){
+                sftp.readdir(dir, function (err, list) {
+                    for(i = 0; i < list.length; i++){
+                        var fileName = list[i].filename;
+                        var fulldir = dir + fileName;
+                        var longname = list[i].longname;
+                        var icon = "";
+                        var id = "./" + fileName;
+                        if(longname.substring(0,1) != "d"){
+                            icon = "jstree-file";
+                            //jsonData.push([fileName, icon, id, ""]);
+                        }
+
+
+                        var obj = {text: fileName, icon: icon, id: id, parent: "#"};
+                        jsonData.push(obj);
+
+                        /*if(longname.substring(0,1) == "d"){
+
+                                var results = _getAllFilesSecondLayer(fulldir, sftp);
+                                //console.log(results);
+
+                                for(var j = 0; j < results.length; j++){
+                                    var temp = results[j];
+                                    var obj2 = {text: temp[0], icon: temp[1], id: temp[2], parent: temp[3]};
+                                    jsonData.push(obj2);
+                                    console.log(obj2);
+                                }
+                            }*/
+
+                    }
+                    createTree(jsonData);
+                })
+            })
+
+
+
+        })
+        //console.log(jsonData);
+}
+function _getAllFilesSecondLayer(dir, sftp){
+    var results = [];
+            sftp.readdir(dir, function (err, list) {
+                for(i = 0; i < list.length; i++) {
+                    var filename = list[i].filename;
+                    var longname = list[i].longname;
+                    var fulldir = dir + filename;
+                    if (longname.substring(0, 1) != "d") {
+                        results.push([filename, "jstree-file", fulldir, dir]);
+                    }
+                    else {
+                        results.push([filename, "", fulldir, dir]);
+                    }
+                }// for
+            })// readdir
+
+
+
+    return results;
+}
+function createTree(jsonData){
+    var parent = document.getElementById("userInfo");
+    var child = document.getElementById("removable");
+    parent.removeChild(child);
+    $(function () {
+        $('#jstree2').jstree({
+            core: {
+                data: jsonData,
+                check_callback: true
+            },
+            plugins: ["dnd", "sort"]
+        });
+    })
+}
 function selectDownload(){
     //create connection to sftp
     conn.sftp(function(err, sftp){

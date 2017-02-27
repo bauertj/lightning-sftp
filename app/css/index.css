@@ -14,7 +14,7 @@ fieldset{
 	margin-right: 15px;
 }
 
-header{
+header {
     padding: 5px;
 }
 
@@ -78,6 +78,12 @@ textarea{
 }
 
 #fileForm{
+    overflow: scroll;
+    max-height: 500px;
+    max-width: 45%;
+}
+
+#userInfo{
     overflow: scroll;
     max-height: 500px;
     max-width: 45%;

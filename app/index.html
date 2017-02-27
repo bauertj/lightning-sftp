@@ -61,7 +61,7 @@
             <fieldset id="userInfo">
 
                 <legend>User Info</legend>
-
+            <div id="removable">
                 <label class="label" for="username"> Username </label>
                 <input type="text" id="username" name="name" value="" autofocus>
                 <br><br>
@@ -81,6 +81,13 @@
                 <label class="label">&nbsp;</label>
                 <input type="button" class="loginButton" id="login" onclick="loginFunction(getLoginInfo())" value="Log In">
                 <div id="loginText"></div>
+            </div>
+
+                <div id="jstree2">
+                    <ul id="main2">
+
+                    </ul>
+                </div>
 
             </fieldset>
 
@@ -191,6 +198,7 @@
                 }
 
                 $(function () {
+
                     $('#jstree').jstree({
                         core: {
                             data: jsonContent,
@@ -203,7 +211,6 @@
                         console.log(data.selected);
                     });
 
-                    // TODO In progress: Load nodes when folder is opened
                     $('#jstree').on("open_node.jstree", function(e, data){
 
                         var newChildren = _getAllFilesFromFolder(data.node.id + "/");
@@ -228,19 +235,19 @@
                         }
                     });
 
-                    $(document).on('dnd_start.vakata', function(e, data){
-                        console.log(data.data.nodes[0]);
-                    });
-                    $(document).on('dnd_stop.vakata', function(e, data){
-                        var curNode = $('#jstree').jstree(true).get_node(data.data.nodes[0]);
-                        var oldPath = curNode.id;
 
-                        var newId = curNode.parent + "/" + curNode.text;
+
+                    $('#jstree').on('move_node.jstree', function(e, data){
+                        var curNode = $('#jstree').jstree(true).get_node(data.node);
+                        var oldPath = data.node.id;
+                        var newId = data.parent + "/" + data.node.text;
                         $('#jstree').jstree(true).set_id(curNode, newId);
 
                         filesystem.rename(oldPath, newId);
-
+                        console.log(curNode);
                     });
+
+
                 });
 
 
