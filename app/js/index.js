@@ -146,7 +146,7 @@ $(document).ready(function () {
                 var newId = data.parent + "/" + data.node.text;
                 $('#jstree').jstree(true).set_id(curNode, newId);
 
-                //filesystem.rename(oldPath, newId);
+                filesystem.rename(oldPath, newId);
                 console.log("First tree: " + curNode);
             });
         });
@@ -312,20 +312,31 @@ function createTree(jsonData, sftp){
             var oldPath = data.node.id;
             var newId = data.parent + "/" + data.node.text;
             $('#jstree2').jstree(true).set_id(curNode, newId);
-            //sftp.rename(oldPath, newId);
+            sftp.rename(oldPath, newId);
             console.log("Second tree: " + curNode);
         });
 
         $('#jstree2').on("copy_node.jstree", function(e, data){
             var filename = data.node.text;
             var newPath = data.parent + "/" + filename;
-            upload(sftp, data.original.id, newPath);
+            if(data.node.icon = ""){
+                recurUpload(sftp, data.original.id, newPath);
+            }
+            else{
+                upload(sftp, data.original.id, newPath);
+            }
+
         });
 
         $('#jstree').on('copy_node.jstree', function (e, data) {
             var filename = data.node.text;
             var newPath = data.parent + "/" + filename;
-            download(sftp, data.original.id, newPath);
+            if(data.node.icon = ""){
+                recurDownload(sftp, data.original.id, newPath);
+            }
+            else{
+                download(sftp, data.original.id, newPath);
+            }
         });
     })
 }

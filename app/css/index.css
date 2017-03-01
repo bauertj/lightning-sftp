@@ -31,20 +31,22 @@ header {
 }
 
 .btn {
-    border-radius: 28px;
-    text-shadow: 4px 3px 1px #666666;
+    background: #a7acb0;
+    background-image: -webkit-linear-gradient(top, #a7acb0, #567080);
+    background-image: -moz-linear-gradient(top, #a7acb0, #567080);
+    background-image: -ms-linear-gradient(top, #a7acb0, #567080);
+    background-image: -o-linear-gradient(top, #a7acb0, #567080);
+    background-image: linear-gradient(to bottom, #a7acb0, #567080);
     font-family: Arial;
     color: #ffffff;
-    font-size: 15px;
-    background: #59bd5c;
+    font-size: 20px;
     padding: 10px 20px 10px 20px;
     text-decoration: none;
-    width: 100%;
+    min-width: 100%;
 }
 
 .btn:hover {
-    background: #3cb0fd;
-    background-image: linear-gradient(to bottom, #3cb0fd, #3498db);
+    background: #a5aeb3;
     text-decoration: none;
 }
 
