@@ -126,11 +126,15 @@ function _getAllFilesSecondLayer(dir, sftp){
 
                     if (longname.substring(0, 1) != "d") {
                         var child = {text: filename, icon: "jstree-file", id: fulldir};
-                        $('#jstree2').jstree('create_node', parent, child);
+                        if(!($('#jstree2').jstree(true).get_node(child.id))) {
+                            $('#jstree2').jstree('create_node', parent, child);
+                        }
                     }
                     else {
                         var child = {text: filename, icon: "", id: fulldir};
-                        $('#jstree2').jstree('create_node', parent, child);
+                        if(!($('#jstree2').jstree(true).get_node(child.id))) {
+                            $('#jstree2').jstree('create_node', parent, child);
+                        }
                     }
                 }// for
             })// readdir
