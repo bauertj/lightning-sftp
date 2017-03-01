@@ -96,65 +96,47 @@ function retrieveData(dir){
         conn.on('ready', function(err){
             conn.sftp(function(err, sftp){
                 sftp.readdir(dir, function (err, list) {
-                    for(i = 0; i < list.length; i++){
+                    for(var i = 0; i < list.length; i++){
                         var fileName = list[i].filename;
                         var fulldir = dir + fileName;
                         var longname = list[i].longname;
                         var icon = "";
-                        var id = "./" + fileName;
+                       // var id = dir;
                         if(longname.substring(0,1) != "d"){
                             icon = "jstree-file";
-                            //jsonData.push([fileName, icon, id, ""]);
                         }
 
-
-                        var obj = {text: fileName, icon: icon, id: id, parent: "#"};
+                        var obj = {text: fileName, icon: icon, id: fulldir, parent: "#"};
                         jsonData.push(obj);
-
-                        /*if(longname.substring(0,1) == "d"){
-
-                                var results = _getAllFilesSecondLayer(fulldir, sftp);
-                                //console.log(results);
-
-                                for(var j = 0; j < results.length; j++){
-                                    var temp = results[j];
-                                    var obj2 = {text: temp[0], icon: temp[1], id: temp[2], parent: temp[3]};
-                                    jsonData.push(obj2);
-                                    console.log(obj2);
-                                }
-                            }*/
-
                     }
-                    createTree(jsonData);
+
+                    createTree(jsonData, sftp);
                 })
             })
-
-
-
-        })
-        //console.log(jsonData);
+        });
 }
 function _getAllFilesSecondLayer(dir, sftp){
-    var results = [];
             sftp.readdir(dir, function (err, list) {
                 for(i = 0; i < list.length; i++) {
                     var filename = list[i].filename;
                     var longname = list[i].longname;
-                    var fulldir = dir + filename;
+                    var fulldir = dir + "/" + filename;
+
+                    var parent = $('#jstree2').jstree(true).get_node(dir);
+
                     if (longname.substring(0, 1) != "d") {
-                        results.push([filename, "jstree-file", fulldir, dir]);
+                        var child = {text: filename, icon: "jstree-file", id: fulldir};
+                        $('#jstree2').jstree('create_node', parent, child);
                     }
                     else {
-                        results.push([filename, "", fulldir, dir]);
+                        var child = {text: filename, icon: "", id: fulldir};
+                        $('#jstree2').jstree('create_node', parent, child);
                     }
                 }// for
             })// readdir
-
-
-
-    return results;
 }
-function createTree(jsonData){
+
+function createTree(jsonData, sftp){
     var parent = document.getElementById("userInfo");
     var child = document.getElementById("removable");
     parent.removeChild(child);
@@ -165,6 +147,26 @@ function createTree(jsonData){
                 check_callback: true
             },
             plugins: ["dnd", "sort"]
+        });
+
+        $('#jstree2').on("loaded.jstree", function (e, data) {
+
+            for (var i = 0; i < jsonData.length; i++) {
+                if (jsonData[i].icon == "") {
+                    _getAllFilesSecondLayer(jsonData[i].id, sftp);
+                }
+            }
+        })
+
+        $('#jstree2').on("open_node.jstree", function(e, data){
+            sftp.readdir(data.node.id, function(err, list){
+                for(var i = 0; i < list.length; i++) {
+                    if (list[i].longname.substring(0,1) == "d") {
+                        var newPath = data.node.id + "/" + list[i].filename;
+                        _getAllFilesSecondLayer(newPath, sftp);
+                    }
+                }
+            })
         });
     })
 }
