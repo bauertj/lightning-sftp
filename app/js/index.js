@@ -172,8 +172,19 @@ function createTree(jsonData, sftp){
                 }
             })
         });
+
+        $('#jstree2').on("move_node.jstree", function(e, data){
+            var curNode = $('#jstree2').jstree(true).get_node(data.node);
+            var oldPath = data.node.id;
+            var newId = data.parent + "/" + data.node.text;
+            $('#jstree2').jstree(true).set_id(curNode, newId);
+            sftp.rename(oldPath, newId);
+            console.log(curNode);
+        });
     })
 }
+
+
 function selectDownload(){
     //create connection to sftp
     conn.sftp(function(err, sftp){
