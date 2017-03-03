@@ -319,44 +319,37 @@ function createTree(jsonData, sftp){
         $('#jstree2').on("copy_node.jstree", function(e, data){
             var filename = data.node.text;
             var newPath = data.parent + "/" + filename;
-            if(data.node.icon = ""){
-                recurUpload(sftp, data.original.id, newPath);
-            }
-            else{
-                upload(sftp, data.original.id, newPath);
-            }
-
+            var curNode = $('#jstree2').jstree(true).get_node(data.node);
+            var newId = data.node.parent + "/" + filename ;
+            $('#jstree2').jstree(true).set_id(curNode, newId);
+            selectUpload(data.original.id, newPath);
         });
 
         $('#jstree').on('copy_node.jstree', function (e, data) {
             var filename = data.node.text;
             var newPath = data.parent + "/" + filename;
-            if(data.node.icon = ""){
-                recurDownload(sftp, data.original.id, newPath);
-            }
-            else{
-                download(sftp, data.original.id, newPath);
-            }
+            var curNode = $('#jstree').jstree(true).get_node(data.node);
+            var newId = data.node.parent + "/" + filename ;
+            $('#jstree').jstree(true).set_id(curNode, newId);
+            selectDownload(data.original.id, newPath);
         });
     })
 }
 
 
-function selectDownload(){
+function selectDownload(selectedFile, pathToSend){
     //create connection to sftp
     conn.sftp(function(err, sftp){
         if(err) throw err;
-        //get file/folder names
-        var selectedFile = document.getElementById('remotePath');
-        var pathToSend = document.getElementById('localPath');
 
-        if(selectedFile.value == "" || pathToSend.value == ""){
+        if(selectedFile == "" || pathToSend == ""){
             alert("Local Path or Remote Path is empty");
         }
         else{
             var isDir = null;   //used to determine which function to call
             //determine if file or folder
-            sftp.lstat(selectedFile.value, function(err, stats){
+            console.log("selectedFile: " + selectedFile) ;
+            sftp.lstat(selectedFile, function(err, stats){
                 if (err){
                     alert("Error: remote file does not exist");
                 }
@@ -364,16 +357,16 @@ function selectDownload(){
                     isDir = stats.isDirectory() ;
                     //if folder, recursive download
                     if(isDir == true){
-                        if(fs.existsSync(pathToSend.value) == false){
-                            fs.mkdir(pathToSend.value,function(err){
+                        if(fs.existsSync(pathToSend) == false){
+                            fs.mkdir(pathToSend,function(err){
                                 if (err) throw err;
                             });
                         }
-                        recurDownload(sftp, selectedFile.value, pathToSend.value) ;
+                        recurDownload(sftp, selectedFile, pathToSend) ;
                     }
                     //if file, call download
                     else if(isDir == false){
-                        download(sftp, selectedFile.value, pathToSend.value);
+                        download(sftp, selectedFile, pathToSend);
                     }
                     else{
                         alert("something's gone wrong. isDir is null.");
@@ -385,26 +378,23 @@ function selectDownload(){
     });
 }
 
-function selectUpload(){
+function selectUpload(selectedFile, pathToSend){
     //create connection to sftp
     conn.sftp(function(err, sftp){
         if(err) throw err;
-        //get file/folder names
-        var selectedFile = document.getElementById('localPath');
-        var pathToSend = document.getElementById('remotePath');
 
-        console.log("selected file: " + selectedFile.value);
-        console.log("path to send: " + pathToSend.value);
+        console.log("selected file: " + selectedFile);
+        console.log("path to send: " + pathToSend);
 
-        if(selectedFile.value == "" || pathToSend.value == ""){
+        if(selectedFile == "" || pathToSend == ""){
             alert("Local Path or Remote Path is empty");
         }
         else{
             var isDir = null;   //used to determine which function to call
             //determine if file or folder
             try{
-                //console.log( fs.lstatSync(selectedFile.value).isDirectory() );
-                isDir = fs.lstatSync(selectedFile.value).isDirectory();
+                //console.log( fs.lstatSync(selectedFile).isDirectory() );
+                isDir = fs.lstatSync(selectedFile).isDirectory();
             }
             catch(err){
                 alert("Local file you entered does not exist");
@@ -413,25 +403,25 @@ function selectUpload(){
             //if folder, recursive upload
             if(isDir == true){
                 /*
-                sftp.lstat(pathToSend.value, function(err, stats){
+                sftp.lstat(pathToSend, function(err, stats){
                     if (err) {
-                        sftp.mkdir(pathToSend.value,function(err){
+                        sftp.mkdir(pathToSend,function(err){
                             if (err) alert("Error: make dir pathToSend");
                         });
                     }
                 });
                 */
-                sftp.mkdir(pathToSend.value,function(err){
+                sftp.mkdir(pathToSend,function(err){
                     if (err) console.log("Error: make dir pathToSend");
                 });
-                recurUpload(sftp, selectedFile.value, pathToSend.value) ;
+                recurUpload(sftp, selectedFile, pathToSend) ;
             }
             //if file, call upload
             else if(isDir == false){
-                console.log("selected file: " + selectedFile.value);
-                console.log("path to send: " + pathToSend.value);
+                console.log("selected file: " + selectedFile);
+                console.log("path to send: " + pathToSend);
 
-                upload(sftp, selectedFile.value, pathToSend.value);
+                upload(sftp, selectedFile, pathToSend);
             }
             else{
                 //alert("something's gone wrong. isDir is null.");
