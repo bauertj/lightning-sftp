@@ -85,7 +85,7 @@ var $ = require("jquery");
 
  */
 $(document).ready(function () {
-        var result = _getAllFilesFromFolder("C://");
+        var result = _getAllFilesFromFolder("/home/lightning-sftp/Desktop/");
         var jsonContent = [];
         for (var i = 0; i < result.length; i++) {
 
@@ -107,9 +107,11 @@ $(document).ready(function () {
             $('#jstree').jstree({
                 core: {
                     data: jsonContent,
-                    check_callback: true
+                    check_callback: function(callback){
+                        return callback !== "delete_node";
+                    }
                 },
-                plugins: ["dnd", "sort"]
+                plugins: ["dnd", "sort", "state"]
             });
 
             $('#jstree').on("changed.jstree", function (e, data) {
@@ -282,9 +284,11 @@ function createTree(jsonData, sftp){
         $('#jstree2').jstree({
             core: {
                 data: jsonData,
-                check_callback: true
+                check_callback: function(callback){
+                    return callback !== "delete_node";
+                }
             },
-            plugins: ["dnd", "sort"]
+            plugins: ["dnd", "sort", "state"]
         });
 
         $('#jstree2').on("loaded.jstree", function (e, data) {
@@ -323,6 +327,8 @@ function createTree(jsonData, sftp){
             var newId = data.node.parent + "/" + filename ;
             $('#jstree2').jstree(true).set_id(curNode, newId);
             selectUpload(data.original.id, newPath);
+
+            $('#jstree2').jstree(true).redraw();
         });
 
         $('#jstree').on('copy_node.jstree', function (e, data) {
@@ -332,6 +338,8 @@ function createTree(jsonData, sftp){
             var newId = data.node.parent + "/" + filename ;
             $('#jstree').jstree(true).set_id(curNode, newId);
             selectDownload(data.original.id, newPath);
+            $('#jstree').jstree(true).redraw();
+
         });
     })
 }
