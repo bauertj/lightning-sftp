@@ -12,7 +12,8 @@ app.on('ready', function() {
         height: 1100,
         width: 1500,
         fullscreenable: false,
-        title: "Lightning SFTP"
+        title: "Lightning SFTP",
+        icon: "./app/images/testIcon.png"
     });
 
     fs.stat("ConnectionHistory.json", function (err, stat) {
@@ -120,7 +121,8 @@ ipcMain.on('open-test-window', function () {
 
     testTree = new BrowserWindow({
         height: 500,
-        width: 1024
+        width: 1024,
+        icon: "./app/images/testIcon.png"
     });
 
     testTree.loadURL('file://' + __dirname + '/app/testTree.html');
@@ -141,7 +143,8 @@ ipcMain.on('open-history-window', function () {
     historyWindow = new BrowserWindow({
         height: 500,
         width: 1024,
-        alwaysOnTop: true
+        alwaysOnTop: true,
+        icon: "./app/images/testIcon.png"
     });
 
     historyWindow.loadURL('file://' + __dirname + '/app/historyWindow.html');
@@ -169,7 +172,8 @@ ipcMain.on('open-connection-window', function () {
         width: 350,
         alwaysOnTop: true,
         resizable: false,
-        autoHideMenuBar: true
+        autoHideMenuBar: true,
+        icon: "./app/images/testIcon.png"
     });
 
     connectionWindow.loadURL('file://' + __dirname + '/app/connectionWindow.html');
@@ -218,7 +222,8 @@ ipcMain.on('open-bookmarks-window', function () {
     }
 
     bookmarksWindow = new BrowserWindow({
-        autoHideMenuBar: true
+        autoHideMenuBar: true,
+        icon: "./app/images/testIcon.png"
     });
 
     bookmarksWindow.loadURL('file://' + __dirname + '/app/bookmarksWindow.html');
