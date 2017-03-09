@@ -80,12 +80,15 @@ var _getFilesSecondLayer = function(dir){
 var $ = require("jquery");
 //console.log(results);
 
+var somepath = "C:/" ;
 
 /* Sets up local file tree
 
  */
 $(document).ready(function () {
-        var result = _getAllFilesFromFolder("/home/lightning-sftp/Desktop/");
+        //EDIT HERE
+
+        var result = _getAllFilesFromFolder(somepath);
         var jsonContent = [];
         for (var i = 0; i < result.length; i++) {
 
@@ -326,8 +329,12 @@ function createTree(jsonData, sftp){
             var curNode = $('#jstree2').jstree(true).get_node(data.node);
             var newId = data.node.parent + "/" + filename ;
             $('#jstree2').jstree(true).set_id(curNode, newId);
-            selectUpload(data.original.id, newPath);
-
+            if(curNode.parent == "#"){
+                selectUpload(data.original.id, "./" + filename);
+            }
+            else{
+                selectUpload(data.original.id, newPath);
+            }
             $('#jstree2').jstree(true).redraw();
         });
 
@@ -337,7 +344,12 @@ function createTree(jsonData, sftp){
             var curNode = $('#jstree').jstree(true).get_node(data.node);
             var newId = data.node.parent + "/" + filename ;
             $('#jstree').jstree(true).set_id(curNode, newId);
-            selectDownload(data.original.id, newPath);
+            if(curNode.parent == "#"){
+                selectDownload(data.original.id, somepath + filename)
+            }
+            else{
+                selectDownload(data.original.id, newPath);
+            }
             $('#jstree').jstree(true).redraw();
 
         });
