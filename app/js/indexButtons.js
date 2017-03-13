@@ -5,6 +5,11 @@ settingsEl.addEventListener('click', function () {
     ipcRenderer.send('open-history-window');
 });
 
+var settingsE2 = document.querySelector('#logoutConn');
+settingsE2.addEventListener('click', function (){
+    logoutFunction();
+});
+
 var settingsE3 = document.querySelector('#bookmark');
 settingsE3.addEventListener('click', function () {
    ipcRenderer.send('open-bookmarks-window');

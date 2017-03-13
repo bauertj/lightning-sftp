@@ -195,9 +195,8 @@ function _getAllFilesSecondLayer(dir, sftp){
  */
 function createTree(jsonData, sftp){
     // once the user logs in, remove the login html from the page
-    var parent = document.getElementById("userInfo");
     var child = document.getElementById("removable");
-    parent.removeChild(child);
+    child.style.display = 'none';
 
     $(function () {
         // sets up remote file tree with data given

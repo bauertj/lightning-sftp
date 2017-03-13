@@ -76,10 +76,12 @@ function loginFunction( connSettings ) {
 
 function logoutFunction(){
     //close connection
-    
+    conn.end();
     //destroy tree
-
+    $('#jstree2').jstree("destroy");
     //display text area again
+    var child = document.getElementById("removable");
+    child.style.display = 'inline';
 }
 
 
