@@ -1,6 +1,7 @@
-
+//Used to detect the os's home dir
+const os = require('os');
 // Local root default directory
-var somepath = "/";
+var somepath = os.homedir() + "/";
 // Remote root default directory
 var remotePath = "./";
 
