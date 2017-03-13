@@ -55,25 +55,31 @@ function loginFunction( connSettings ) {
 
 
     // Connects to server with connection settings the user inputted, pushes connection onto ConnectionHistory JSON file
-   try {
-       if(connSettings.host=="" || connSettings.username=="" || connSettings.password==""){
-           alert("Please enter all required information");
-       }
-       else {
-           conn.on('ready', function (err) {
-               console.log("You are now connected");
-               //document.getElementById("loginText").innerHTML = "Connected to " + connSettings.host;
-               jsonContent.connectionHistory.push(obj);
-               jsonfile.writeFileSync(file, jsonContent);
 
-           }).connect(connSettings);
-
-       }
-   } catch(err){
-       throw err;
+    if(connSettings.host=="" || connSettings.username=="" || connSettings.password==""){
+        alert("Please enter all required information");
+    }
+    else {
+            conn.on('ready', function() {
+                console.log("You are now connected");
+                //document.getElementById("loginText").innerHTML = "Connected to " + connSettings.host;
+                jsonContent.connectionHistory.push(obj);
+                jsonfile.writeFileSync(file, jsonContent);
+            }).connect(connSettings);
+            conn.on('error', function(err){
+               alert("Information Incorrect. Reenter.") ;
+            });
    }
 
    retrieveData(remotePath);
+}
+
+function logoutFunction(){
+    //close connection
+    
+    //destroy tree
+
+    //display text area again
 }
 
 

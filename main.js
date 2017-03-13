@@ -112,27 +112,6 @@ ipcMain.on('close-main-window', function () {
    app.quit();
 });
 
-var testTree = null;
-ipcMain.on('open-test-window', function () {
-
-    if(testTree){
-        return;
-    }
-
-    testTree = new BrowserWindow({
-        height: 500,
-        width: 1024,
-        icon: "./app/images/testIcon.png"
-    });
-
-    testTree.loadURL('file://' + __dirname + '/app/testTree.html');
-
-    testTree.on('closed', function () {
-        testTree = null;
-    });
-
-});
-
 var historyWindow = null;
 ipcMain.on('open-history-window', function () {
 
@@ -158,32 +137,6 @@ ipcMain.on('open-history-window', function () {
 ipcMain.on('close-history-window', function (event, arg) {
     mainWindow.webContents.send('close-history-window', arg);
     historyWindow.close();
-});
-
-var connectionWindow = null;
-ipcMain.on('open-connection-window', function () {
-
-    if(connectionWindow){
-        return;
-    }
-
-    connectionWindow = new BrowserWindow({
-        height: 350,
-        width: 350,
-        alwaysOnTop: true,
-        resizable: false,
-        autoHideMenuBar: true,
-        icon: "./app/images/testIcon.png"
-    });
-
-    connectionWindow.loadURL('file://' + __dirname + '/app/connectionWindow.html');
-
-    connectionWindow.on('closed', function () {
-        connectionWindow = null;
-    });
-});
-ipcMain.on('close-connection-window', function () {
-   connectionWindow = null;
 });
 
 var passwordWindow = null;

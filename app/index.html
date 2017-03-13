@@ -27,9 +27,9 @@
         <header>
             <form>
                 <div class="container">
-                    <div><input type="button" id="newConnection" value="Logout" class="btn"></div>
                     <div><input type="button" value="Connection History" id="connection" class="btn"></div>
                     <div><input type="button" value="Bookmarks" id="bookmark" class="btn"></div>
+                    <div><input type="button" id="logoutConn" value="Logout" class="btn"></div>
                 </div>
 
             </form>
@@ -39,13 +39,6 @@
             <fieldset id="fileForm">
 
                 <legend>File Information</legend>
-
-               <!-- <label class="label" for="localPath"> Local Path </label>
-                <input type="text" id="localPath" value="">
-                <br><br>
-
-                <label class="label" for="remotePath"> Remote Path </label>
-                <input type="text" id="remotePath" value=""> -->
 
                 <div id="jstree">
 
@@ -91,13 +84,7 @@
 
             <br><br>
 
-            <!--<input type="button" id="tryUpload"      onclick="selectUpload()"    value="Upload">
-            <input type="button" id="tryDownload"    onclick="selectDownload()"  value="Download">-->
-
-
             <textarea id="area" cols="100" rows="15" disabled></textarea>
-
-
 
 		    </form>
 
@@ -119,7 +106,5 @@
     <script src="js/treeIndex.js"></script>
 
 	</body>
-
-
 
 </html>
