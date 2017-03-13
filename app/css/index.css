@@ -80,13 +80,16 @@ textarea{
 }
 
 #fileForm{
-    overflow: scroll;
-    max-height: 500px;
-    max-width: 45%;
+    overflow: hidden;
+
 }
 
 #userInfo{
-    overflow: scroll;
+    overflow: hidden;
+}
+
+.no-overflow{
+    overflow-y: auto;
     max-height: 500px;
-    max-width: 45%;
+    max-width: 100%;
 }
