@@ -257,7 +257,7 @@ function createTree(jsonData, sftp){
             else{
                 selectUpload(data.original.id, newPath);
             }
-            
+
             // redraws the tree when done, making sure it is up to date
             $('#jstree2').jstree(true).redraw();
         });
