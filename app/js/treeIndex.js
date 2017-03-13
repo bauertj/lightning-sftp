@@ -1,6 +1,7 @@
 
+const os = require("os");
 // Local root default directory
-var somepath = "/";
+var somepath = os.homedir() + "/";
 // Remote root default directory
 var remotePath = "./";
 
@@ -18,7 +19,7 @@ var _getAllFilesFromFolder = function (dir) {
             }
             else if (stats.isDirectory()) {
                 var children = _getFilesSecondLayer(fullDir + "/");
-                results1.push([file, "", fullDir, children]);
+                results1.push([file, "", fullDir, "test"]);
             }
         }
         catch(err){
@@ -73,10 +74,12 @@ $(document).ready(function () {
             // if the data is a directory it will create the children for it
             if(result[i][3] != ""){
                 var temp = result[i][3];
-                for(var j = 0; j < temp.length; j++){
+                var child = {text: temp, icon: "jstree-file", id: temp, parent: obj.id};
+                jsonContent.push(child);
+                /*for(var j = 0; j < temp.length; j++){
                     var child = {text: temp[j][0], icon: temp[j][1], id: temp[j][2], parent: obj.id};
                     jsonContent.push(child);
-                }
+                }*/
             }
         }
 
@@ -96,26 +99,28 @@ $(document).ready(function () {
                 console.log(data.selected);
             });
 
+            // Local file tree event when a node is opened
             $('#jstree').on("open_node.jstree", function(e, data){
+                // arbitrary node is always first on list, id is always 'test'
+                var removable = $('#jstree').jstree(true).get_node(data.node.children[0]);
+                if(removable.id == "test") {
+                    // hides arbitrary node now that other nodes are created
+                    $('#jstree').jstree('hide_node', data.node.children[0]);
+                }
 
+                // array of node objects, loops through and creates nodes
                 var newChildren = _getAllFilesFromFolder(data.node.id + "/");
-
                 for(var i = 0; i < newChildren.length; i++){
+                    var child = {text: newChildren[i][0], icon: newChildren[i][1], id: newChildren[i][2], parent: obj.id};
+                    // creates node in tree if the id does not already exist
+                    if(!($('#jstree').jstree(true).get_node(newChildren[i][2]))){
+                        $('#jstree').jstree('create_node', data.node.id, child);
+                    }
 
-                    if(newChildren[i][3] != ""){
-                        var temp = newChildren[i][3];
-
-                        for(j = 0; j < temp.length; j++){
-                            var subs = temp[j][4].substring(0, temp[j][4].length-1);
-
-                            var child = {text: temp[j][0], icon: temp[j][1], id: temp[j][2]};
-
-                            if(!($('#jstree').jstree(true).get_node(child.id))){
-                                $('#jstree').jstree('create_node', subs, child);
-                            }
-
-
-                        }
+                    // checks if new node is a directory, then creates arbitrary file
+                    if(child.icon == ""){
+                        var arbitraryNode = {text: temp, icon: "jstree-file", id: temp, parent: child.id};
+                        $('#jstree').jstree('create_node', child, arbitraryNode);
                     }
                 }
             });
