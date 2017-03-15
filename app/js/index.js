@@ -60,15 +60,21 @@ function loginFunction( connSettings ) {
         alert("Please enter all required information");
     }
     else {
-            conn.on('ready', function() {
-                console.log("You are now connected");
-                //document.getElementById("loginText").innerHTML = "Connected to " + connSettings.host;
-                jsonContent.connectionHistory.push(obj);
-                jsonfile.writeFileSync(file, jsonContent);
-            }).connect(connSettings);
-            conn.on('error', function(err){
-               alert("Information Incorrect. Reenter.") ;
-            });
+        // for when the client is connected to the server
+        conn.on('ready', function() {
+            console.log("You are now connected");
+            //document.getElementById("loginText").innerHTML = "Connected to " + connSettings.host;
+            jsonContent.connectionHistory.push(obj);
+            jsonfile.writeFileSync(file, jsonContent);
+        }).connect(connSettings);
+        // for when there is an error with the connection
+        conn.on('error', function(err){
+           alert("Information Incorrect. Reenter.") ;
+        });
+        // for when the connection is disconnected / ended
+        conn.on('end', function(){
+            console.log("You disconnected from " + connSettings.host);
+        });
    }
 
    retrieveData(remotePath);

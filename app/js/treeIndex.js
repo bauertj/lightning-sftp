@@ -77,6 +77,13 @@ $(document).ready(function () {
                 console.log(data.selected);
             });
 
+            $('#jstree').on("loaded.jstree", function (e, data) {
+                var selectLocal = document.getElementById('upperLevelsLocal');
+                var option = document.createElement("option");
+                option.text = somepath;
+                selectLocal.add(option);
+            });
+
             // Local file tree event when a node is opened
             $('#jstree').on("open_node.jstree", function(e, data){
                 // arbitrary node is always first on list, id is always 'test'

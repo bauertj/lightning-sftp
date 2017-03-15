@@ -80,12 +80,12 @@ textarea{
 }
 
 #fileForm{
-    overflow: hidden;
+
 
 }
 
 #userInfo{
-    overflow: hidden;
+    min-height: 515px;
 }
 
 .no-overflow{
