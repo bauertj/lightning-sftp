@@ -88,6 +88,11 @@ function initTree(jsonContent) {
         console.log("loaded");
         var localOptions = document.getElementById('upperLevelsLocal');
 
+        var slash = "/";
+        if(os.type().includes("Windows")){
+            slash = "\\";
+        }
+
         // empties the select option every time a tree is loaded
         while(localOptions.firstChild){
             localOptions.removeChild(localOptions.firstChild);
@@ -98,7 +103,7 @@ function initTree(jsonContent) {
         for(var i = 0; i < somepath.length; i++){
             tempPath += somepath[i];
 
-            if(somepath[i] == '/'){
+            if(somepath[i] == slash){
                 appendedPath += tempPath;
                 // prepends html to the select if it is not the current directory
                 if(appendedPath != somepath)
