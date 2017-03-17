@@ -1,10 +1,15 @@
 const os = require("os");
-// Local root default directory
-var somepath = os.homedir() + "/";
+
 // Remote root default directory
 var remotePath = "./";
 
+var slash = "/";
+if(os.type().includes("Windows")){
+    slash = "\\";
+}
 
+// Local root default directory
+var somepath = os.homedir() + slash;
 /*
  * dir: directory path to where to get files
  *
@@ -88,10 +93,7 @@ function initTree(jsonContent) {
         console.log("loaded");
         var localOptions = document.getElementById('upperLevelsLocal');
 
-        var slash = "/";
-        if(os.type().includes("Windows")){
-            slash = "\\";
-        }
+
 
         // empties the select option every time a tree is loaded
         while(localOptions.firstChild){
@@ -128,7 +130,7 @@ function initTree(jsonContent) {
         }
 
         // array of node objects, loops through and creates nodes
-        var newChildren = _getAllFilesFromFolder(data.node.id + "/");
+        var newChildren = _getAllFilesFromFolder(data.node.id + slash);
         for(var i = 0; i < newChildren.length; i++){
             var child = {text: newChildren[i][0], icon: newChildren[i][1], id: newChildren[i][2], parent: obj.id};
             // creates node in tree if the id does not already exist
@@ -149,7 +151,7 @@ function initTree(jsonContent) {
     $('#jstree').on('move_node.jstree', function(e, data){
         var curNode = $('#jstree').jstree(true).get_node(data.node);
         var oldPath = data.node.id;
-        var newId = data.parent + "/" + data.node.text;
+        var newId = data.parent + slash + data.node.text;
         $('#jstree').jstree(true).set_id(curNode, newId);
 
         // renames path of file to new path, essentially moving it elsewhere on system
@@ -158,7 +160,7 @@ function initTree(jsonContent) {
 
 
     $('#jstree').bind("dblclick.jstree", function(event){
-        somepath = event.target.parentNode.id + "/";
+        somepath = event.target.parentNode.id + slash;
         console.log(somepath);
         var newJson = setTree(somepath);
 
@@ -224,7 +226,7 @@ function _getAllFilesSecondLayer(dir, sftp){
         for(var i = 0; i < list.length; i++) {
             var filename = list[i].filename;
             var longname = list[i].longname;
-            var fulldir = dir + "/" + filename;
+            var fulldir = dir + slash + filename;
 
             var parent = $('#jstree2').jstree(true).get_node(dir);
 
@@ -304,7 +306,7 @@ function createTree(jsonData, sftp){
             sftp.readdir(data.node.id, function(err, list){
                 for(var i = 0; i < list.length; i++) {
                     if (list[i].longname.substring(0,1) == "d") {
-                        var newPath = data.node.id + "/" + list[i].filename;
+                        var newPath = data.node.id + slash + list[i].filename;
                         _getAllFilesSecondLayer(newPath, sftp);
                     }
                 }
@@ -316,7 +318,7 @@ function createTree(jsonData, sftp){
             // retrieves node being moved
             var curNode = $('#jstree2').jstree(true).get_node(data.node);
             var oldPath = data.node.id;
-            var newId = data.parent + "/" + data.node.text;
+            var newId = data.parent + slash + data.node.text;
             $('#jstree2').jstree(true).set_id(curNode, newId);
             // renames the path to the new path, essentially moving the file on the file system
             sftp.rename(oldPath, newId);
@@ -326,9 +328,9 @@ function createTree(jsonData, sftp){
         $('#jstree2').on("copy_node.jstree", function(e, data){
             console.log(data);
             var filename = data.node.text;
-            var newPath = data.parent + "/" + filename;
+            var newPath = data.parent + slash + filename;
             var curNode = $('#jstree2').jstree(true).get_node(data.node);
-            var newId = data.node.parent + "/" + filename ;
+            var newId = data.node.parent + slash + filename ;
             $('#jstree2').jstree(true).set_id(curNode, newId);
 
 
@@ -347,9 +349,9 @@ function createTree(jsonData, sftp){
         // event for moving node from local tree to remote tree
         $('#jstree').on('copy_node.jstree', function (e, data) {
             var filename = data.node.text;
-            var newPath = data.parent + "/" + filename;
+            var newPath = data.parent + slash + filename;
             var curNode = $('#jstree').jstree(true).get_node(data.node);
-            var newId = data.node.parent + "/" + filename ;
+            var newId = data.node.parent + slash + filename ;
 
             // checks whether the parent of the current node is on the top layer. handles accordingly
             $('#jstree').jstree(true).set_id(curNode, newId);
