@@ -7,6 +7,7 @@ var slash = "/";
 if(os.type().includes("Windows")){
     slash = "\\";
 }
+var checkDelete = false;
 
 // Local root default directory
 var somepath = os.homedir() + slash;
@@ -76,11 +77,14 @@ function initTree(jsonContent) {
         core: {
             data: jsonContent,
             check_callback: function(callback){
-                return callback !== "delete_node";
+                if(checkDelete){
+                    checkDelete=false;
+                    return callback !== "delete_node";
+                }
             },
             dblclick_toggle: false
         },
-        plugins: ["dnd", "sort"]
+        plugins: ["dnd", "sort", "contextmenu"]
     });
 
     // event for whenever something is changed in tree
@@ -167,6 +171,14 @@ function initTree(jsonContent) {
         $('#jstree').jstree('destroy');
 
         initTree(newJson);
+    });
+
+    $('#jstree').on('rename_node.jstree', function(e, data){
+        console.log("rename event");
+    });
+
+    $('#jstree').on('delete_node.jstree', function(e, data){
+        console.log("delete event");
     });
 
 }
@@ -266,10 +278,13 @@ function createTree(jsonData, sftp){
             core: {
                 data: jsonData,
                 check_callback: function(callback){
-                    return callback !== "delete_node";
+                    if(checkDelete){
+                        checkDelete=false;
+                        return callback !== "delete_node";
+                    }
                 }
             },
-            plugins: ["dnd", "sort", "state"]
+            plugins: ["dnd", "sort", "contextmenu"]
         });
 
         // once the data is loaded, we will retrieve the files for the directories on top
