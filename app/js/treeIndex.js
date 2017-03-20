@@ -212,65 +212,51 @@ $(document).ready(function () {
  * Called when the user logs in to a remote server
  */
 function retrieveData(dir){
-    var jsonData = [];
-
     // listens for when the connection is ready
     conn.on('ready', function(err){
-        conn.sftp(function(err, sftp){
+
+        getTreeData(remotePath);
+    });
+}
+
+function getTreeData(dir) {
+    conn.sftp(function(err, sftp) {
+        console.log("Here is the directory I am getting data from: " + dir);
+        var jsonData = [];
+        try {
             sftp.readdir(dir, function (err, list) {
+                if (err) {
+                    console.log(err);
+                }
                 // retrieves a list of files on the default path and loops through to populate json object
-                for(var i = 0; i < list.length; i++){
+                for (var i = 0; i < list.length; i++) {
+                    //console.log(list[i]);
                     var fileName = list[i].filename;
                     var fulldir = dir + fileName;
                     var longname = list[i].longname;
                     var icon = "";
                     // var id = dir;
-                    if(longname.substring(0,1) != "d"){
+                    if (longname.substring(0, 1) != "d") {
                         icon = "jstree-file";
                     }
 
+
                     var obj = {text: fileName, icon: icon, id: fulldir, parent: "#"};
                     jsonData.push(obj);
+                    if (longname.substring(0, 1) == "d") {
+                        var child = {text: "test", icon: "jstree-file", id: "test", parent: fulldir};
+                        jsonData.push(child);
+                    }
                 }
+
                 // creates tree with the json data that was created
                 createTree(jsonData, sftp);
             });
-        });
+        }catch(err){
+            console.log(dir);
+            alert(err);
+        }
     });
-}
-
-/*
- * dir: directory to get file information from
- * sftp: sftp object
- *
- * Reads a second layer of files in order to populate the remote file tree
- */
-function _getAllFilesSecondLayer(dir, sftp){
-    sftp.readdir(dir, function (err, list) {
-        // retrieve a list of files in order to update the tree
-        for(var i = 0; i < list.length; i++) {
-            var filename = list[i].filename;
-            var longname = list[i].longname;
-            var fulldir = dir + slash + filename;
-
-            var parent = $('#jstree2').jstree(true).get_node(dir);
-
-            // if the file is a directory it will create it as a directory
-            if (longname.substring(0, 1) != "d") {
-                var child = {text: filename, icon: "jstree-file", id: fulldir};
-                if(!($('#jstree2').jstree(true).get_node(child.id))) {
-                    $('#jstree2').jstree('create_node', parent, child);
-                }
-            }
-            // if it is not a directory, create as a file
-            else {
-                var child = {text: filename, icon: "", id: fulldir};
-                if(!($('#jstree2').jstree(true).get_node(child.id))) {
-                    $('#jstree2').jstree('create_node', parent, child);
-                }
-            }
-        }// for
-    });// readdir
 }
 
 /**
@@ -295,27 +281,30 @@ function createTree(jsonData, sftp){
                         checkDelete=false;
                         return callback !== "delete_node";
                     }
-                }
+                },
+                dblclick_toggle: false
             },
             plugins: ["dnd", "sort", "contextmenu"]
         });
 
         // once the data is loaded, we will retrieve the files for the directories on top
         $('#jstree2').on("loaded.jstree", function (e, data) {
-            for (var i = 0; i < jsonData.length; i++) {
-                if (jsonData[i].icon == "") {
-                    _getAllFilesSecondLayer(jsonData[i].id, sftp);
-                }
+            var remoteOptions = document.getElementById('upperLevelsRemote');
+
+            // empties the select option every time a tree is loaded
+            while(remoteOptions.firstChild){
+                remoteOptions.removeChild(remoteOptions.firstChild);
             }
 
 
+            console.log("I created the tree! Here is the path: " + remotePath);
             var tempPath = "";
             var appendedPath = "";
             // loops through the current directory path string
             for(var i = 0; i < remotePath.length; i++){
                 tempPath += remotePath[i];
 
-                if(somepath[i] == '/'){
+                if(remotePath[i] == '/'){
                     appendedPath += tempPath;
                     // prepends html to the select if it is not the current directory
                     if(appendedPath != remotePath && appendedPath != ".")
@@ -331,14 +320,46 @@ function createTree(jsonData, sftp){
 
         // event for when a node is opened
         $('#jstree2').on("open_node.jstree", function(e, data){
+            console.log("this is not a test");
             sftp.readdir(data.node.id, function(err, list){
+                console.log(list);
                 for(var i = 0; i < list.length; i++) {
-                    if (list[i].longname.substring(0,1) == "d") {
-                        var newPath = data.node.id + slash + list[i].filename;
-                        _getAllFilesSecondLayer(newPath, sftp);
+
+                    var filename = list[i].filename;
+                    var longname = list[i].longname;
+                    var fulldir = data.node.id + "/" + filename;
+
+                    var parent = $('#jstree2').jstree(true).get_node(data.node.id);
+
+                    // if it is not a directory, create as a file
+                    if (longname.substring(0, 1) != "d") {
+                        var child = {text: filename, icon: "jstree-file", id: fulldir};
+                        if(!($('#jstree2').jstree(true).get_node(child.id))) {
+                            $('#jstree2').jstree('create_node', parent, child);
+
+                        }
+                    }
+
+                    // if the file is a directory it will create it as a directory
+                    else {
+                        var child = {text: filename, icon: "", id: fulldir};
+                        if(!($('#jstree2').jstree(true).get_node(child.id))) {
+                            $('#jstree2').jstree('create_node', parent, child);
+                            var arbitraryNode = {text: "test", icon: "jstree-file", id: "test", parent: fulldir};
+                            $('#jstree2').jstree('create_node', child, arbitraryNode);
+                        }
                     }
                 }
             });
+        });
+
+
+        $('#jstree2').bind("dblclick.jstree", function(event){
+            remotePath = event.target.parentNode.id + slash;
+
+            $('#jstree2').jstree('destroy');
+
+            getTreeData(remotePath);
         });
 
         // event for moving nodes within the same tree

@@ -62,6 +62,7 @@ function loginFunction( connSettings ) {
     else {
         // for when the client is connected to the server
         conn.on('ready', function() {
+
             console.log("You are now connected");
             //document.getElementById("loginText").innerHTML = "Connected to " + connSettings.host;
             jsonContent.connectionHistory.push(obj);

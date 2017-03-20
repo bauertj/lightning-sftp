@@ -5,4 +5,12 @@ $('#upperLevelsLocal').change(function(){
     $('#jstree').jstree('destroy');
 
     initTree(newJson);
-})
+});
+
+$('#upperLevelsRemote').change(function(){
+    remotePath = $(this)[0].value;
+
+    $('#jstree2').jstree('destroy');
+
+    getTreeData(remotePath);
+});
