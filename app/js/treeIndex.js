@@ -203,7 +203,7 @@ $(document).ready(function () {
 
 
 
-
+var globalSftp = "";
 
 /*
  * dir: the remote directory default path location
@@ -214,19 +214,21 @@ $(document).ready(function () {
 function retrieveData(dir){
     // listens for when the connection is ready
     conn.on('ready', function(err){
-
-        getTreeData(remotePath);
+        conn.sftp(function(err, sftp) {
+            globalSftp = sftp;
+            getTreeData(remotePath);
+        });
     });
 }
 
 function getTreeData(dir) {
-    conn.sftp(function(err, sftp) {
         console.log("Here is the directory I am getting data from: " + dir);
         var jsonData = [];
         try {
-            sftp.readdir(dir, function (err, list) {
+            globalSftp.readdir(dir, function (err, list) {
                 if (err) {
-                    console.log(err);
+                    console.log(err)
+                    console.log(dir);
                 }
                 // retrieves a list of files on the default path and loops through to populate json object
                 for (var i = 0; i < list.length; i++) {
@@ -250,13 +252,12 @@ function getTreeData(dir) {
                 }
 
                 // creates tree with the json data that was created
-                createTree(jsonData, sftp);
+                createTree(jsonData);
             });
         }catch(err){
             console.log(dir);
             alert(err);
         }
-    });
 }
 
 /**
@@ -266,7 +267,7 @@ function getTreeData(dir) {
  * @param jsonData jsonData object to pass in
  * @param sftp sftp object to pass in
  */
-function createTree(jsonData, sftp){
+function createTree(jsonData){
     // once the user logs in, remove the login html from the page
     var child = document.getElementById("removable");
     child.style.display = 'none';
@@ -321,7 +322,7 @@ function createTree(jsonData, sftp){
         // event for when a node is opened
         $('#jstree2').on("open_node.jstree", function(e, data){
             console.log("this is not a test");
-            sftp.readdir(data.node.id, function(err, list){
+            globalSftp.readdir(data.node.id, function(err, list){
                 console.log(list);
                 for(var i = 0; i < list.length; i++) {
 
@@ -362,6 +363,9 @@ function createTree(jsonData, sftp){
             getTreeData(remotePath);
         });
 
+
+
+
         // event for moving nodes within the same tree
         $('#jstree2').on("move_node.jstree", function(e, data){
             // retrieves node being moved
@@ -370,7 +374,7 @@ function createTree(jsonData, sftp){
             var newId = data.parent + slash + data.node.text;
             $('#jstree2').jstree(true).set_id(curNode, newId);
             // renames the path to the new path, essentially moving the file on the file system
-            sftp.rename(oldPath, newId);
+            globalSftp.rename(oldPath, newId);
         });
 
         // event for moving a node to the local file tree
