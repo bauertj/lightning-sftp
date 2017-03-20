@@ -173,7 +173,20 @@ function initTree(jsonContent) {
         initTree(newJson);
     });
 
-    $('#jstree').on('rename_node.jstree', function(e, data){
+    //WIP
+    $('#jstree').on('rename_node.jstree', function(e, data) {
+        var curNode = $('#jstree').jstree(true).get_node(data.node);
+        var oldpath = data.node.id;
+        var parentpath = data.node.parent ;
+        console.log("Parent is: " + parentpath) ;
+        if(parentpath == "#"){
+            parentpath = somepath ;
+        }
+        var newpath = parentpath + slash + data.node.text ;
+        $('#jstree').jstree(true).set_id(curNode, newpath);
+        console.log("Old: " + oldpath);
+        console.log("New: " + newpath);
+        fs.rename( oldpath, newpath)
         console.log("rename event");
     });
 
