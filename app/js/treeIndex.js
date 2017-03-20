@@ -355,7 +355,7 @@ function createTree(jsonData, sftp){
 
 
         $('#jstree2').bind("dblclick.jstree", function(event){
-            remotePath = event.target.parentNode.id + slash;
+            remotePath = event.target.parentNode.id + "/";
 
             $('#jstree2').jstree('destroy');
 
