@@ -164,13 +164,16 @@ function initTree(jsonContent) {
 
 
     $('#jstree').bind("dblclick.jstree", function(event){
-        somepath = event.target.parentNode.id + slash;
-        console.log(somepath);
-        var newJson = setTree(somepath);
+        var parentNode = $('#jstree').jstree(true).get_node(event.target.parentNode.id);
+        if(parentNode.icon != "jstree-file") {
+            somepath = event.target.parentNode.id + slash;
 
-        $('#jstree').jstree('destroy');
+            var newJson = setTree(somepath);
 
-        initTree(newJson);
+            $('#jstree').jstree('destroy');
+
+            initTree(newJson);
+        }
     });
 
     //WIP
@@ -356,11 +359,14 @@ function createTree(jsonData){
 
 
         $('#jstree2').bind("dblclick.jstree", function(event){
-            remotePath = event.target.parentNode.id + "/";
+            var parentNode = $('#jstree2').jstree(true).get_node(event.target.parentNode.id);
+            if(parentNode.icon != "jstree-file") {
+                remotePath = event.target.parentNode.id + "/";
 
-            $('#jstree2').jstree('destroy');
+                $('#jstree2').jstree('destroy');
 
-            getTreeData(remotePath);
+                getTreeData(remotePath);
+            }
         });
 
 
