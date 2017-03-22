@@ -190,20 +190,42 @@ function initTree(jsonContent) {
         var curNode = $('#jstree').jstree(true).get_node(data.node);
         var oldpath = data.node.id;
         var parentpath = data.node.parent ;
+        var typeDone = data.node.type
         console.log("Parent is: " + parentpath) ;
         if(parentpath == "#"){
             parentpath = somepath ;
         }
-        var newpath = parentpath + slash + data.node.text ;
+        var newpath = parentpath + data.node.text ;
         $('#jstree').jstree(true).set_id(curNode, newpath);
         console.log("Old: " + oldpath);
         console.log("New: " + newpath);
-        fs.rename( oldpath, newpath)
+        fs.rename( oldpath, newpath, function(err){
+            if (err) throw err;
+        });
+        console.log(data);
+        if(typeDone == "folder"){
+            for(var i = 0; i < data.node.children.length; i++){
+                var curChild = $('#jstree').jstree(true).get_node(data.node.children[i]);
+                console.log(curChild) ;
+                //curChild.id = curChild.parent.id + slash + curChild.text ;
+            }
+        }
         console.log("rename event");
     });
 
     $('#jstree').on('delete_node.jstree', function(e, data){
-        console.log("delete event");
+        console.log(data.node.type);
+        //works for files
+        if(data.node.type == "file"){
+            fs.unlink(data.node.id, function(err){
+               if (err) throw err;
+            });
+        }
+        //else folders WIP
+        else{
+            console.log("WIP");
+        }
+
     });
 
 }
