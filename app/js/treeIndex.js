@@ -27,10 +27,10 @@ var _getAllFilesFromFolder = function (dir) {
             var stats = fs.statSync(fullDir);
             // Changes pushed information based on whether the result is a file or directory
             if (stats.isFile()) {
-                results.push([file, "jstree-file", fullDir, ""]);
+                results.push([file, "jstree-file", fullDir, "", "file"]);
             }
             else if (stats.isDirectory()) {
-                results.push([file, "", fullDir, "test"]);
+                results.push([file, "", fullDir, "test", "folder"]);
             }
         }
         // sometimes stats is not permitted on some files. catch the error and assume it is a file
@@ -57,13 +57,13 @@ function setTree(newPath){
     // loops through the result array to add nodes to the json file
     for (var i = 0; i < result.length; i++) {
         // creates the json object and pushes it onto the json array
-        obj = {text: result[i][0], icon: result[i][1], id: result[i][2], parent: "#"};
+        obj = {text: result[i][0], icon: result[i][1], id: result[i][2], parent: "#", type: result[i][4]};
         jsonContent.push(obj);
 
         // if the data is a directory it will create the children for it
         if(result[i][3] != ""){
             var temp = result[i][3];
-            var child = {text: temp, icon: "jstree-file", id: temp, parent: obj.id};
+            var child = {text: temp, icon: "jstree-file", id: temp, parent: obj.id, type: "file"};
             jsonContent.push(child);
         }
     }
@@ -74,6 +74,14 @@ function setTree(newPath){
 function initTree(jsonContent) {
     // initializes the tree
     $('#jstree').jstree({
+        "types": {
+            "file" : {
+                "max_children" : 0
+            },
+            "folder" : {
+
+            }
+        },
         core: {
             data: jsonContent,
             check_callback: function(callback){
@@ -84,7 +92,7 @@ function initTree(jsonContent) {
             },
             dblclick_toggle: false
         },
-        plugins: ["dnd", "sort", "contextmenu"]
+        plugins: ["dnd", "sort", "contextmenu", "types"]
     });
 
     // event for whenever something is changed in tree
@@ -160,6 +168,7 @@ function initTree(jsonContent) {
 
         // renames path of file to new path, essentially moving it elsewhere on system
         fs.rename(oldPath, newId);
+        
     });
 
 
@@ -240,16 +249,18 @@ function getTreeData(dir) {
                     var fulldir = dir + fileName;
                     var longname = list[i].longname;
                     var icon = "";
+                    var type = "folder";
                     // var id = dir;
                     if (longname.substring(0, 1) != "d") {
                         icon = "jstree-file";
+                        type = "file";
                     }
 
 
-                    var obj = {text: fileName, icon: icon, id: fulldir, parent: "#"};
+                    var obj = {text: fileName, icon: icon, id: fulldir, parent: "#", type: type};
                     jsonData.push(obj);
                     if (longname.substring(0, 1) == "d") {
-                        var child = {text: "test", icon: "jstree-file", id: "test", parent: fulldir};
+                        var child = {text: "test", icon: "jstree-file", id: "test", parent: fulldir, type: "file"};
                         jsonData.push(child);
                     }
                 }
@@ -278,6 +289,14 @@ function createTree(jsonData){
     $(function () {
         // sets up remote file tree with data given
         $('#jstree2').jstree({
+            "types": {
+                "file" : {
+                    "max_children" : 0
+                },
+                "folder" : {
+
+                }
+            },
             core: {
                 data: jsonData,
                 check_callback: function(callback){
@@ -288,7 +307,7 @@ function createTree(jsonData){
                 },
                 dblclick_toggle: false
             },
-            plugins: ["dnd", "sort", "contextmenu"]
+            plugins: ["dnd", "sort", "contextmenu", "types"]
         });
 
         // once the data is loaded, we will retrieve the files for the directories on top
@@ -378,6 +397,7 @@ function createTree(jsonData){
             var curNode = $('#jstree2').jstree(true).get_node(data.node);
             var oldPath = data.node.id;
             var newId = data.parent + slash + data.node.text;
+
             $('#jstree2').jstree(true).set_id(curNode, newId);
             // renames the path to the new path, essentially moving the file on the file system
             globalSftp.rename(oldPath, newId);
