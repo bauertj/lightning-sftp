@@ -217,8 +217,9 @@ function initTree(jsonContent) {
         if(typeDone == "folder"){
             for(var i = 0; i < data.node.children.length; i++){
                 var curChild = $('#jstree').jstree(true).get_node(data.node.children[i]);
-                console.log(curChild) ;
-                //curChild.id = curChild.parent.id + slash + curChild.text ;
+                var newChildPath = curNode.id + slash + curChild.text
+                console.log(newChildPath) ;
+                $('#jstree').jstree(true).set_id(curChild, newChildPath);
             }
         }
         console.log("rename event");
