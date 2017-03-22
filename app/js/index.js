@@ -84,6 +84,7 @@ function loginFunction( connSettings ) {
 function logoutFunction(){
     //close connection
     conn.end();
+    conn = null;
     //destroy tree
     $('#jstree2').jstree("destroy");
     //display text area again
@@ -225,6 +226,8 @@ function upload(sftp, selectedFile, pathToSend){
     var read = fs.createReadStream(selectedFile);
     var write = sftp.createWriteStream(pathToSend);
 
+    console.log(selectedFile);
+    console.log(pathToSend);
 
     fs.stat(selectedFile, function (err, stats) {
         progressBar(read, write, stats, selectedFile);

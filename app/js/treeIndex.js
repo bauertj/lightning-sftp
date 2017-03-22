@@ -92,7 +92,7 @@ function initTree(jsonContent) {
             },
             dblclick_toggle: false
         },
-        plugins: ["dnd", "sort", "contextmenu", "types"]
+        plugins: ["dnd", "sort", "contextmenu", "types", "unique"]
     });
 
     // event for whenever something is changed in tree
@@ -168,20 +168,31 @@ function initTree(jsonContent) {
 
         // renames path of file to new path, essentially moving it elsewhere on system
         fs.rename(oldPath, newId);
-        
+
     });
 
 
     $('#jstree').bind("dblclick.jstree", function(event){
+        // parentNode is the node that is double clicked
         var parentNode = $('#jstree').jstree(true).get_node(event.target.parentNode.id);
-        if(parentNode.icon != "jstree-file") {
+
+        // if it is a folder, create a new tree with that as the root
+        if(parentNode.type === "folder") {
             somepath = event.target.parentNode.id + slash;
-
             var newJson = setTree(somepath);
-
             $('#jstree').jstree('destroy');
-
             initTree(newJson);
+        }
+
+        // will upload a file when it is double clicked to the root of the other tree
+        if(conn != null && parentNode.type === "file"){
+            selectUpload(parentNode.id, remotePath + parentNode.text);
+            console.log(remotePath + parentNode.text);
+            var newNode = {text: parentNode.text, icon: "jstree-file", id: remotePath + parentNode.text, parent: '#', type: 'file'};
+            if(!$('#jstree2').jstree(true).get_node(newNode.id)){
+                $('#jstree2').jstree('create_node', '#', newNode);
+            }
+
         }
     });
 
@@ -228,6 +239,30 @@ function initTree(jsonContent) {
 
     });
 
+
+    // event for moving node from remote tree to local tree
+    $('#jstree').on("copy_node.jstree", function (e, data) {
+        var filename = data.node.text;
+        var newPath = data.parent + slash + filename;
+        var curNode = $('#jstree').jstree(true).get_node(data.node);
+        var newId = somepath + filename ;
+
+
+        // checks whether the parent of the current node is on the top layer. handles accordingly
+        $('#jstree').jstree(true).set_id(curNode, newId);
+        if(curNode.parent == "#"){
+            selectDownload(data.original.id, somepath + filename)
+        }
+        else{
+            selectDownload(data.original.id, newPath);
+        }
+
+        // redraws the tree when done, making sure it is up to date
+        $('#jstree').jstree(true).redraw();
+
+
+
+    });
 }
 
 $(document).ready(function () {
@@ -329,7 +364,7 @@ function createTree(jsonData){
                 },
                 dblclick_toggle: false
             },
-            plugins: ["dnd", "sort", "contextmenu", "types"]
+            plugins: ["dnd", "sort", "contextmenu", "types", "unique"]
         });
 
         // once the data is loaded, we will retrieve the files for the directories on top
@@ -400,17 +435,24 @@ function createTree(jsonData){
 
 
         $('#jstree2').bind("dblclick.jstree", function(event){
+            // parent node is the node that is double clicked
             var parentNode = $('#jstree2').jstree(true).get_node(event.target.parentNode.id);
-            if(parentNode.icon != "jstree-file") {
+            // will open the directory as the new root when double clicked
+            if(parentNode.type === "folder") {
                 remotePath = event.target.parentNode.id + "/";
-
                 $('#jstree2').jstree('destroy');
-
                 getTreeData(remotePath);
             }
+            
+            // double click file to download
+            if(conn != null && parentNode.type === "file"){
+                selectDownload(parentNode.id, somepath + parentNode.text);
+                var newNode = {text: parentNode.text, icon: "jstree-file", id: somepath + parentNode.text, parent: '#', type: 'file'};
+                if(!$('#jstree').jstree(true).get_node(newNode.id)){
+                    $('#jstree').jstree('create_node', '#', newNode);
+                }
+            }
         });
-
-
 
 
         // event for moving nodes within the same tree
@@ -425,19 +467,17 @@ function createTree(jsonData){
             globalSftp.rename(oldPath, newId);
         });
 
-        // event for moving a node to the local file tree
+        // event for moving a node to the remote file tree
         $('#jstree2').on("copy_node.jstree", function(e, data){
-            console.log(data);
             var filename = data.node.text;
             var newPath = data.parent + slash + filename;
             var curNode = $('#jstree2').jstree(true).get_node(data.node);
             var newId = data.node.parent + slash + filename ;
             $('#jstree2').jstree(true).set_id(curNode, newId);
 
-
             // checks whether the parent of the current node is on the top layer. handles accordingly
             if(curNode.parent == "#"){
-                selectUpload(data.original.id, "./" + filename);
+                selectUpload(data.original.id, remotePath + filename);
             }
             else{
                 selectUpload(data.original.id, newPath);
@@ -447,25 +487,6 @@ function createTree(jsonData){
             $('#jstree2').jstree(true).redraw();
         });
 
-        // event for moving node from local tree to remote tree
-        $('#jstree').on('copy_node.jstree', function (e, data) {
-            var filename = data.node.text;
-            var newPath = data.parent + slash + filename;
-            var curNode = $('#jstree').jstree(true).get_node(data.node);
-            var newId = data.node.parent + slash + filename ;
 
-            // checks whether the parent of the current node is on the top layer. handles accordingly
-            $('#jstree').jstree(true).set_id(curNode, newId);
-            if(curNode.parent == "#"){
-                selectDownload(data.original.id, somepath + filename)
-            }
-            else{
-                selectDownload(data.original.id, newPath);
-            }
-
-            // redraws the tree when done, making sure it is up to date
-            $('#jstree').jstree(true).redraw();
-
-        });
     });
 }
