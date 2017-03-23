@@ -83,13 +83,22 @@ function loginFunction( connSettings ) {
 
 function logoutFunction(){
     //close connection
-    conn.end();
-    conn = null;
-    //destroy tree
-    $('#jstree2').jstree("destroy");
-    //display text area again
-    var child = document.getElementById("removable");
-    child.style.display = 'inline';
+    if(conn != null) {
+        conn.end();
+        conn = null;
+        //destroy tree
+        $('#jstree2').jstree("destroy");
+        //display text area again
+        var child = document.getElementById("removable");
+        child.style.display = 'inline';
+
+        var remoteOptions = document.getElementById('upperLevelsRemote');
+
+        // empties the select option every time a tree is loaded
+        while (remoteOptions.firstChild) {
+            remoteOptions.removeChild(remoteOptions.firstChild);
+        }
+    }
 }
 
 

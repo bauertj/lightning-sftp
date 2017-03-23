@@ -8,6 +8,7 @@ if(os.type().includes("Windows")){
     slash = "\\";
 }
 var checkDelete = false;
+var arbitraryCounter = 0;
 
 // Local root default directory
 var somepath = os.homedir() + slash;
@@ -19,7 +20,6 @@ var somepath = os.homedir() + slash;
  */
 var _getAllFilesFromFolder = function (dir) {
     var results = [];
-
     fs.readdirSync(dir).forEach(function (file) {
         var fullDir = dir  + file;
 
@@ -30,8 +30,9 @@ var _getAllFilesFromFolder = function (dir) {
                 results.push([file, "jstree-file", fullDir, "", "file"]);
             }
             else if (stats.isDirectory()) {
-                results.push([file, "", fullDir, "test", "folder"]);
+                results.push([file, "", fullDir, "test"+arbitraryCounter, "folder"]);
             }
+            arbitraryCounter++;
         }
         // sometimes stats is not permitted on some files. catch the error and assume it is a file
         catch(err){
@@ -63,14 +64,19 @@ function setTree(newPath){
         // if the data is a directory it will create the children for it
         if(result[i][3] != ""){
             var temp = result[i][3];
-            var child = {text: temp, icon: "jstree-file", id: temp, parent: obj.id, type: "file"};
+            var child = {text: "test", icon: "jstree-file", id: temp, parent: obj.id, type: "file"};
             jsonContent.push(child);
         }
     }
     return jsonContent;
 }
 
-
+/**
+ * Initializes the local file tree.
+ * This method also contains all the functionality of the local tree
+ * with event listeners implemented.
+ * @param jsonContent the content of the tree in json format
+ */
 function initTree(jsonContent) {
     // initializes the tree
     $('#jstree').jstree({
@@ -98,14 +104,11 @@ function initTree(jsonContent) {
     // event for whenever something is changed in tree
     $('#jstree').on("changed.jstree", function (e, data) {
         console.log(data.selected);
-    });
+    })
 
-// loads the select menu for parent directories once the tree is loaded
-    $('#jstree').on("loaded.jstree", function (e, data) {
-        console.log("loaded");
+    // loads the select menu for parent directories once the tree is loaded
+    .on("loaded.jstree", function (e, data) {
         var localOptions = document.getElementById('upperLevelsLocal');
-
-
 
         // empties the select option every time a tree is loaded
         while(localOptions.firstChild){
@@ -129,22 +132,24 @@ function initTree(jsonContent) {
         }
         // prepends the current directory
         $('#upperLevelsLocal').prepend($('<option value="'+appendedPath+'" selected>' + somepath + '</option>'));
-    });
+    })
 
-// Local file tree event when a node is opened
-    $('#jstree').on("open_node.jstree", function(e, data){
+    // Local file tree event when a node is opened
+    .on("open_node.jstree", function(e, data){
 
-        // arbitrary node is always first on list, id is always 'test'
-        var removable = $('#jstree').jstree(true).get_node(data.node.children[0]);
-        if(removable.id == "test") {
-            // hides arbitrary node now that other nodes are created
-            $('#jstree').jstree('hide_node', data.node.children[0]);
+        // removes the 'test' node put in
+        for(var i = 0; i < data.node.children.length; i++){
+            if(data.node.children[i].includes("test")){
+                var removable = $('#jstree').jstree(true).get_node(data.node.children[i]);
+                if(removable.text === "test")
+                    $('#jstree').jstree(true).hide_node(removable);
+            }
         }
 
         // array of node objects, loops through and creates nodes
         var newChildren = _getAllFilesFromFolder(data.node.id + slash);
         for(var i = 0; i < newChildren.length; i++){
-            var child = {text: newChildren[i][0], icon: newChildren[i][1], id: newChildren[i][2], parent: obj.id};
+            var child = {text: newChildren[i][0], icon: newChildren[i][1], id: newChildren[i][2], parent: obj.id, type: newChildren[i][4]};
             // creates node in tree if the id does not already exist
             if(!($('#jstree').jstree(true).get_node(newChildren[i][2]))){
                 $('#jstree').jstree('create_node', data.node.id, child);
@@ -152,15 +157,16 @@ function initTree(jsonContent) {
 
             // checks if new node is a directory, then creates arbitrary file
             if(child.icon == ""){
-                var arbitraryNode = {text: "test", icon: "jstree-file", id: "test", parent: child.id};
+                var arbitraryNode = {text: "test", icon: "jstree-file", id: "test"+arbitraryCounter, parent: child.id};
                 $('#jstree').jstree('create_node', child, arbitraryNode);
+                arbitraryCounter++;
             }
         }
-    });
+    })
 
-// event for when a node is moved within the same tree. updates both on tree
-// and on the file system
-    $('#jstree').on('move_node.jstree', function(e, data){
+    // event for when a node is moved within the same tree. updates both on tree
+    // and on the file system
+    .on('move_node.jstree', function(e, data){
         var curNode = $('#jstree').jstree(true).get_node(data.node);
         var oldPath = data.node.id;
         var newId = data.parent + slash + data.node.text;
@@ -169,16 +175,18 @@ function initTree(jsonContent) {
         // renames path of file to new path, essentially moving it elsewhere on system
         fs.rename(oldPath, newId);
 
-    });
+    })
 
 
-    $('#jstree').bind("dblclick.jstree", function(event){
+    .bind("dblclick.jstree", function(event){
         // parentNode is the node that is double clicked
         var parentNode = $('#jstree').jstree(true).get_node(event.target.parentNode.id);
 
+        console.log(parentNode);
         // if it is a folder, create a new tree with that as the root
         if(parentNode.type === "folder") {
             somepath = event.target.parentNode.id + slash;
+
             var newJson = setTree(somepath);
             $('#jstree').jstree('destroy');
             initTree(newJson);
@@ -187,17 +195,17 @@ function initTree(jsonContent) {
         // will upload a file when it is double clicked to the root of the other tree
         if(conn != null && parentNode.type === "file"){
             selectUpload(parentNode.id, remotePath + parentNode.text);
-            console.log(remotePath + parentNode.text);
+
             var newNode = {text: parentNode.text, icon: "jstree-file", id: remotePath + parentNode.text, parent: '#', type: 'file'};
             if(!$('#jstree2').jstree(true).get_node(newNode.id)){
                 $('#jstree2').jstree('create_node', '#', newNode);
             }
 
         }
-    });
+    })
 
     //WIP
-    $('#jstree').on('rename_node.jstree', function(e, data) {
+    .on('rename_node.jstree', function(e, data) {
         var curNode = $('#jstree').jstree(true).get_node(data.node);
         var oldpath = data.node.id;
         var parentpath = data.node.parent ;
@@ -206,7 +214,7 @@ function initTree(jsonContent) {
         if(parentpath == "#"){
             parentpath = somepath ;
         }
-        var newpath = parentpath + data.node.text ;
+        var newpath = parentpath + slash + data.node.text ;
         $('#jstree').jstree(true).set_id(curNode, newpath);
         console.log("Old: " + oldpath);
         console.log("New: " + newpath);
@@ -218,14 +226,14 @@ function initTree(jsonContent) {
             for(var i = 0; i < data.node.children.length; i++){
                 var curChild = $('#jstree').jstree(true).get_node(data.node.children[i]);
                 var newChildPath = curNode.id + slash + curChild.text
-                console.log(newChildPath) ;
+                console.log(curNode.id) ;
                 $('#jstree').jstree(true).set_id(curChild, newChildPath);
             }
         }
         console.log("rename event");
-    });
+    })
 
-    $('#jstree').on('delete_node.jstree', function(e, data){
+    .on('delete_node.jstree', function(e, data){
         console.log(data.node.type);
         //works for files
         if(data.node.type == "file"){
@@ -238,16 +246,13 @@ function initTree(jsonContent) {
             console.log("WIP");
         }
 
-    });
-
-
+    })
     // event for moving node from remote tree to local tree
-    $('#jstree').on("copy_node.jstree", function (e, data) {
+    .on("copy_node.jstree", function (e, data) {
         var filename = data.node.text;
         var newPath = data.parent + slash + filename;
         var curNode = $('#jstree').jstree(true).get_node(data.node);
         var newId = somepath + filename ;
-
 
         // checks whether the parent of the current node is on the top layer. handles accordingly
         $('#jstree').jstree(true).set_id(curNode, newId);
@@ -259,9 +264,7 @@ function initTree(jsonContent) {
         }
 
         // redraws the tree when done, making sure it is up to date
-        $('#jstree').jstree(true).redraw();
-
-
+        $(this).jstree(true).redraw();
 
     });
 }
@@ -292,7 +295,6 @@ function retrieveData(dir){
 }
 
 function getTreeData(dir) {
-        console.log("Here is the directory I am getting data from: " + dir);
         var jsonData = [];
         try {
             globalSftp.readdir(dir, function (err, list) {
@@ -318,8 +320,9 @@ function getTreeData(dir) {
                     var obj = {text: fileName, icon: icon, id: fulldir, parent: "#", type: type};
                     jsonData.push(obj);
                     if (longname.substring(0, 1) == "d") {
-                        var child = {text: "test", icon: "jstree-file", id: "test", parent: fulldir, type: "file"};
+                        var child = {text: "test", icon: "jstree-file", id: "test" + arbitraryCounter, parent: fulldir, type: "file"};
                         jsonData.push(child);
+                        arbitraryCounter++;
                     }
                 }
 
@@ -366,10 +369,10 @@ function createTree(jsonData){
                 dblclick_toggle: false
             },
             plugins: ["dnd", "sort", "contextmenu", "types", "unique"]
-        });
+        })
 
         // once the data is loaded, we will retrieve the files for the directories on top
-        $('#jstree2').on("loaded.jstree", function (e, data) {
+        .on("loaded.jstree", function (e, data) {
             var remoteOptions = document.getElementById('upperLevelsRemote');
 
             // empties the select option every time a tree is loaded
@@ -377,8 +380,6 @@ function createTree(jsonData){
                 remoteOptions.removeChild(remoteOptions.firstChild);
             }
 
-
-            console.log("I created the tree! Here is the path: " + remotePath);
             var tempPath = "";
             var appendedPath = "";
             // loops through the current directory path string
@@ -400,10 +401,16 @@ function createTree(jsonData){
         })
 
         // event for when a node is opened
-        $('#jstree2').on("open_node.jstree", function(e, data){
-            console.log("this is not a test");
+        .on("open_node.jstree", function(e, data){
+            // removes the 'test' node put in
+            for(var i = 0; i < data.node.children.length; i++){
+                if(data.node.children[i].includes("test")){
+                    var removable = $(this).jstree(true).get_node(data.node.children[i]);
+                    if(removable.text === "test")
+                        $(this).jstree(true).hide_node(removable);
+                }
+            }
             globalSftp.readdir(data.node.id, function(err, list){
-                console.log(list);
                 for(var i = 0; i < list.length; i++) {
 
                     var filename = list[i].filename;
@@ -414,7 +421,7 @@ function createTree(jsonData){
 
                     // if it is not a directory, create as a file
                     if (longname.substring(0, 1) != "d") {
-                        var child = {text: filename, icon: "jstree-file", id: fulldir};
+                        var child = {text: filename, icon: "jstree-file", id: fulldir, type: "file"};
                         if(!($('#jstree2').jstree(true).get_node(child.id))) {
                             $('#jstree2').jstree('create_node', parent, child);
 
@@ -423,21 +430,24 @@ function createTree(jsonData){
 
                     // if the file is a directory it will create it as a directory
                     else {
-                        var child = {text: filename, icon: "", id: fulldir};
+                        var child = {text: filename, icon: "", id: fulldir, type: "folder"};
                         if(!($('#jstree2').jstree(true).get_node(child.id))) {
                             $('#jstree2').jstree('create_node', parent, child);
-                            var arbitraryNode = {text: "test", icon: "jstree-file", id: "test", parent: fulldir};
+                            var arbitraryNode = {text: "test", icon: "jstree-file", id: "test" + arbitraryCounter, parent: fulldir};
                             $('#jstree2').jstree('create_node', child, arbitraryNode);
+                            arbitraryCounter++;
                         }
                     }
                 }
             });
-        });
+        })
 
 
-        $('#jstree2').bind("dblclick.jstree", function(event){
+        .bind("dblclick.jstree", function(event){
             // parent node is the node that is double clicked
             var parentNode = $('#jstree2').jstree(true).get_node(event.target.parentNode.id);
+
+            console.log(parentNode);
             // will open the directory as the new root when double clicked
             if(parentNode.type === "folder") {
                 remotePath = event.target.parentNode.id + "/";
@@ -453,11 +463,11 @@ function createTree(jsonData){
                     $('#jstree').jstree('create_node', '#', newNode);
                 }
             }
-        });
+        })
 
 
         // event for moving nodes within the same tree
-        $('#jstree2').on("move_node.jstree", function(e, data){
+        .on("move_node.jstree", function(e, data){
             // retrieves node being moved
             var curNode = $('#jstree2').jstree(true).get_node(data.node);
             var oldPath = data.node.id;
@@ -466,10 +476,10 @@ function createTree(jsonData){
             $('#jstree2').jstree(true).set_id(curNode, newId);
             // renames the path to the new path, essentially moving the file on the file system
             globalSftp.rename(oldPath, newId);
-        });
+        })
 
         // event for moving a node to the remote file tree
-        $('#jstree2').on("copy_node.jstree", function(e, data){
+        .on("copy_node.jstree", function(e, data){
             var filename = data.node.text;
             var newPath = data.parent + slash + filename;
             var curNode = $('#jstree2').jstree(true).get_node(data.node);
@@ -488,6 +498,21 @@ function createTree(jsonData){
             $('#jstree2').jstree(true).redraw();
         });
 
+       /* $(document).on("dnd_stop.vakata", function(e, data){
+            console.log(data);
+            var origin = data.data.origin.element[0].id;
+            if(origin === "jstree"){
 
+            }
+            else if(origin === "jstree2"){
+                $('#jstree').mouseup(function(){
+
+
+                    console.log("released on local");
+
+
+                }).off();
+            }
+        });*/
     });
 }
