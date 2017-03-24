@@ -82,10 +82,11 @@ function initTree(jsonContent) {
     $('#jstree').jstree({
         "types": {
             "file" : {
-                "max_children" : 0
+                "max_children" : 0,
+                "li_attr" : {name: "#jstree"}
             },
             "folder" : {
-
+                "li_attr" : {name: "#jstree"}
             }
         },
         core: {
@@ -236,7 +237,7 @@ function initTree(jsonContent) {
     .on('delete_node.jstree', function(e, data){
         console.log(data.node.type);
         //works for files
-        if(data.node.type == "file"){
+       /* if(data.node.type == "file"){
             fs.unlink(data.node.id, function(err){
                if (err) throw err;
             });
@@ -244,11 +245,12 @@ function initTree(jsonContent) {
         //else folders WIP
         else{
             console.log("WIP");
-        }
+        }*/
 
     })
     // event for moving node from remote tree to local tree
     .on("copy_node.jstree", function (e, data) {
+        checkDelete = true;
         var filename = data.node.text;
         var newPath = data.parent + slash + filename;
         var curNode = $('#jstree').jstree(true).get_node(data.node);
@@ -352,10 +354,11 @@ function createTree(jsonData){
         $('#jstree2').jstree({
             "types": {
                 "file" : {
-                    "max_children" : 0
+                    "max_children" : 0,
+                    "li_attr" : {name: "#jstree2"}
                 },
                 "folder" : {
-
+                    "li_attr" : {name: "#jstree2"}
                 }
             },
             core: {
@@ -398,6 +401,8 @@ function createTree(jsonData){
             }
             // prepends the current directory
             $('#upperLevelsRemote').prepend($('<option value="'+appendedPath+'" selected>' + remotePath + '</option>'));
+        }).on("changed.jstree", function(e, data){
+            console.log(data.selected);
         })
 
         // event for when a node is opened
@@ -480,6 +485,7 @@ function createTree(jsonData){
 
         // event for moving a node to the remote file tree
         .on("copy_node.jstree", function(e, data){
+            checkDelete = true;
             var filename = data.node.text;
             var newPath = data.parent + slash + filename;
             var curNode = $('#jstree2').jstree(true).get_node(data.node);
@@ -498,21 +504,41 @@ function createTree(jsonData){
             $('#jstree2').jstree(true).redraw();
         });
 
-       /* $(document).on("dnd_stop.vakata", function(e, data){
-            console.log(data);
-            var origin = data.data.origin.element[0].id;
-            if(origin === "jstree"){
+        // drag and drop
+        $(document).on("dnd_stop.vakata", function(e, data){
+            var t = $(data.event.target);
+            var selectedId = data.data.nodes[0];
 
+
+            if(!t.closest('#jstree').length){
+                console.log(t.closest('#userInfo'));
+                console.log(t.closest('#userInfo').length);
+                if(t.closest('#userInfo').length){
+                    selectUpload(selectedId, remotePath + data.element.text);
+
+                    var selectNode = $('#jstree').jstree(true).get_node(selectedId);
+
+                    var newNode = {text: data.element.text, icon: selectNode.icon, id: remotePath + data.element.text, parent: '#', type: selectNode.type};
+                    if(!$('#jstree2').jstree(true).get_node(selectedId)){
+                        $('#jstree2').jstree('create_node', '#', newNode);
+                    }
+                }
             }
-            else if(origin === "jstree2"){
-                $('#jstree').mouseup(function(){
+            else if(!t.closest('#jstree2').length){
+                console.log(t.closest('#fileForm'));
+                console.log(t.closest('#fileForm').length);
+                if(t.closest('#fileForm').length){
 
+                    selectDownload(data.data.nodes[0], somepath + data.element.text);
 
-                    console.log("released on local");
+                    var selectNode = $('#jstree2').jstree(true).get_node(selectedId);
 
-
-                }).off();
+                    var newNode = {text: data.element.text, icon: selectNode.icon, id: remotePath + data.element.text, parent: '#', type: selectNode.type};
+                    if(!$('#jstree').jstree(true).get_node(selectedId)){
+                        $('#jstree').jstree('create_node', '#', newNode);
+                    }
+                }
             }
-        });*/
+        });
     });
 }
