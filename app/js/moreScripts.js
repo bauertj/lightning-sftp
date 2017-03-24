@@ -14,8 +14,3 @@ $('#upperLevelsRemote').change(function(){
 
     getTreeData(remotePath);
 });
-
-
-$('#userInfo').mouseup(function(){
-    console.log("released on remote");
-});

@@ -67,6 +67,12 @@ function loginFunction( connSettings ) {
             //document.getElementById("loginText").innerHTML = "Connected to " + connSettings.host;
             jsonContent.connectionHistory.push(obj);
             jsonfile.writeFileSync(file, jsonContent);
+
+
+            var legend = document.getElementById('legend');
+            legend.textContent = connSettings.host;
+            $(legend).append(' <select id="upperLevelsRemote"></select>');
+
         }).connect(connSettings);
         // for when there is an error with the connection
         conn.on('error', function(err){
@@ -92,12 +98,9 @@ function logoutFunction(){
         var child = document.getElementById("removable");
         child.style.display = 'inline';
 
-        var remoteOptions = document.getElementById('upperLevelsRemote');
+        var legend = document.getElementById('legend');
 
-        // empties the select option every time a tree is loaded
-        while (remoteOptions.firstChild) {
-            remoteOptions.removeChild(remoteOptions.firstChild);
-        }
+        legend.textContent = "User Info";
     }
 }
 
