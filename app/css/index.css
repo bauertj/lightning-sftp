@@ -80,12 +80,12 @@ textarea{
 }
 
 #fileForm{
-    max-width: 45%;
+   /* max-width: 45%;*/
 
 }
 
 #userInfo{
-    min-height: 515px;
+   /* min-height: 515px;*/
 }
 
 .no-overflow{

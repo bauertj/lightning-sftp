@@ -401,8 +401,10 @@ function createTree(jsonData){
             }
             // prepends the current directory
             $('#upperLevelsRemote').prepend($('<option value="'+appendedPath+'" selected>' + remotePath + '</option>'));
-        }).on("changed.jstree", function(e, data){
-            console.log(data.selected);
+        })
+
+        .on("changed.jstree", function(e, data){
+          //  console.log(data.selected);
         })
 
         // event for when a node is opened
@@ -452,7 +454,7 @@ function createTree(jsonData){
             // parent node is the node that is double clicked
             var parentNode = $('#jstree2').jstree(true).get_node(event.target.parentNode.id);
 
-            console.log(parentNode);
+            //console.log(parentNode);
             // will open the directory as the new root when double clicked
             if(parentNode.type === "folder") {
                 remotePath = event.target.parentNode.id + "/";
@@ -504,41 +506,64 @@ function createTree(jsonData){
             $('#jstree2').jstree(true).redraw();
         });
 
-        // drag and drop
-        $(document).on("dnd_stop.vakata", function(e, data){
-            var t = $(data.event.target);
-            var selectedId = data.data.nodes[0];
+        $('#upperLevelsRemote').change(function(){
+            remotePath = $(this)[0].value;
 
+            console.log("changed");
+            $('#jstree2').jstree('destroy');
 
-            if(!t.closest('#jstree').length){
-                console.log(t.closest('#userInfo'));
-                console.log(t.closest('#userInfo').length);
-                if(t.closest('#userInfo').length){
-                    selectUpload(selectedId, remotePath + data.element.text);
-
-                    var selectNode = $('#jstree').jstree(true).get_node(selectedId);
-
-                    var newNode = {text: data.element.text, icon: selectNode.icon, id: remotePath + data.element.text, parent: '#', type: selectNode.type};
-                    if(!$('#jstree2').jstree(true).get_node(selectedId)){
-                        $('#jstree2').jstree('create_node', '#', newNode);
-                    }
-                }
-            }
-            else if(!t.closest('#jstree2').length){
-                console.log(t.closest('#fileForm'));
-                console.log(t.closest('#fileForm').length);
-                if(t.closest('#fileForm').length){
-
-                    selectDownload(data.data.nodes[0], somepath + data.element.text);
-
-                    var selectNode = $('#jstree2').jstree(true).get_node(selectedId);
-
-                    var newNode = {text: data.element.text, icon: selectNode.icon, id: remotePath + data.element.text, parent: '#', type: selectNode.type};
-                    if(!$('#jstree').jstree(true).get_node(selectedId)){
-                        $('#jstree').jstree('create_node', '#', newNode);
-                    }
-                }
-            }
+            getTreeData(remotePath);
         });
     });
 }
+
+
+// drag and drop
+$(document).on("dnd_stop.vakata", function(e, data){
+    var t = $(data.event.target);
+    var selectedId = data.data.nodes[0];
+
+    console.log(data);
+
+    if(t.closest('#userInfo').length){
+
+
+
+        if(!(data.data.origin.element[0].id === "jstree2")) {
+            console.log("1");
+            selectUpload(selectedId, remotePath + data.element.text);
+
+            var selectNode = $('#jstree').jstree(true).get_node(selectedId);
+            var newNode = {
+                text: data.element.text,
+                icon: selectNode.icon,
+                id: remotePath + data.element.text,
+                parent: '#',
+                type: selectNode.type
+            };
+            if (!$('#jstree2').jstree(true).get_node(selectedId)) {
+                $('#jstree2').jstree('create_node', '#', newNode);
+            }
+        }
+    }
+    if(t.closest('#fileForm').length){
+
+        if(!(data.data.origin.element[0].id === "jstree")) {
+            console.log("2");
+            selectDownload(data.data.nodes[0], somepath + data.element.text);
+
+            var selectNode = $('#jstree2').jstree(true).get_node(selectedId);
+
+            var newNode = {
+                text: data.element.text,
+                icon: selectNode.icon,
+                id: remotePath + data.element.text,
+                parent: '#',
+                type: selectNode.type
+            };
+            if (!$('#jstree').jstree(true).get_node(selectedId)) {
+                $('#jstree').jstree('create_node', '#', newNode);
+            }
+        }
+    }
+});

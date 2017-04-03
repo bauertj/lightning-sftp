@@ -7,10 +7,13 @@ $('#upperLevelsLocal').change(function(){
     initTree(newJson);
 });
 
-$('#upperLevelsRemote').change(function(){
-    remotePath = $(this)[0].value;
 
-    $('#jstree2').jstree('destroy');
 
-    getTreeData(remotePath);
+
+$('#fileForm').mouseup(function(){
+    console.log("released on tree");
+});
+
+$('#userInfo').mouseup(function(){
+    console.log("released on tree2");
 });
