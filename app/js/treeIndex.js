@@ -205,25 +205,38 @@ function initTree(jsonContent) {
         }
     })
 
-    //WIP
+    /*
+     * Context Menu Listener for Rename Event
+     */
     .on('rename_node.jstree', function(e, data) {
-        var curNode = $('#jstree').jstree(true).get_node(data.node);
-        var oldpath = data.node.id;
-        var parentpath = data.node.parent ;
-        var typeDone = data.node.type
-        console.log("Parent is: " + parentpath) ;
+        var curNode = $('#jstree').jstree(true).get_node(data.node);    //The selected node to rename
+        var oldpath = data.node.id;             //The name of the old path
+        var parentpath = data.node.parent ;     //The name of the parent's path
+        var typeDone = data.node.type           //The type of the node
+        console.log("Parent is: " + parentpath) ;   //for reference
+
+        //For use when renaming something in the current root
         if(parentpath == "#"){
             parentpath = somepath ;
         }
+
+        //create the name of the new node
         var newpath = parentpath + slash + data.node.text ;
+
+        //Fix the id of the new node
         $('#jstree').jstree(true).set_id(curNode, newpath);
-        console.log("Old: " + oldpath);
-        console.log("New: " + newpath);
+        console.log("Old: " + oldpath); //for reference
+        console.log("New: " + newpath); //for reference
+
+        //do the rename
         fs.rename( oldpath, newpath, function(err){
             if (err) throw err;
         });
-        console.log(data);
+        console.log(data);  //for reference
+
+        //if the type is a folder, fix the children as well
         if(typeDone == "folder"){
+            //for each child get new path name and update the id
             for(var i = 0; i < data.node.children.length; i++){
                 var curChild = $('#jstree').jstree(true).get_node(data.node.children[i]);
                 var newChildPath = curNode.id + slash + curChild.text
@@ -231,21 +244,31 @@ function initTree(jsonContent) {
                 $('#jstree').jstree(true).set_id(curChild, newChildPath);
             }
         }
-        console.log("rename event");
+        //logging for application users
+        var msg = "file - " + oldpath + " renamed to " + newpath + "\n";
+        document.getElementById("area").innerHTML += msg;
+        log.info(msg);
     })
 
+    /*
+     *  Context Menu Listener for Delete Event
+    */
     .on('delete_node.jstree', function(e, data){
-        console.log(data.node.type);
-        //works for files
-       /* if(data.node.type == "file"){
-            fs.unlink(data.node.id, function(err){
+        console.log(data.node.type);    //for reference
+        var path = data.node.id ;       //file/folder to be removed
+        //removing a file, calls unlink
+        if(data.node.type == "file"){
+            fs.unlink(path, function(err){
                if (err) throw err;
+                var msg = "file - " + path + " was removed successfully" + "\n";
+                document.getElementById("area").innerHTML += msg;
+                log.info(msg);
             });
         }
-        //else folders WIP
+        //else folders, calls recursive function
         else{
-            console.log("WIP");
-        }*/
+            delDirRecurLocal(data.node.id);
+        }
 
     })
     // event for moving node from remote tree to local tree
@@ -275,8 +298,6 @@ $(document).ready(function () {
         var jsonContent = setTree(somepath);
         initTree(jsonContent);
 });
-
-
 
 var globalSftp = "";
 
@@ -542,3 +563,27 @@ function createTree(jsonData){
         });
     });
 }
+
+/*
+ * Used for local delete of folders
+ */
+function delDirRecurLocal(path) {
+    //reads each file in path (dir)
+    fs.readdirSync(path).forEach(function(file) {
+        //var that represents each file being looked at
+        var curPath = path + slash + file;
+        //if it is a dir, go in and delete it's contents too
+        if(fs.statSync(curPath).isDirectory()) {
+            //recursion
+            delDirRecurLocal(curPath);
+        } else {
+            //removes all the files by unlink
+            fs.unlinkSync(curPath);
+        }
+    });
+    //removes the folder of what was called once it is empty
+    fs.rmdirSync(path);
+    var msg = "file - " + path + " was removed successfully" + "\n";
+    document.getElementById("area").innerHTML += msg;
+    log.info(msg);
+};
