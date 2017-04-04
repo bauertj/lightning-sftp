@@ -548,44 +548,49 @@ $(document).on("dnd_stop.vakata", function(e, data){
 
     console.log(data);
 
-    if(t.closest('#userInfo').length){
+    var isHovered = data.event.target.className;
 
+    // will only execute if a node is dropped in whitespace, not over another node
+    if(!isHovered.includes("hover")) {
+        // if a node is dropped in the remote tree...
+        if (t.closest('#userInfo').length) {
 
+            if (!(data.data.origin.element[0].id === "jstree2")) {
+                console.log("1");
+                selectUpload(selectedId, remotePath + data.element.text);
 
-        if(!(data.data.origin.element[0].id === "jstree2")) {
-            console.log("1");
-            selectUpload(selectedId, remotePath + data.element.text);
-
-            var selectNode = $('#jstree').jstree(true).get_node(selectedId);
-            var newNode = {
-                text: data.element.text,
-                icon: selectNode.icon,
-                id: remotePath + data.element.text,
-                parent: '#',
-                type: selectNode.type
-            };
-            if (!$('#jstree2').jstree(true).get_node(selectedId)) {
-                $('#jstree2').jstree('create_node', '#', newNode);
+                var selectNode = $('#jstree').jstree(true).get_node(selectedId);
+                var newNode = {
+                    text: data.element.text,
+                    icon: selectNode.icon,
+                    id: remotePath + data.element.text,
+                    parent: '#',
+                    type: selectNode.type
+                };
+                if (!$('#jstree2').jstree(true).get_node(selectedId)) {
+                    $('#jstree2').jstree('create_node', '#', newNode);
+                }
             }
         }
-    }
-    if(t.closest('#fileForm').length){
 
-        if(!(data.data.origin.element[0].id === "jstree")) {
-            console.log("2");
-            selectDownload(data.data.nodes[0], somepath + data.element.text);
+        // if a node is dropped in the local tree...
+        if (t.closest('#fileForm').length) {
 
-            var selectNode = $('#jstree2').jstree(true).get_node(selectedId);
+            if (!(data.data.origin.element[0].id === "jstree")) {
+                console.log("2");
+                selectDownload(data.data.nodes[0], somepath + data.element.text);
 
-            var newNode = {
-                text: data.element.text,
-                icon: selectNode.icon,
-                id: somepath + data.element.text,
-                parent: '#',
-                type: selectNode.type
-            };
-            if (!$('#jstree').jstree(true).get_node(selectedId)) {
-                $('#jstree').jstree('create_node', '#', newNode);
+                var selectNode = $('#jstree2').jstree(true).get_node(selectedId);
+                var newNode = {
+                    text: data.element.text,
+                    icon: selectNode.icon,
+                    id: somepath + data.element.text,
+                    parent: '#',
+                    type: selectNode.type
+                };
+                if (!$('#jstree').jstree(true).get_node(selectedId)) {
+                    $('#jstree').jstree('create_node', '#', newNode);
+                }
             }
         }
     }
