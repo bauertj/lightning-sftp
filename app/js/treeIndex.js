@@ -1,12 +1,10 @@
 const os = require("os");
+const path = require('path');
 
 // Remote root default directory
 var remotePath = "./";
 
-var slash = "/";
-if(os.type().includes("Windows")){
-    slash = "\\";
-}
+var slash = path.sep ;
 var checkDelete = false;
 var arbitraryCounter = 0;
 
@@ -250,26 +248,26 @@ function initTree(jsonContent) {
         log.info(msg);
     })
 
-        /*
-         *  Context Menu Listener for Delete Event
-         */
-        .on('delete_node.jstree', function(e, data){
-            console.log(data.node.type);    //for reference
-            var path = data.node.id ;       //file/folder to be removed
-            //removing a file, calls unlink
-            if(data.node.type == "file"){
-                fs.unlink(path, function(err){
-                    if (err) throw err;
-                    var msg = "file - " + path + " was removed successfully" + "\n";
-                    document.getElementById("area").innerHTML += msg;
-                    log.info(msg);
-                });
-            }
-            //else folders, calls recursive function
-            else{
-                delDirRecurLocal(data.node.id);
-            }
-        })
+    /*
+     *  Context Menu Listener for Delete Event
+     */
+    .on('delete_node.jstree', function(e, data){
+        console.log(data.node.type);    //for reference
+        var path = data.node.id ;       //file/folder to be removed
+        //removing a file, calls unlink
+        if(data.node.type == "file"){
+            fs.unlink(path, function(err){
+                if (err) throw err;
+                var msg = "file - " + path + " was removed successfully" + "\n";
+                document.getElementById("area").innerHTML += msg;
+                log.info(msg);
+            });
+        }
+        //else folders, calls recursive function
+        else{
+            delDirRecurLocal(data.node.id);
+        }
+    })
 
     // event for moving node from remote tree to local tree
     .on("copy_node.jstree", function (e, data) {
@@ -507,6 +505,55 @@ function createTree(jsonData){
             // renames the path to the new path, essentially moving the file on the file system
             globalSftp.rename(oldPath, newId);
         })
+
+        /*
+         * Context Menu Listener for Rename Event
+         */
+            .on('rename_node.jstree', function(e, data) {
+                var curNode = $('#jstree2').jstree(true).get_node(data.node);    //The selected node to rename
+                var oldpath = data.node.id;             //The name of the old path
+                var parentpath = data.node.parent ;     //The name of the parent's path
+                var typeDone = data.node.type           //The type of the node
+                console.log("oldpath: " + oldpath) ;   //for reference
+
+                //For use when renaming something in the current root
+                if(parentpath == "#"){
+                    parentpath = remotePath ;
+                }
+                console.log("parentpath: " + parentpath) ;   //for reference
+
+                //create the name of the new node
+                var newpath = parentpath + slash + data.node.text ;
+                console.log("newpath: " + newpath) ;   //for reference
+
+                /*
+                //Fix the id of the new node
+                $('#jstree2').jstree(true).set_id(curNode, newpath);
+                console.log("Old: " + oldpath); //for reference
+                console.log("New: " + newpath); //for reference
+
+                //do the rename
+                fs.rename( oldpath, newpath, function(err){
+                    if (err) throw err;
+                });
+                console.log(data);  //for reference
+
+                //if the type is a folder, fix the children as well
+                if(typeDone == "folder"){
+                    //for each child get new path name and update the id
+                    for(var i = 0; i < data.node.children.length; i++){
+                        var curChild = $('#jstree2').jstree(true).get_node(data.node.children[i]);
+                        var newChildPath = curNode.id + slash + curChild.text
+                        console.log(curNode.id) ;
+                        $('#jstree2').jstree(true).set_id(curChild, newChildPath);
+                    }
+                }
+                //logging for application users
+                var msg = "file - " + oldpath + " renamed to " + newpath + "\n";
+                document.getElementById("area").innerHTML += msg;
+                log.info(msg);
+                */
+            })
 
         // event for moving a node to the remote file tree
         .on("copy_node.jstree", function(e, data){
