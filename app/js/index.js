@@ -45,8 +45,10 @@ $(document).ready(function(){
     $(historyMenu).append('<li><a href="#">Connection History Options...</a></li>');
     $(historyMenu).append('<li role="separator" class="divider"></li>')
     for(var i = historyContent.connectionHistory.length-1; i > historyContent.connectionHistory.length - 10; i--){
-        $(historyMenu).append('<li><a href="#" class="historyClicked history'+i+'">'+ historyContent.connectionHistory[i].username + '@' +
-            historyContent.connectionHistory[i].host +'</a></li>');
+        if(historyContent.connectionHistory[i] != null){
+            $(historyMenu).append('<li><a href="#" class="historyClicked history'+i+'">'+ historyContent.connectionHistory[i].username + '@' +
+                historyContent.connectionHistory[i].host +'</a></li>');
+        }
     }
 
     // when a history option is clicked, information will be added to the text boxes
