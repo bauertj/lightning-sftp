@@ -1,8 +1,9 @@
 fieldset{
     display:        inline;
     vertical-align: top;
-    min-width:      45%;
-    min-height:     500px;
+
+    min-width:      50%;
+    min-height:     50%;
 }
 
 .label{
@@ -80,14 +81,22 @@ textarea{
 }
 
 #fileForm{
-   max-width: 45%;
-
+    position: relative;
+    width: 45%;
+    left: 3%;
+    margin-right: 10px;
 }
 
 #userInfo{
-   min-height: 515px;
+    position: relative;
+    width: 45%;
+    min-height: 515px;
+    left: 3%;
+    color: black;
 }
-
+label{
+    color: black;
+}
 .no-overflow{
     overflow-y: auto;
     max-height: 500px;

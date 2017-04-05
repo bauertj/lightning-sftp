@@ -11,8 +11,8 @@ var mainWindow = null;
 app.on('ready', function() {
     // sets as new browser windows with these properties
     mainWindow = new BrowserWindow({
-        height: 1100,
-        width: 1500,
+        height: 800,
+        width: 1200,
         fullscreenable: false,
         title: "Lightning SFTP",
         icon: "./app/images/testIcon.png"

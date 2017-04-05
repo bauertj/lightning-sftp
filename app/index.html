@@ -18,6 +18,7 @@
 
         <script src="https://code.jquery.com/jquery-2.2.0.min.js"></script>
         <link rel="stylesheet" href="css/themes/default/style.min.css" />
+        <link rel="stylesheet" href="css/bootstrap/css/bootstrap.min.css" />
 	</head>
 
 
@@ -36,12 +37,12 @@
         </header>
 
         <br>
+
 		<form id="frm1">
 
             <fieldset id="fileForm">
                 <legend>File Information
                     <select id="upperLevelsLocal">
-
                     </select>
                 </legend>
 
@@ -59,22 +60,21 @@
 
             <fieldset id="userInfo">
 
-                <legend id="legend">User Info</select>
-                </legend>
+                <legend id="legend">User Info</legend>
                 <div id="removable">
-                    <label class="label" for="username"> Username </label>
+                    <label class="label label-default" for="username"> Username </label>
                     <input type="text" id="username" name="name" value="" autofocus>
                     <br><br>
 
-                    <label class="label" for="password"> Password </label>
+                    <label class="label label-default" for="password"> Password </label>
                     <input type="password" id="password" name="pass">
                     <br><br>
 
-                    <label class="label" for="serverName"> Server Name </label>
+                    <label class="label label-default" for="serverName"> Server Name </label>
                     <input type="text" id="serverName" name="server" value="">
                     <br><br>
 
-                    <label class="label" for="port"> Port </label>
+                    <label class="label label-default" for="port"> Port </label>
                     <input type="text" id="port" size="10">
                     <br><br>
 
@@ -104,7 +104,11 @@
                     <div id="progressLabel">0%</div>
                 </div>
             </div>
-
+            <div id="totalProgress">
+                <div id="totalBar">
+                    <div id="totalProgressLabel">0%</div>
+                </div>
+            </div>
             <div id="numberOfItems">
 
             </div>
