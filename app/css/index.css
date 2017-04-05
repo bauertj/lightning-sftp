@@ -31,7 +31,7 @@ header {
     margin-left: 0;
 }
 
-.btn {
+/*.btn {
     background: #a7acb0;
     background-image: -webkit-linear-gradient(top, #a7acb0, #567080);
     background-image: -moz-linear-gradient(top, #a7acb0, #567080);
@@ -49,7 +49,7 @@ header {
 .btn:hover {
     background: #a5aeb3;
     text-decoration: none;
-}
+}*/
 
 footer{
     border-top: 1px solid black;
@@ -74,17 +74,18 @@ textarea{
     width: 99%;
 }
 
-#progressLabel{
+/*#progressLabel{
     text-align: center;
     line-height: 30px;
     color: white;
-}
+}*/
 
 #fileForm{
     position: relative;
     width: 45%;
     left: 3%;
     margin-right: 10px;
+    min-height: 515px;
 }
 
 #userInfo{
@@ -94,9 +95,7 @@ textarea{
     left: 3%;
     color: black;
 }
-label{
-    color: black;
-}
+
 .no-overflow{
     overflow-y: auto;
     max-height: 500px;

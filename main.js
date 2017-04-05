@@ -60,6 +60,19 @@ const template = [
 
                     bookmarksWindow.loadURL('file://' + __dirname + '/app/bookmarksWindow.html');
                 }
+
+            },
+            {
+                // opens up bookmarks page from file menu
+                label: 'History',
+                click() {
+                    var historyWindow = new BrowserWindow({
+                        autoHideMenuBar: true,
+                        icon: "./app/images/testIcon.png"
+                    });
+
+                    historyWindow.loadURL('file://' + __dirname + '/app/historyWindow.html');
+                }
             },
             {
                 // closes window
