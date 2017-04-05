@@ -10,7 +10,58 @@ var fs = require("fs");
 var jsonfile = require('jsonfile');
 var $ = require("jquery");
 
+$(document).ready(function(){
+    // gets all content for bookmark dropdown menu from the json file
+    var contents = fs.readFileSync("Bookmarks.json");
+    var bookmarksContent = JSON.parse(contents);
+    var bookmarksMenu = document.getElementById("bookmarks");
 
+    // appends all html, adding unique class names in order to locate actual information
+    $(bookmarksMenu).append('<li class="bookmarkOptions"><a href="#">Bookmark Options...</a></li>')
+    $(bookmarksMenu).append('<li role="separator" class="divider"></li>')
+    for(var i = 0; i < bookmarksContent.Bookmarks.length; i++){
+        $(bookmarksMenu).append('<li><a href="#" class="bookmarkClicked bookmark'+i+'">'+ bookmarksContent.Bookmarks[i].username + '@' +
+            bookmarksContent.Bookmarks[i].host +'</a></li>');
+    }
+
+    // when a bookmark is clicked, information will be added to the text boxes
+    $('.bookmarkClicked').click(function(){
+        var classname = this.className;
+        classname = classname.replace(/[^\d.]/g, '');
+        var pos = bookmarksContent.Bookmarks[parseInt(classname)];
+
+        document.getElementById("username").value = pos.username;
+        document.getElementById("port").value = pos.port;
+        document.getElementById("serverName").value = pos.host;
+
+    });
+
+    // gets all content for connection history drop down menu from json file
+    contents = fs.readFileSync("ConnectionHistory.json");
+    var historyContent = JSON.parse(contents);
+    var historyMenu = document.getElementById("history");
+
+    // appends all html, adding unique class names
+    $(historyMenu).append('<li><a href="#">Connection History Options...</a></li>');
+    $(historyMenu).append('<li role="separator" class="divider"></li>')
+    for(var i = historyContent.connectionHistory.length-1; i > historyContent.connectionHistory.length - 10; i--){
+        $(historyMenu).append('<li><a href="#" class="historyClicked history'+i+'">'+ historyContent.connectionHistory[i].username + '@' +
+            historyContent.connectionHistory[i].host +'</a></li>');
+    }
+
+    // when a history option is clicked, information will be added to the text boxes
+    $('.historyClicked').click(function(){
+        var classname = this.className;
+        classname = classname.replace(/[^\d.]/g, '');
+        var pos = historyContent.connectionHistory[parseInt(classname)];
+
+        document.getElementById("username").value = pos.username;
+        document.getElementById("port").value = pos.port;
+        document.getElementById("serverName").value = pos.host;
+
+    });
+
+});
 
 /**
  * Logs in to remote server using html text boxes.

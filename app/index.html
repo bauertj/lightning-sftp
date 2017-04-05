@@ -16,9 +16,10 @@
                     });*/
         </script>
 
-        <script src="https://code.jquery.com/jquery-2.2.0.min.js"></script>
+
+
         <link rel="stylesheet" href="css/themes/default/style.min.css" />
-        <link rel="stylesheet" href="css/bootstrap/css/bootstrap.min.css" />
+        <link rel="stylesheet" href="css/bootstrap/css/bootstrap.css" />
 	</head>
 
 
@@ -26,14 +27,33 @@
 
     <!-- Contains buttons for use-->
         <header>
-            <form>
+
                 <div class="container">
-                    <div><input type="button" value="Connection History" id="connection" class="btn"></div>
-                    <div><input type="button" value="Bookmarks" id="bookmark" class="btn"></div>
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Connection History
+                            <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu" id="history">
+
+                        </ul>
+                    </div>
+
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Bookmarks
+                            <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu" id="bookmarks">
+
+                        </ul>
+                    </div>
+
+
+
+
                     <div><input type="button" value="Logout" id="logoutConn" class="btn"></div>
                 </div>
 
-            </form>
+
         </header>
 
         <br>
@@ -101,7 +121,7 @@
         <footer>
             <div id="myProgress">
                 <div id="myBar">
-                    <div id="progressLabel">0%</div>
+                    <div id="progressLabel" class="progress-bar" role="progressbar">0%</div>
                 </div>
             </div>
             <div id="totalProgress">
@@ -114,12 +134,16 @@
             </div>
         </footer>
 
+    <script src="js/jquery-3.2.0.js"></script>
+    <script>
+        window.jQuery = window.$ = require('jquery');
+    </script>
     <script src="js/index.js"></script>
     <script src="js/indexButtons.js"></script>
     <script src="js/jstree.min.js"></script>
     <script src="js/treeIndex.js"></script>
     <script src="js/moreScripts.js"></script>
-
+    <script src="css/bootstrap/js/bootstrap.js"></script>
 	</body>
 
 </html>

@@ -6,14 +6,3 @@ $('#upperLevelsLocal').change(function(){
 
     initTree(newJson);
 });
-
-
-
-
-$('#fileForm').mouseup(function(){
-    console.log("released on tree");
-});
-
-$('#userInfo').mouseup(function(){
-    console.log("released on tree2");
-});
