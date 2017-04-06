@@ -1,12 +1,13 @@
 const os = require("os");
 const path = require('path');
 
-// Remote root default directory
-var remotePath = "./";
-
 var slash = path.sep ;
 var checkDelete = false;
 var arbitraryCounter = 0;
+var globalSftp = "";
+
+// Remote root default directory
+var remotePath = "./";
 
 // Local root default directory
 var somepath = os.homedir() + slash;
@@ -297,10 +298,6 @@ $(document).ready(function () {
         initTree(jsonContent);
 });
 
-
-
-var globalSftp = "";
-
 /*
  * dir: the remote directory default path location
  *
@@ -499,7 +496,7 @@ function createTree(jsonData){
             // retrieves node being moved
             var curNode = $('#jstree2').jstree(true).get_node(data.node);
             var oldPath = data.node.id;
-            var newId = data.parent + slash + data.node.text;
+            var newId = data.parent + "/" + data.node.text;
 
             $('#jstree2').jstree(true).set_id(curNode, newId);
             // renames the path to the new path, essentially moving the file on the file system
@@ -509,51 +506,70 @@ function createTree(jsonData){
         /*
          * Context Menu Listener for Rename Event
          */
-            .on('rename_node.jstree', function(e, data) {
-                var curNode = $('#jstree2').jstree(true).get_node(data.node);    //The selected node to rename
-                var oldpath = data.node.id;             //The name of the old path
-                var parentpath = data.node.parent ;     //The name of the parent's path
-                var typeDone = data.node.type           //The type of the node
-                console.log("oldpath: " + oldpath) ;   //for reference
+        .on('rename_node.jstree', function(e, data) {
+            var curNode = $('#jstree2').jstree(true).get_node(data.node);    //The selected node to rename
+            var oldpath = data.node.id;             //The name of the old path
+            var parentpath = data.node.parent + slash;     //The name of the parent's path
+            var typeDone = data.node.type           //The type of the node
+            console.log("oldpath: " + oldpath) ;   //for reference
 
-                //For use when renaming something in the current root
-                if(parentpath == "#"){
-                    parentpath = remotePath ;
+            //For use when renaming something in the current root
+            if(parentpath == "#" + slash){
+                parentpath = remotePath ;
+            }
+            console.log("parentpath: " + parentpath) ;   //for reference
+
+            //create the name of the new node
+            var newpath = parentpath + data.node.text ;
+            console.log("newpath: " + newpath) ;   //for reference
+
+            //Fix the id of the new node
+            $('#jstree2').jstree(true).set_id(curNode, newpath);
+            console.log("Old: " + oldpath); //for reference
+            console.log("New: " + newpath); //for reference
+
+            //do the rename
+            globalSftp.rename( oldpath, newpath, function(err){
+                if (err) throw err;
+            });
+            console.log(data);  //for reference
+
+            //if the type is a folder, fix the children as well
+            if(typeDone == "folder"){
+                //for each child get new path name and update the id
+                for(var i = 0; i < data.node.children.length; i++){
+                    var curChild = $('#jstree2').jstree(true).get_node(data.node.children[i]);
+                    var newChildPath = curNode.id + slash + curChild.text
+                    console.log(curNode.id) ;
+                    $('#jstree2').jstree(true).set_id(curChild, newChildPath);
                 }
-                console.log("parentpath: " + parentpath) ;   //for reference
+            }
+            //logging for application users
+            var msg = "file - " + oldpath + " renamed to " + newpath + "\n";
+            document.getElementById("area").innerHTML += msg;
+            log.info(msg);
+        })
 
-                //create the name of the new node
-                var newpath = parentpath + slash + data.node.text ;
-                console.log("newpath: " + newpath) ;   //for reference
-
-                /*
-                //Fix the id of the new node
-                $('#jstree2').jstree(true).set_id(curNode, newpath);
-                console.log("Old: " + oldpath); //for reference
-                console.log("New: " + newpath); //for reference
-
-                //do the rename
-                fs.rename( oldpath, newpath, function(err){
+        /*
+         *  Context Menu Listener for Delete Event
+         */
+        .on('delete_node.jstree', function(e, data){
+            console.log(data.node.type);    //for reference
+            var path = data.node.id ;       //file/folder to be removed
+            //removing a file, calls unlink
+            if(data.node.type == "file"){
+                globalSftp.unlink(path, function(err){
                     if (err) throw err;
+                    var msg = "file - " + path + " was removed successfully" + "\n";
+                    document.getElementById("area").innerHTML += msg;
+                    log.info(msg);
                 });
-                console.log(data);  //for reference
-
-                //if the type is a folder, fix the children as well
-                if(typeDone == "folder"){
-                    //for each child get new path name and update the id
-                    for(var i = 0; i < data.node.children.length; i++){
-                        var curChild = $('#jstree2').jstree(true).get_node(data.node.children[i]);
-                        var newChildPath = curNode.id + slash + curChild.text
-                        console.log(curNode.id) ;
-                        $('#jstree2').jstree(true).set_id(curChild, newChildPath);
-                    }
-                }
-                //logging for application users
-                var msg = "file - " + oldpath + " renamed to " + newpath + "\n";
-                document.getElementById("area").innerHTML += msg;
-                log.info(msg);
-                */
-            })
+            }
+            //else folders, calls recursive function
+            else{
+                delDirRecurRemote(data.node.id);
+            }
+        })
 
         // event for moving a node to the remote file tree
         .on("copy_node.jstree", function(e, data){
@@ -666,4 +682,49 @@ function delDirRecurLocal(path) {
     var msg = "file - " + path + " was removed successfully" + "\n";
     document.getElementById("area").innerHTML += msg;
     log.info(msg);
+};
+
+/*
+ * Used for local delete of folders
+ */
+function delDirRecurRemote(path) {
+
+    console.log(path)
+    //reads each file in path (dir)
+    globalSftp.readdir(path, function(err, files) {
+        if (err) throw err;
+        var i = 0;
+        files.forEach(function (file) {
+            console.log(file)
+            //var that represents each file being looked at
+            var curPath = path + "/" + file.filename;
+            var child = $('#jstree2').jstree(true).get_node(curPath) ;
+            console.log(child) ;
+            console.log(curPath) ;
+            //if it is a dir, go in and delete it's contents too
+            if (file.longname.charAt(0) == "d") {
+                //recursion
+                delDirRecurRemote(curPath);
+            } else {
+                //removes all the files by unlink
+                globalSftp.unlink(curPath, function(err){
+                    console.log(curPath) ;
+                    if (err) throw err ;
+                });
+
+            }
+
+            i++;
+            if(i == files.length){
+                //removes the folder of what was called once it is empty
+                globalSftp.rmdir(path, function(err){
+                    console.log(curPath) ;
+                    if (err) throw err ;
+                });
+                var msg = "file - " + path + " was removed successfully" + "\n";
+                document.getElementById("area").innerHTML += msg;
+                log.info(msg);
+            }
+        });
+    });
 };
