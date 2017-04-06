@@ -31,36 +31,11 @@ header {
     margin-left: 0;
 }
 
-/*.btn {
-    background: #a7acb0;
-    background-image: -webkit-linear-gradient(top, #a7acb0, #567080);
-    background-image: -moz-linear-gradient(top, #a7acb0, #567080);
-    background-image: -ms-linear-gradient(top, #a7acb0, #567080);
-    background-image: -o-linear-gradient(top, #a7acb0, #567080);
-    background-image: linear-gradient(to bottom, #a7acb0, #567080);
-    font-family: Arial;
-    color: #ffffff;
-    font-size: 20px;
-    padding: 10px 20px 10px 20px;
-    text-decoration: none;
-    min-width: 100%;
-}
-
-.btn:hover {
-    background: #a5aeb3;
-    text-decoration: none;
-}*/
-
-footer{
-    border-top: 1px solid black;
-}
-
 #myProgress {
     position: relative;
     width: 20%;
     height: 30px;
     background-color: grey;
-    margin-top:25px;
 
 }
 #myBar {
@@ -102,4 +77,12 @@ textarea{
     overflow-y: auto;
     max-height: 500px;
     max-width: 100%;
+}
+.offToRight{
+    float: right;
+
+}
+#numberOfItems{
+    float: right;
+    padding-right: 10px;
 }

@@ -15,11 +15,6 @@ var $ = require("jquery");
 
 $(document).ready(function(){
 
-    document.getElementById('area').addEventListener('keyup', function () {
-        this.style.height = 0;
-        console.log('test')
-        this.style.height = this.scrollHeight + 'px';
-    }, false);
 
 
     // gets all content for bookmark dropdown menu from the json file

@@ -7,13 +7,15 @@
 
         <!-- Script will click the login button when you press enter -->
         <script>
-           /* document
+            document
                     .addEventListener("keyup", function(event) {
                         event.preventDefault();
-                        if(event.keyCode == 13) {
+
+                        if(event.keyCode == 13 && ($("#username").is(':focus') || $("#password").is(':focus') ||
+                                $("#port").is(':focus') || $("#serverName").is(':focus'))) {
                             document.getElementById("login").click();
                         }
-                    });*/
+                    });
         </script>
 
 
@@ -27,7 +29,7 @@
 	<body>
 
     <!-- Contains buttons for use-->
-        <header>
+        <header class="navbar-default">
 
                 <div class="btn-group">
                     <div class="btn-group">
@@ -53,6 +55,14 @@
                     </div>
                 </div>
 
+            <div id="myProgress" class="offToRight">
+                <div id="myBar">
+                    <div id="progressLabel" class="progress-bar" role="progressbar">0%</div>
+                </div>
+            </div>
+            <div id="numberOfItems" >
+
+            </div>
 
         </header>
 
@@ -99,7 +109,11 @@
                     <br><br>
 
                     <label class="label">&nbsp;</label>
-                    <input type="button" class="loginButton" id="login" onclick="loginFunction(getLoginInfo())" value="Log In">
+                    <div class="btn-group">
+                        <button type="button" class="loginButton btn btn-default dropdown-toggle" id="login" onclick="loginFunction(getLoginInfo())" value="Log In">
+                            Log In
+                        </button>
+                    </div>
                     <div id="loginText"></div>
                 </div>
                 <div class="no-overflow">
@@ -117,14 +131,6 @@
             <div><textarea id="area" cols="100" rows="5" disabled></textarea></div>
 
 		    </form>
-
-        <footer>
-            <div id="myProgress">
-                <div id="myBar">
-                    <div id="progressLabel" class="progress-bar" role="progressbar">0%</div>
-                </div>
-            </div>
-        </footer>
 
     <script src="js/jquery-3.2.0.js"></script>
     <script>
