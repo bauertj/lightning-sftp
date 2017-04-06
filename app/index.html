@@ -71,7 +71,9 @@
 		<form id="frm1">
 
             <fieldset id="fileForm">
-                <legend class="realLegend">File Information
+                <legend class="realLegend">
+                    <span class="glyphicon glyphicon-folder-open" aria-hidden="true"></span>
+                    &nbsp; File Information
                     <select id="upperLevelsLocal">
                     </select>
                 </legend>
@@ -112,6 +114,8 @@
                     <div class="btn-group">
                         <button type="button" class="loginButton btn btn-default dropdown-toggle" id="login" onclick="loginFunction(getLoginInfo())" value="Log In">
                             Log In
+                            &nbsp;
+                            <span class="glyphicon glyphicon-user" aria-hidden="true"></span>
                         </button>
                     </div>
                     <div id="loginText"></div>
