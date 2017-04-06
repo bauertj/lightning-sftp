@@ -23,7 +23,7 @@ header {
     display: inline-block;
     zoom: 1; /* Trigger hasLayout */
     margin-left: 2%;
-    width: 18%;
+    width: 15%;
     text-align: center;
 }
 
@@ -61,6 +61,7 @@ footer{
     height: 30px;
     background-color: grey;
     margin-top:25px;
+
 }
 #myBar {
     position: absolute;
@@ -72,6 +73,7 @@ footer{
 textarea{
     overflow: auto;
     width: 99%;
+    position: relative;
 }
 
 /*#progressLabel{

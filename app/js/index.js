@@ -10,7 +10,18 @@ var fs = require("fs");
 var jsonfile = require('jsonfile');
 var $ = require("jquery");
 
+
+
+
 $(document).ready(function(){
+
+    document.getElementById('area').addEventListener('keyup', function () {
+        this.style.height = 0;
+        console.log('test')
+        this.style.height = this.scrollHeight + 'px';
+    }, false);
+
+
     // gets all content for bookmark dropdown menu from the json file
     var contents = fs.readFileSync("Bookmarks.json");
     var bookmarksContent = JSON.parse(contents);
@@ -33,6 +44,8 @@ $(document).ready(function(){
         document.getElementById("username").value = pos.username;
         document.getElementById("port").value = pos.port;
         document.getElementById("serverName").value = pos.host;
+
+        $('#password').select();
 
     });
 
@@ -61,6 +74,7 @@ $(document).ready(function(){
         document.getElementById("port").value = pos.port;
         document.getElementById("serverName").value = pos.host;
 
+        $('#password').select();
     });
 
 });
@@ -126,6 +140,8 @@ function loginFunction( connSettings ) {
             legend.textContent = connSettings.host;
             $(legend).append(' <select id="upperLevelsRemote"></select>');
 
+            document.getElementById("logoutConn").disabled = false;
+
         }).connect(connSettings);
         // for when there is an error with the connection
         conn.on('error', function(err){
@@ -154,6 +170,13 @@ function logoutFunction(){
         var legend = document.getElementById('legend');
 
         legend.textContent = "User Info";
+
+        document.getElementById("username").value = "";
+        document.getElementById("port").value = "";
+        document.getElementById("serverName").value = "";
+        document.getElementById("password").value = "";
+
+        document.getElementById("logoutConn").disabled = true;
     }
 }
 

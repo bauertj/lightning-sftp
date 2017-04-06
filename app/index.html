@@ -20,6 +20,7 @@
 
         <link rel="stylesheet" href="css/themes/default/style.min.css" />
         <link rel="stylesheet" href="css/bootstrap/css/bootstrap.css" />
+        <title>Lightning SFTP</title>
 	</head>
 
 
@@ -28,7 +29,7 @@
     <!-- Contains buttons for use-->
         <header>
 
-                <div class="container">
+                <div class="btn-group">
                     <div class="btn-group">
                         <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Connection History
                             <span class="caret"></span>
@@ -47,10 +48,9 @@
                         </ul>
                     </div>
 
-
-
-
-                    <div><input type="button" value="Logout" id="logoutConn" class="btn"></div>
+                    <div class="btn-group">
+                        <button type="button" value="Logout" id="logoutConn" class="btn btn-default" disabled>Logout</button>
+                    </div>
                 </div>
 
 
@@ -61,7 +61,7 @@
 		<form id="frm1">
 
             <fieldset id="fileForm">
-                <legend>File Information
+                <legend class="realLegend">File Information
                     <select id="upperLevelsLocal">
                     </select>
                 </legend>
@@ -114,7 +114,7 @@
 
             <br><br>
 
-            <textarea id="area" cols="100" rows="15" disabled></textarea>
+            <div><textarea id="area" cols="100" rows="5" disabled></textarea></div>
 
 		    </form>
 
@@ -123,14 +123,6 @@
                 <div id="myBar">
                     <div id="progressLabel" class="progress-bar" role="progressbar">0%</div>
                 </div>
-            </div>
-            <div id="totalProgress">
-                <div id="totalBar">
-                    <div id="totalProgressLabel">0%</div>
-                </div>
-            </div>
-            <div id="numberOfItems">
-
             </div>
         </footer>
 
