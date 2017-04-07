@@ -133,7 +133,7 @@ function loginFunction( connSettings ) {
 
             var legend = document.getElementById('legend');
             legend.textContent = connSettings.host;
-            $(legend).append(' <select id="upperLevelsRemote"></select>');
+            $(legend).append(' <div class="btn-group" id="upperLevel2"> <ul class="dropdown-menu" id="upperLevelsRemote"> </ul></div>');
 
             document.getElementById("logoutConn").disabled = false;
 

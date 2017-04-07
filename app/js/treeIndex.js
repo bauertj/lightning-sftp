@@ -108,13 +108,19 @@ function initTree(jsonContent) {
     // loads the select menu for parent directories once the tree is loaded
     .on("loaded.jstree", function (e, data) {
         var localOptions = document.getElementById('upperLevelsLocal');
+        var localOptions2 = document.getElementById('upperLevel');
 
         // empties the select option every time a tree is loaded
+
+        localOptions2.removeChild(localOptions2.firstChild);
         while(localOptions.firstChild){
             localOptions.removeChild(localOptions.firstChild);
         }
         var tempPath = "";
         var appendedPath = "";
+        $('#upperLevel').prepend($('<button type="button" id="upperLevels" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">' + somepath + '<span class="caret"></span> </button>'));
+
+
         // loops through the current directory path string
         for(var i = 0; i < somepath.length; i++){
             tempPath += somepath[i];
@@ -123,14 +129,26 @@ function initTree(jsonContent) {
                 appendedPath += tempPath;
                 // prepends html to the select if it is not the current directory
                 if(appendedPath != somepath)
-                    $(localOptions).prepend($('<option value="'+appendedPath+'">' + appendedPath + '</option>'));
+                    $(localOptions).prepend($('<li><a href="#" class="localDirClicked">' + appendedPath + '</a></li>'));
+
 
                 tempPath = "";
             }
 
         }
-        // prepends the current directory
-        $('#upperLevelsLocal').prepend($('<option value="'+appendedPath+'" selected>' + somepath + '</option>'));
+
+
+
+        $('.localDirClicked').click(function () {
+            console.log(this.text);
+            somepath = this.text;
+
+            var newJson = setTree(somepath);
+
+            $('#jstree').jstree('destroy');
+
+            initTree(newJson);
+        });
     })
 
     // Local file tree event when a node is opened
@@ -290,6 +308,8 @@ function initTree(jsonContent) {
         $(this).jstree(true).redraw();
 
     });
+
+
 }
 
 $(document).ready(function () {
@@ -398,7 +418,10 @@ function createTree(jsonData){
         // once the data is loaded, we will retrieve the files for the directories on top
         .on("loaded.jstree", function (e, data) {
             var remoteOptions = document.getElementById('upperLevelsRemote');
+            var remoteOptions2 = document.getElementById('upperLevel2');
 
+
+            remoteOptions2.removeChild(remoteOptions2.firstChild);
             // empties the select option every time a tree is loaded
             while(remoteOptions.firstChild){
                 remoteOptions.removeChild(remoteOptions.firstChild);
@@ -406,6 +429,9 @@ function createTree(jsonData){
 
             var tempPath = "";
             var appendedPath = "";
+
+            $('#upperLevel2').prepend($('<button type="button" id="upperLevels2" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">' + remotePath + '<span class="caret"></span> </button>'));
+
             // loops through the current directory path string
             for(var i = 0; i < remotePath.length; i++){
                 tempPath += remotePath[i];
@@ -414,14 +440,20 @@ function createTree(jsonData){
                     appendedPath += tempPath;
                     // prepends html to the select if it is not the current directory
                     if(appendedPath != remotePath && appendedPath != ".")
-                        $('#upperLevelsRemote').prepend($('<option value="'+appendedPath+'">' + appendedPath + '</option>'));
+                        $(remoteOptions).prepend($('<li><a href="#" class="remoteDirClicked">' + appendedPath + '</a></li>'));
 
                     tempPath = "";
                 }
 
             }
-            // prepends the current directory
-            $('#upperLevelsRemote').prepend($('<option value="'+appendedPath+'" selected>' + remotePath + '</option>'));
+
+            $('.remoteDirClicked').click(function () {
+                remotePath = this.text;
+
+                $('#jstree2').jstree('destroy');
+
+                getTreeData(remotePath);
+            });
         })
 
         .on("changed.jstree", function(e, data){
@@ -576,14 +608,6 @@ function createTree(jsonData){
             $('#jstree2').jstree(true).redraw();
         });
 
-        $('#upperLevelsRemote').change(function(){
-            remotePath = $(this)[0].value;
-
-            console.log("changed");
-            $('#jstree2').jstree('destroy');
-
-            getTreeData(remotePath);
-        });
     });
 }
 
