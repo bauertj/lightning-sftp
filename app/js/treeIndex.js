@@ -329,45 +329,52 @@ function retrieveData(dir){
     conn.on('ready', function(err){
         conn.sftp(function(err, sftp) {
             globalSftp = sftp;
-            getTreeData(remotePath);
+            var trypath = "" ;
+            globalSftp.realpath(remotePath, function(err, trypath){
+                if (err) throw err ;
+                remotePath = trypath + "/";
+                getTreeData(remotePath);
+            });
         });
     });
 }
 
 function getTreeData(dir) {
+        console.log(dir) ;
         var jsonData = [];
         try {
             globalSftp.readdir(dir, function (err, list) {
                 if (err) {
                     console.log(err)
-                    console.log(dir);
                 }
-                // retrieves a list of files on the default path and loops through to populate json object
-                for (var i = 0; i < list.length; i++) {
-                    //console.log(list[i]);
-                    var fileName = list[i].filename;
-                    var fulldir = dir + fileName;
-                    var longname = list[i].longname;
-                    var icon = "";
-                    var type = "folder";
-                    // var id = dir;
-                    if (longname.substring(0, 1) != "d") {
-                        icon = "jstree-file";
-                        type = "file";
+                else{
+                    // retrieves a list of files on the default path and loops through to populate json object
+                    for (var i = 0; i < list.length; i++) {
+                        //console.log(list[i]);
+                        var fileName = list[i].filename;
+                        var fulldir = dir + fileName;
+                        var longname = list[i].longname;
+                        var icon = "";
+                        var type = "folder";
+                        // var id = dir;
+                        if (longname.substring(0, 1) != "d") {
+                            icon = "jstree-file";
+                            type = "file";
+                        }
+
+
+                        var obj = {text: fileName, icon: icon, id: fulldir, parent: "#", type: type};
+                        jsonData.push(obj);
+                        if (longname.substring(0, 1) == "d") {
+                            var child = {text: "test", icon: "jstree-file", id: "test" + arbitraryCounter, parent: fulldir, type: "file"};
+                            jsonData.push(child);
+                            arbitraryCounter++;
+                        }
                     }
 
-
-                    var obj = {text: fileName, icon: icon, id: fulldir, parent: "#", type: type};
-                    jsonData.push(obj);
-                    if (longname.substring(0, 1) == "d") {
-                        var child = {text: "test", icon: "jstree-file", id: "test" + arbitraryCounter, parent: fulldir, type: "file"};
-                        jsonData.push(child);
-                        arbitraryCounter++;
-                    }
+                    // creates tree with the json data that was created
+                    createTree(jsonData);
                 }
-
-                // creates tree with the json data that was created
-                createTree(jsonData);
             });
         }catch(err){
             console.log(dir);
@@ -445,6 +452,7 @@ function createTree(jsonData){
             }
 
             $('.remoteDirClicked').click(function () {
+                var oldpath = remotePath ;
                 remotePath = this.text;
 
                 $('#jstree2').jstree('destroy');
@@ -584,6 +592,7 @@ function createTree(jsonData){
 
         /*
          *  Context Menu Listener for Delete Event
+         *  WIP RACE CONDITION ISSUES
          */
         .on('delete_node.jstree', function(e, data){
             console.log(data.node.type);    //for reference
