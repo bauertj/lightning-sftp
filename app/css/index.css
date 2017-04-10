@@ -89,3 +89,41 @@ textarea{
  #area{
      left: 5px;
  }
+
+
+ ul.bookmark-dropdown{
+     min-width: 250px;
+ }
+
+ul.bookmark-dropdown .item{
+    display:block;
+    padding:3px 10px;
+    margin: 3px 0;
+}
+ul.bookmark-dropdown li .item:hover{
+    background-color: #f3f3f3;
+}
+
+ul.bookmark-dropdown li .item:after{
+    visibility: hidden;
+    display: block;
+    font-size: 0;
+    content: " ";
+    clear: both;
+    height: 0;
+}
+
+ ul.bookmark-dropdown li .item-left{
+     float: left;
+
+ }
+ 
+ ul.bookmark-dropdown li .item-right{
+     float: right;
+     display: inline-block;
+ }
+
+ ul.bookmark-dropdown li .item-right button{
+     float: right;
+ }
+
