@@ -36,7 +36,7 @@
                         <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Connection History
                             <span class="caret"></span>
                         </button>
-                        <ul class="dropdown-menu" id="history">
+                        <ul class="dropdown-menu bookmark-dropdown" id="history" role="menu">
 
                         </ul>
                     </div>
@@ -45,7 +45,7 @@
                         <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Bookmarks
                             <span class="caret"></span>
                         </button>
-                        <ul class="dropdown-menu" id="bookmarks">
+                        <ul class="dropdown-menu bookmark-dropdown" id="bookmarks" role="menu">
 
                         </ul>
                     </div>
@@ -111,6 +111,11 @@
 
                     <label class="label label-default" for="port"> Port </label>
                     <input type="text" id="port" size="10">
+                    <br><br>
+
+                    <label class="label label-default" for="bookmarkThis">Add To Bookmarks</label>
+                    <input type="checkbox" id="bookmarkThis">
+
                     <br><br>
 
                     <label class="label">&nbsp;</label>

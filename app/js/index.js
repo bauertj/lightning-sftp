@@ -11,24 +11,65 @@ var jsonfile = require('jsonfile');
 var $ = require("jquery");
 
 
-
-
-$(document).ready(function(){
-
-
-
-    // gets all content for bookmark dropdown menu from the json file
+function populateBookmarks(){
     var contents = fs.readFileSync("Bookmarks.json");
     var bookmarksContent = JSON.parse(contents);
     var bookmarksMenu = document.getElementById("bookmarks");
-
-    // appends all html, adding unique class names in order to locate actual information
-    $(bookmarksMenu).append('<li class="bookmarkOptions"><a href="#">Bookmark Options...</a></li>')
-    $(bookmarksMenu).append('<li role="separator" class="divider"></li>')
-    for(var i = 0; i < bookmarksContent.Bookmarks.length; i++){
-        $(bookmarksMenu).append('<li><a href="#" class="bookmarkClicked bookmark'+i+'">'+ bookmarksContent.Bookmarks[i].username + '@' +
-            bookmarksContent.Bookmarks[i].host +'</a></li>');
+    var bookChildren = document.getElementById("bookmarks");
+    while(bookChildren.firstChild){
+        bookChildren.removeChild(bookChildren.firstChild);
     }
+    for(var i = 0; i < bookmarksContent.Bookmarks.length; i++){
+        $(bookmarksMenu).append('<li>' +
+            '<span class="item item'+i+'"> '+
+            '<span class="item-left">'+
+            '<span class="bookmarkClicked bookmark'+i+'">'+ bookmarksContent.Bookmarks[i].username + '@' + bookmarksContent.Bookmarks[i].host + '</span>' +
+            '</span>' +
+            '<span class="item-right">' +
+            '<button class="btn btn-xs pull-right btn-danger bookmarkDelete danger' +i+'">x</button>' +
+            '</span>' +
+            '</span>' +
+            '</li>');
+    }
+}
+
+function populateHistory(){
+    // gets all content for connection history drop down menu from json file
+    var contents = fs.readFileSync("ConnectionHistory.json");
+    var historyContent = JSON.parse(contents);
+    var historyMenu = document.getElementById("history");
+    var historyChildren = document.getElementById("history");
+    while(historyChildren.firstChild){
+        historyChildren.removeChild(historyChildren.firstChild);
+    }
+
+    for(var i = historyContent.connectionHistory.length-1; i > historyContent.connectionHistory.length - 10; i--){
+        if(historyContent.connectionHistory[i] != null){
+            $(historyMenu).append('<li>' +
+                    '<span class="item item'+i+'">' +
+                        '<span class="item-left">' +
+                            '<span class="historyClicked history'+i+'">'+ historyContent.connectionHistory[i].username + '@' +
+                            historyContent.connectionHistory[i].host +'</span>' +
+                        '</span>'+
+                        '<span class="item-right">'+
+                            '<button class="btn btn-xs pull-right btn-danger historyDelete danger'+i+'">x</button>'+
+                        '</span>'+
+                    '</span>'+
+                '</li>');
+        }
+    }
+}
+
+$(document).ready(function(){
+    init();
+});
+
+function init() {
+    // gets all content for bookmark dropdown menu from the json file
+    var contents = fs.readFileSync("Bookmarks.json");
+    var bookmarksContent = JSON.parse(contents);
+
+    populateBookmarks();
 
     // when a bookmark is clicked, information will be added to the text boxes
     $('.bookmarkClicked').click(function(){
@@ -44,20 +85,28 @@ $(document).ready(function(){
 
     });
 
+    $('.bookmarkDelete').click(function(){
+        console.log(this);
+        var contents = fs.readFileSync("Bookmarks.json");
+        var jsonContent = JSON.parse(contents);
+
+        var classname = this.className;
+        classname = classname.replace(/[^\d.]/g, '');
+
+        jsonContent.Bookmarks.splice(classname, 1);
+
+        $(".item"+classname).remove();
+        jsonfile.writeFile('Bookmarks.json', jsonContent);
+    });
+
+
     // gets all content for connection history drop down menu from json file
     contents = fs.readFileSync("ConnectionHistory.json");
     var historyContent = JSON.parse(contents);
     var historyMenu = document.getElementById("history");
 
-    // appends all html, adding unique class names
-    $(historyMenu).append('<li><a href="#">Connection History Options...</a></li>');
-    $(historyMenu).append('<li role="separator" class="divider"></li>')
-    for(var i = historyContent.connectionHistory.length-1; i > historyContent.connectionHistory.length - 10; i--){
-        if(historyContent.connectionHistory[i] != null){
-            $(historyMenu).append('<li><a href="#" class="historyClicked history'+i+'">'+ historyContent.connectionHistory[i].username + '@' +
-                historyContent.connectionHistory[i].host +'</a></li>');
-        }
-    }
+
+    populateHistory();
 
     // when a history option is clicked, information will be added to the text boxes
     $('.historyClicked').click(function(){
@@ -72,7 +121,20 @@ $(document).ready(function(){
         $('#password').select();
     });
 
-});
+    $('.historyDelete').click(function(){
+        console.log(this);
+        var contents = fs.readFileSync("ConnectionHistory.json");
+        var jsonContent = JSON.parse(contents);
+
+        var classname = this.className;
+        classname = classname.replace(/[^\d.]/g, '');
+
+        jsonContent.connectionHistory.splice(classname, 1);
+
+        $(".item"+classname).remove();
+        jsonfile.writeFile('ConnectionHistory.json', jsonContent);
+    })
+}
 
 /**
  * Logs in to remote server using html text boxes.
@@ -125,6 +187,16 @@ function loginFunction( connSettings ) {
         // for when the client is connected to the server
         conn.on('ready', function() {
 
+            if(document.getElementById("bookmarkThis").checked){
+                contents = fs.readFileSync("Bookmarks.json");
+                var tempJson = JSON.parse(contents);
+                var tempObj = {username: connSettings.username, host: connSettings.host, port: connSettings.port};
+                tempJson.Bookmarks.push(tempObj);
+                jsonfile.writeFileSync("Bookmarks.json", tempJson);
+
+
+            }
+
             console.log("You are now connected");
             //document.getElementById("loginText").innerHTML = "Connected to " + connSettings.host;
             jsonContent.connectionHistory.push(obj);
@@ -137,6 +209,7 @@ function loginFunction( connSettings ) {
 
             document.getElementById("logoutConn").disabled = false;
 
+            init();
         }).connect(connSettings);
         // for when there is an error with the connection
         conn.on('error', function(err){
