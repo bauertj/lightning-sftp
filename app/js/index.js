@@ -191,9 +191,16 @@ function loginFunction( connSettings ) {
                 contents = fs.readFileSync("Bookmarks.json");
                 var tempJson = JSON.parse(contents);
                 var tempObj = {username: connSettings.username, host: connSettings.host, port: connSettings.port};
-                tempJson.Bookmarks.push(tempObj);
-                jsonfile.writeFileSync("Bookmarks.json", tempJson);
-
+                for(var i = 0; i < tempJson.Bookmarks.length; i++){
+                    console.log(tempJson.Bookmarks[i]);
+                    if(!(tempObj.username == tempJson.Bookmarks[i].username &&
+                        tempObj.host == tempJson.Bookmarks[i].host &&
+                        tempObj.port == tempJson.Bookmarks[i].port)){
+                        console.log("found");
+                        tempJson.Bookmarks.push(tempObj);
+                        jsonfile.writeFileSync("Bookmarks.json", tempJson);
+                    }
+                }
 
             }
 
@@ -245,6 +252,8 @@ function logoutFunction(){
         document.getElementById("password").value = "";
 
         document.getElementById("logoutConn").disabled = true;
+
+        document.getElementById("bookmarkThis").checked = false;
     }
 }
 
