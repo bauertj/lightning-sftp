@@ -455,7 +455,7 @@ function progressBar(read, write, stats, selectedFile){
             textArea.scrollTop = textArea.scrollHeight;
         }, 10);
 
-        document.getElementById('numberOfItems').innerHTML = selectedFile;
+        document.getElementById('itemTransferred').innerHTML = selectedFile;
 
         var elem = document.getElementById("myBar");
         var width = 1;

@@ -31,30 +31,49 @@ header {
     margin-left: 0;
 }
 
-#myProgress {
+.myProgress {
     position: relative;
     width: 20%;
-    height: 30px;
+    height: 25px;
     background-color: grey;
-
 }
 #myBar {
     position: relative;
     width: 1%;
-    height: 50%;
+    height: 25px;
     background-color: green;
+
+}#myProgress2 {
+    position: relative;
+    width: 20%;
+     height: 25px;
+    background-color: grey;
 
 }
 #myBar2 {
     position: relative;
     width: 1%;
-    height: 50%;
+    height: 25px;
     background-color: green;
 
 }
 
-.progressSpan{
+.fileTransfer:after{
+    visibility: hidden;
+    display: inline-block;
+    font-size: 0;
+    content: "";
+    clear: both;
+    height: 0;
+}
 
+.progressSpan:after{
+    visibility: hidden;
+    display: block;
+    font-size: 0;
+    content: " ";
+    clear: both;
+    height: 0;
 }
 
 textarea{
@@ -92,7 +111,6 @@ textarea{
 }
 .offToRight{
     float: right;
-
 }
 #numberOfItems{
     float: right;
