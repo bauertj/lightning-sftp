@@ -16,8 +16,15 @@ function populateBookmarks(){
     var bookmarksContent = JSON.parse(contents);
     var bookmarksMenu = document.getElementById("bookmarks");
     var bookChildren = document.getElementById("bookmarks");
+
+
     while(bookChildren.firstChild){
         bookChildren.removeChild(bookChildren.firstChild);
+    }
+    if(bookmarksContent.Bookmarks.length == 0){
+        console.log("empty");
+        $(bookmarksMenu).append('<li>' +
+            '<span class="empty glyphicon glyphicon-star-empty"> &nbsp; No Bookmarks Yet</span></li>');
     }
     for(var i = 0; i < bookmarksContent.Bookmarks.length; i++){
         $(bookmarksMenu).append('<li>' +
@@ -43,7 +50,7 @@ function populateHistory(){
         historyChildren.removeChild(historyChildren.firstChild);
     }
 
-    for(var i = historyContent.connectionHistory.length-1; i > historyContent.connectionHistory.length - 10; i--){
+    for(var i = historyContent.connectionHistory.length-1; i > 0; i--){
         if(historyContent.connectionHistory[i] != null){
             $(historyMenu).append('<li>' +
                     '<span class="item item'+i+'">' +
@@ -96,6 +103,11 @@ function init() {
         jsonContent.Bookmarks.splice(classname, 1);
 
         $(".item"+classname).remove();
+
+        if(jsonContent.Bookmarks.length == 0){
+            var bookmark = document.getElementById("bookmarks");
+            $(bookmark).append('<li> <span class="empty glyphicon glyphicon-star-empty"> &nbsp; No Bookmarks Yet</span></li>');
+        }
         jsonfile.writeFile('Bookmarks.json', jsonContent);
     });
 
@@ -189,17 +201,18 @@ function loginFunction( connSettings ) {
 
             if(document.getElementById("bookmarkThis").checked){
                 contents = fs.readFileSync("Bookmarks.json");
+                var found = false;
                 var tempJson = JSON.parse(contents);
                 var tempObj = {username: connSettings.username, host: connSettings.host, port: connSettings.port};
                 for(var i = 0; i < tempJson.Bookmarks.length; i++){
-                    console.log(tempJson.Bookmarks[i]);
-                    if(!(tempObj.username == tempJson.Bookmarks[i].username &&
-                        tempObj.host == tempJson.Bookmarks[i].host &&
-                        tempObj.port == tempJson.Bookmarks[i].port)){
-                        console.log("found");
-                        tempJson.Bookmarks.push(tempObj);
-                        jsonfile.writeFileSync("Bookmarks.json", tempJson);
+                    if((tempObj.username === tempJson.Bookmarks[i].username) && (tempObj.host === tempJson.Bookmarks[i].host) &&
+                        (tempObj.port === tempJson.Bookmarks[i].port)){
+                        found = true;
                     }
+                }
+                if(!found){
+                    tempJson.Bookmarks.push(tempObj);
+                    jsonfile.writeFileSync("Bookmarks.json", tempJson);
                 }
 
             }

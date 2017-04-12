@@ -39,10 +39,22 @@ header {
 
 }
 #myBar {
-    position: absolute;
+    position: relative;
     width: 1%;
-    height: 100%;
+    height: 50%;
     background-color: green;
+
+}
+#myBar2 {
+    position: relative;
+    width: 1%;
+    height: 50%;
+    background-color: green;
+
+}
+
+.progressSpan{
+
 }
 
 textarea{
@@ -127,3 +139,12 @@ ul.bookmark-dropdown li .item:after{
      float: right;
  }
 
+.empty{
+    padding-left: 10px;
+}
+
+#history{
+    max-height: 250px;
+    overflow-y: scroll;
+    overflow-x: hidden;
+}
