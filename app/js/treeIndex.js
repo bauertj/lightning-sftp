@@ -98,7 +98,55 @@ function initTree(jsonContent) {
             },
             dblclick_toggle: false
         },
-        plugins: ["dnd", "sort", "contextmenu", "types", "unique"]
+        plugins: ["dnd", "sort", "contextmenu", "types", "unique"],
+
+        "contextmenu":{
+            "items":    function($node){
+                var curTree = $('#jstree').jstree(true) ;
+                return{
+                    "Rename": {
+                        "label": "Rename",
+                        "action": function (obj) {
+                            curTree.edit($node) ;
+                        }
+                    },
+                    "Delete": {
+                        "label": "Delete",
+                        "action": function (obj) {
+                            curTree.delete_node($node) ;
+                        }
+                    },
+                    "Upload Folder":{
+                        "label": "Upload to Root",
+                        "action": function(obj){
+                            if(conn!=null){
+                                console.log(remotePath);
+                                console.log(somepath);
+                                console.log($node);
+
+                                // will upload a file when it is double clicked to the root of the other tree
+                                if($node.type === "file"){
+                                    selectUpload($node.id, remotePath + $node.text);
+
+                                    var newNode = {text: $node.text, icon: "jstree-file", id: remotePath + $node.text, parent: '#', type: 'file'};
+                                    if(!$('#jstree2').jstree(true).get_node(newNode.id)){
+                                        $('#jstree2').jstree('create_node', '#', newNode);
+                                    }
+                                }
+                                if($node.type === "folder"){
+                                    selectUpload($node.id, remotePath + $node.text);
+
+                                    var newNode = {text: $node.text, icon: "", id: remotePath + $node.text, parent: '#', type: 'folder'};
+                                    if(!$('#jstree2').jstree(true).get_node(newNode.id)){
+                                        $('#jstree2').jstree('create_node', '#', newNode);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
     });
 
     // event for whenever something is changed in tree
@@ -416,7 +464,55 @@ function createTree(jsonData){
                 },
                 dblclick_toggle: false
             },
-            plugins: ["dnd", "sort", "contextmenu", "types", "unique"]
+            plugins: ["dnd", "sort", "contextmenu", "types", "unique"],
+
+            "contextmenu":{
+                "items":    function($node){
+                    var curTree = $('#jstree').jstree(true) ;
+                    return{
+                        "Rename": {
+                            "label": "Rename",
+                            "action": function (obj) {
+                                curTree.edit($node) ;
+                            }
+                        },
+                        "Delete": {
+                            "label": "Delete",
+                            "action": function (obj) {
+                                curTree.delete_node($node) ;
+                            }
+                        },
+                        "Download Folder":{
+                            "label": "Download to Root",
+                            "action": function(obj){
+                                if(conn!=null){
+                                    console.log(remotePath);
+                                    console.log(somepath);
+                                    console.log($node);
+
+                                    // will upload a file when it is double clicked to the root of the other tree
+                                    if($node.type === "file"){
+                                        selectDownload($node.id, somepath + $node.text);
+
+                                        var newNode = {text: $node.text, icon: "jstree-file", id: somepath + $node.text, parent: '#', type: 'file'};
+                                        if(!$('#jstree').jstree(true).get_node(newNode.id)){
+                                            $('#jstree').jstree('create_node', '#', newNode);
+                                        }
+                                    }
+                                    if($node.type === "folder"){
+                                        selectDownload($node.id, somepath + $node.text);
+
+                                        var newNode = {text: $node.text, icon: "", id: somepath + $node.text, parent: '#', type: 'folder'};
+                                        if(!$('#jstree').jstree(true).get_node(newNode.id)){
+                                            $('#jstree').jstree('create_node', '#', newNode);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         })
 
         // once the data is loaded, we will retrieve the files for the directories on top
