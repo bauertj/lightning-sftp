@@ -39,7 +39,7 @@ header {
 }
 #myBar {
     position: relative;
-    width: 1%;
+    width: 0%;
     height: 25px;
     background-color: green;
 
@@ -52,9 +52,9 @@ header {
 }
 #myBar2 {
     position: relative;
-    width: 1%;
+    width: 0%;
     height: 25px;
-    background-color: green;
+    background-color: #83c1ff;
 
 }
 
