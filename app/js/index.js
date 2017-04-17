@@ -224,12 +224,21 @@ function loginFunction( connSettings ) {
 
 
             var legend = document.getElementById('legend');
+
             legend.textContent = connSettings.host;
-            $(legend).append(' <div class="btn-group" id="upperLevel2"> <ul class="dropdown-menu" id="upperLevelsRemote"> </ul></div>');
+
+            $(legend).append('&nbsp;<div class="btn-group" id="upperLevel2"> <ul class="dropdown-menu" id="upperLevelsRemote"> </ul></div>' +
+                '<div class="btn-group"> <div class="btn-group">'+
+                '<button type="button" value="Logout" id="logoutConn" class="btn btn-default">Logout</button> </div></div>');
+
+            var settingsE2 = document.querySelector('#logoutConn');
+            settingsE2.addEventListener('click', function (){
+                logoutFunction();
+            });
 
             document.getElementById("logoutConn").disabled = false;
 
-            init();
+
         }).connect(connSettings);
         // for when there is an error with the connection
         conn.on('error', function(err){
@@ -258,13 +267,20 @@ function logoutFunction(){
         var legend = document.getElementById('legend');
 
         legend.textContent = "User Info";
+        $(legend).append('&nbsp;<div class="btn-group"> <div class="btn-group">'+
+            '<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Connection History'+
+            '<span class="caret"></span> </button> <ul class="dropdown-menu bookmark-dropdown" id="history" role="menu">'+
+            '</ul></div><div class="btn-group">'+
+            '<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Bookmarks'+
+            '<span class="caret"></span></button><ul class="dropdown-menu bookmark-dropdown" id="bookmarks" role="menu">'+
+            '</ul></div></div>');
+
+        init();
 
         document.getElementById("username").value = "";
         document.getElementById("port").value = "";
         document.getElementById("serverName").value = "";
         document.getElementById("password").value = "";
-
-        document.getElementById("logoutConn").disabled = true;
 
         document.getElementById("bookmarkThis").checked = false;
     }
@@ -300,8 +316,12 @@ function selectDownload(selectedFile, pathToSend){
                         fs.mkdir(pathToSend,function(err){
                             if (err) throw err;
                         });
+
                     }
                     //Recursive download to download files inside directory
+                    totalFiles = 0;
+                    totalDone = 0;
+                    countTotalFiles(sftp, selectedFile, pathToSend);
                     recurDownload(sftp, selectedFile, pathToSend) ;
                 }
                 //if file, call download
@@ -371,6 +391,7 @@ function download(sftp, selectedFile, pathToSend){
 
     // PROGRESS BAR START
     sftp.lstat(selectedFile, function (err, stats) {
+
         progressBar(read, write, stats, selectedFile);
     }); // END PROGRESS BAR
 
@@ -389,6 +410,7 @@ function download(sftp, selectedFile, pathToSend){
 
     // Reads from the remote, writes to local
     read.pipe(write);
+
 }
 
 
@@ -408,8 +430,9 @@ function upload(sftp, selectedFile, pathToSend){
     console.log(pathToSend);
 
     fs.stat(selectedFile, function (err, stats) {
+
         progressBar(read, write, stats, selectedFile);
-    })
+    });
 
     // Logs info
     write.on('close',function (){
@@ -429,9 +452,12 @@ function upload(sftp, selectedFile, pathToSend){
 }
 
 
+
 // TODO Documentation
 function progressBar(read, write, stats, selectedFile){
     read.on('data', (chunk) => {
+
+
 
         var bytesWritten = write.bytesWritten;
         var fileSize = stats.size;
@@ -455,12 +481,14 @@ function progressBar(read, write, stats, selectedFile){
             textArea.scrollTop = textArea.scrollHeight;
         }, 10);
 
-        document.getElementById('itemTransferred').innerHTML = selectedFile;
+        document.getElementById('itemTransferred').innerHTML = selectedFile + '&nbsp;';
+        document.getElementById('totalItems').innerHTML = totalDone + ' / ' + totalFiles + '&nbsp;';
 
         var elem = document.getElementById("myBar");
         var width = 1;
         var id = setInterval(frame, 10);
         var percentage = 0;
+
         //noinspection JSAnnotator
         function frame() {
             if (width >= 100) {
@@ -473,6 +501,19 @@ function progressBar(read, write, stats, selectedFile){
                 document.getElementById("progressLabel").innerHTML = ((percentage * 100)).toFixed(2) + '%';
             }
         }
+    });
+    read.on('end', ()=>{
+        document.getElementById('itemTransferred').innerHTML = '';
+
+
+        totalDone++;
+
+        var percentage = totalDone/totalFiles;
+        var elem = document.getElementById("myBar2");
+        elem.style.width = (percentage * 100) + '%';
+        document.getElementById("progressLabel2").innerHTML = ((percentage * 100)).toFixed(2) + '%';
+
+        document.getElementById('totalItems').innerHTML = '';
     });
 }
 
@@ -506,6 +547,38 @@ function recurUpload(sftp, selectedFile, pathToSend){
     });
 }
 
+var totalFiles, totalDone = 0;
+function countTotalFiles(sftp, selectedFile, pathToSend){
+
+    sftp.readdir(selectedFile, function(err, list){
+       if(err) throw err;
+
+       // console.log(selectedFile + ' ' + list.length);
+        totalFiles += list.length;
+
+
+
+        for(var i = 0; i < list.length; i++){
+            var newPath = selectedFile + "/" + list[i].filename;
+
+            if(list[i].longname.toString().charAt(0) === 'd'){
+
+                countTotalFiles(sftp, newPath, pathToSend);
+
+            }
+
+        }
+
+        console.log(totalFiles);
+
+    });
+    //recurDownload(sftp, selectedFile, pathToSend);
+
+
+}
+
+
+
 
 /*
  * sftp: sftp object to pass in
@@ -515,6 +588,7 @@ function recurUpload(sftp, selectedFile, pathToSend){
  * Downloads a directory with all containing files.
  */
 function recurDownload(sftp, selectedFile, pathToSend) {
+
     sftp.readdir(selectedFile, function (err, list) {
         if (err) throw err;
         //for each file in the dir
@@ -528,7 +602,9 @@ function recurDownload(sftp, selectedFile, pathToSend) {
                     fs.mkdir(newSend,function(err){
                         if (err) throw err;
                     });
+
                 }
+                totalDone++;
                 recurDownload(sftp, newPath, newSend) ;
             }
             //else, it is a file, so download it locally

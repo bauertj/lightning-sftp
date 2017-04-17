@@ -27,63 +27,7 @@
 
 
 	<body>
-
-    <!-- Contains buttons for use-->
-        <header class="navbar-default">
-
-                <div class="btn-group">
-                    <div class="btn-group">
-                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Connection History
-                            <span class="caret"></span>
-                        </button>
-                        <ul class="dropdown-menu bookmark-dropdown" id="history" role="menu">
-
-                        </ul>
-                    </div>
-
-                    <div class="btn-group">
-                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Bookmarks
-                            <span class="caret"></span>
-                        </button>
-                        <ul class="dropdown-menu bookmark-dropdown" id="bookmarks" role="menu">
-
-                        </ul>
-                    </div>
-
-                    <div class="btn-group">
-                        <button type="button" value="Logout" id="logoutConn" class="btn btn-default" disabled>Logout</button>
-                    </div>
-                </div>
-
-                <span>
-
-                    <span class="fileTransfer">
-                        <span id="itemTransferred"></span>
-                        <span class="progressSpan">
-                            <div  class="offToRight myProgress img-rounded">
-                                    <div id="myBar" class="img-rounded">
-                                        <div id="progressLabel" class="progress-bar img-rounded" role="progressbar">0%</div>
-                                    </div>
-                            </div>
-                        </span>
-                    </span>
-
-                    <span class="progressSpan">
-                        <div id="myProgress2" class="offToRight img-rounded">
-                            <div id="myBar2" class="img-rounded">
-                                <div id="progressLabel2" class="progress-bar img-rounded" role="progressbar">0%</div>
-                            </div>
-                        </div>
-                    </span>
-
-                </span>
-
-
-
-        </header>
-
-        <br>
-
+    <br>
 		<form id="frm1">
 
             <fieldset id="fileForm">
@@ -111,7 +55,28 @@
 
             <fieldset id="userInfo">
 
-                <legend id="legend">User Info</legend>
+                <legend id="legend">User Info
+                    <div class="btn-group">
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Connection History
+                                <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu bookmark-dropdown" id="history" role="menu">
+
+                            </ul>
+                        </div>
+
+
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Bookmarks
+                                <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu bookmark-dropdown" id="bookmarks" role="menu">
+
+                            </ul>
+                        </div>
+                    </div>
+                </legend>
                 <div id="removable">
                     <label class="label label-default" for="username"> Username </label>
                     <input type="text" id="username" name="name" value="" autofocus>
@@ -158,7 +123,34 @@
 
             <div><textarea id="area" cols="100" rows="5" disabled></textarea></div>
 
+
 		    </form>
+
+
+        <footer class="navbar">
+            <span class="fileTransfer">
+                <span class="progressSpan">
+                    <div  class="offToRight myProgress img-rounded">
+                            <div id="myBar" class="img-rounded">
+                                <div id="progressLabel" class="progress-bar img-rounded" role="progressbar">0%</div>
+                            </div>
+                    </div>
+                </span>
+
+                <span id="itemTransferred" class="offToRight"></span>
+            </span>
+
+            <br style="height: 1px;"><br style="height: 1px;">
+            <span class="progressSpan">
+                <div id="myProgress2" class="offToRight img-rounded">
+                    <div id="myBar2" class="img-rounded">
+                        <div id="progressLabel2" class="progress-bar img-rounded" role="progressbar">0%</div>
+                    </div>
+                </div>
+            </span>
+
+            <span id="totalItems" class="offToRight"></span>
+        </footer>
 
     <script src="js/jquery-3.2.0.js"></script>
     <script>
