@@ -54,11 +54,11 @@ header {
     position: relative;
     width: 0%;
     height: 25px;
-    background-color: #83c1ff;
+    background-color: green;
 
 }
 
-.fileTransfer:after{
+/*.fileTransfer:after{
     visibility: hidden;
     display: inline-block;
     font-size: 0;
@@ -74,7 +74,8 @@ header {
     content: " ";
     clear: both;
     height: 0;
-}
+}*/
+
 
 textarea{
     overflow: auto;
@@ -109,7 +110,7 @@ textarea{
     max-height: 500px;
     max-width: 100%;
 }
-.offToRight{
+.offToRight {
     float: right;
 }
 #numberOfItems{
