@@ -129,7 +129,7 @@
 
         <footer class="navbar">
             <span class="fileTransfer">
-                <span class="progressSpan">
+                <span class="progressSpan" id="progressFile">
                     <div  class="offToRight myProgress img-rounded">
                             <div id="myBar" class="img-rounded">
                                 <div id="progressLabel" class="progress-bar img-rounded" role="progressbar">0%</div>
@@ -141,7 +141,7 @@
             </span>
 
             <br style="height: 1px;"><br style="height: 1px;">
-            <span class="progressSpan">
+            <span class="progressSpan" id="progressTotal">
                 <div id="myProgress2" class="offToRight img-rounded">
                     <div id="myBar2" class="img-rounded">
                         <div id="progressLabel2" class="progress-bar img-rounded" role="progressbar">0%</div>
@@ -149,7 +149,10 @@
                 </div>
             </span>
 
+            <span id="amountDone" class="offToRight"></span>
             <span id="totalItems" class="offToRight"></span>
+            <span id="perSecond" class="offToRight"></span>
+
         </footer>
 
     <script src="js/jquery-3.2.0.js"></script>

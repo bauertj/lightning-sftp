@@ -10,6 +10,8 @@ var fs = require("fs");
 var jsonfile = require('jsonfile');
 var $ = require("jquery");
 
+var totalFiles, totalDone, totalSize, amountWritten = 0;
+var interval = 1;
 
 function populateBookmarks(){
     var contents = fs.readFileSync("Bookmarks.json");
@@ -134,7 +136,6 @@ function init() {
     });
 
     $('.historyDelete').click(function(){
-        console.log(this);
         var contents = fs.readFileSync("ConnectionHistory.json");
         var jsonContent = JSON.parse(contents);
 
@@ -153,16 +154,17 @@ function init() {
  * @returns {{host: *, port: number, username: *, password: *}|*}
  */
 function getLoginInfo(){
-    var connSettings, uname, pass, server;
+    var connSettings, uname, pass, server, port;
     // Initializes variables, gets from html
     uname = document.getElementById("username").value;
     pass = document.getElementById("password").value;
     server = document.getElementById("serverName").value;
+    port = document.getElementById("port").value;
 
     // Initialize connection settings, default port for now is 22
     connSettings = {
         host:       server,
-        port:       22,
+        port:       port,
         username:   uname,
         password:   pass
     };
@@ -295,7 +297,6 @@ function logoutFunction(){
   * Creates directory, if it is a directory, and does not currently exist in the local path.
  */
 function selectDownload(selectedFile, pathToSend){
-
     //create connection to sftp
     conn.sftp(function(err, sftp){
         if(err) throw err;
@@ -319,13 +320,20 @@ function selectDownload(selectedFile, pathToSend){
 
                     }
                     //Recursive download to download files inside directory
-                    totalFiles = 0;
-                    totalDone = 0;
-                    countTotalFiles(sftp, selectedFile, pathToSend);
+
+                    if(totalDone == totalFiles){
+                        clearProgress();
+                        setInterval(function(){
+                            interval = interval +1;
+                        }, 1000);
+                    }
+
+                    countTotalFilesRemote(sftp, selectedFile);
                     recurDownload(sftp, selectedFile, pathToSend) ;
                 }
                 //if file, call download
                 else if(isDir == false){
+                    totalFiles += 1;
                     download(sftp, selectedFile, pathToSend);
                 }
                 // Something went wrong if this happens...
@@ -338,6 +346,8 @@ function selectDownload(selectedFile, pathToSend){
 
     });
 }
+
+
 
 /*
  * selectedFile : file path to upload
@@ -362,10 +372,20 @@ function selectUpload(selectedFile, pathToSend){
             sftp.mkdir(pathToSend,function(err){
                 if (err) console.log("Error: make dir pathToSend");
             });
+
+            if(totalDone == totalFiles){
+                clearProgress();
+                setInterval(function(){
+                    interval = interval +1;
+                }, 1000);
+            }
+
+            countTotalFilesLocal(selectedFile);
             recurUpload(sftp, selectedFile, pathToSend) ;
         }
         //if file, call upload
         else if(!isDir){
+            totalFiles += 1;
             upload(sftp, selectedFile, pathToSend);
         }
         // If this happens, something terrible is afoot...
@@ -426,11 +446,10 @@ function upload(sftp, selectedFile, pathToSend){
     var read = fs.createReadStream(selectedFile);
     var write = sftp.createWriteStream(pathToSend);
 
-    console.log(selectedFile);
-    console.log(pathToSend);
+    //console.log(selectedFile);
+    //console.log(pathToSend);
 
     fs.stat(selectedFile, function (err, stats) {
-
         progressBar(read, write, stats, selectedFile);
     });
 
@@ -457,66 +476,80 @@ function upload(sftp, selectedFile, pathToSend){
 function progressBar(read, write, stats, selectedFile){
     read.on('data', (chunk) => {
 
-
+        amountWritten += chunk.length;
+        var amountWrittenMB = amountWritten/1000000;
 
         var bytesWritten = write.bytesWritten;
         var fileSize = stats.size;
-        var bytesPerSecond = 0;
 
-        var interval = 1;
-        setInterval(increment, 1000);
-        function increment(){
-            interval = interval + 1;
-        }
 
-        bytesPerSecond = 0;
-        setInterval(getBytesPerSecond, 1000);
-        function getBytesPerSecond(){
-            bytesPerSecond = bytesWritten / interval;
-        }
+        var mbPerSecond = amountWrittenMB / interval ;
+
 
         setTimeout(function()
         {
             var textArea = document.getElementById('area');
             textArea.scrollTop = textArea.scrollHeight;
-        }, 10);
+        }, 100);
 
-        document.getElementById('itemTransferred').innerHTML = selectedFile + '&nbsp;';
-        document.getElementById('totalItems').innerHTML = totalDone + ' / ' + totalFiles + '&nbsp;';
+        var sizeInMB = totalSize/1000000;
+
+        var fileToShow = selectedFile;
+        if(fileToShow.length > 20){
+            fileToShow = selectedFile.substring(0, 8) + '...' + selectedFile.substring(selectedFile.length-8, selectedFile.length);
+        }
+
+        document.getElementById('itemTransferred').innerHTML = fileToShow + '&nbsp;';
+        document.getElementById('totalItems').innerHTML = totalDone + ' / ' + totalFiles + '&nbsp;&nbsp;';
+        document.getElementById('amountDone').innerHTML = amountWrittenMB.toFixed(2) + ' / ' + sizeInMB.toFixed(2) + ' MB&nbsp;';
+        document.getElementById('perSecond').innerHTML = mbPerSecond.toFixed(2) + ' mB/s &nbsp;';
 
         var elem = document.getElementById("myBar");
-        var width = 1;
-        var id = setInterval(frame, 10);
+        setTimeout(frame, 10);
         var percentage = 0;
 
         //noinspection JSAnnotator
         function frame() {
-            if (width >= 100) {
-                clearInterval(id);
-            } else {
-                width++;
                 bytesWritten = write.bytesWritten;
                 percentage = bytesWritten/fileSize;
                 elem.style.width = (percentage * 100) + '%';
                 document.getElementById("progressLabel").innerHTML = ((percentage * 100)).toFixed(2) + '%';
+
+                var percentage2 = amountWritten/totalSize;
+                var elem2 = document.getElementById("myBar2");
+                elem2.style.width = (percentage2 * 100) + '%';
+                document.getElementById("progressLabel2").innerHTML = ((percentage2 * 100)).toFixed(2) + '%';
+            if(totalDone >= totalFiles){
+                setTimeout(clearProgress(), 1000);
             }
+
         }
     });
+    // increments the total amount done each time a file has been successfully transferred
     read.on('end', ()=>{
-        document.getElementById('itemTransferred').innerHTML = '';
-
-
         totalDone++;
-
-        var percentage = totalDone/totalFiles;
-        var elem = document.getElementById("myBar2");
-        elem.style.width = (percentage * 100) + '%';
-        document.getElementById("progressLabel2").innerHTML = ((percentage * 100)).toFixed(2) + '%';
-
-        document.getElementById('totalItems').innerHTML = '';
     });
 }
 
+// once a transfer is completed, this will clear the progress bar area of unneeded text
+function clearProgress(){
+    document.getElementById("myBar2").style.width = '0%';
+    document.getElementById("myBar").style.width = '0%';
+
+    document.getElementById("progressLabel").innerHTML = '0%';
+    document.getElementById("progressLabel2").innerHTML = '0%';
+
+    document.getElementById('itemTransferred').innerHTML = '';
+    document.getElementById('amountDone').innerHTML = '';
+    document.getElementById('totalItems').innerHTML = '';
+    document.getElementById('perSecond').innerHTML = '';
+
+    totalFiles = 0;
+    totalDone = 0;
+    totalSize = 0;
+    amountWritten = 0;
+    interval = 1;
+}
 
 /*
  * sftp: sftp object to pass in
@@ -532,53 +565,24 @@ function recurUpload(sftp, selectedFile, pathToSend){
         //for each file in the dir
         for(var i=0; i<files.length; i++) {
             //for each file, set new selected filename string and path to send string
-            var newPath = selectedFile + "/" + files[i];
+            var newPath = selectedFile + slash + files[i];
             var newSend = pathToSend + "/" + files[i];
             //if file is a dir, create local copy, then recursively go into each folder and create dir and download files inside it
             if (fs.lstatSync(newPath).isDirectory()) {
                 sftp.mkdir(newSend,function(err){});
                 recurUpload(sftp, newPath, newSend);
+
+                totalDone++;
             }
+
             //else, it is a file, so download it locally
             else{
+
                 upload(sftp, newPath, newSend) ;
             }
         }
     });
 }
-
-var totalFiles, totalDone = 0;
-function countTotalFiles(sftp, selectedFile, pathToSend){
-
-    sftp.readdir(selectedFile, function(err, list){
-       if(err) throw err;
-
-       // console.log(selectedFile + ' ' + list.length);
-        totalFiles += list.length;
-
-
-
-        for(var i = 0; i < list.length; i++){
-            var newPath = selectedFile + "/" + list[i].filename;
-
-            if(list[i].longname.toString().charAt(0) === 'd'){
-
-                countTotalFiles(sftp, newPath, pathToSend);
-
-            }
-
-        }
-
-        console.log(totalFiles);
-
-    });
-    //recurDownload(sftp, selectedFile, pathToSend);
-
-
-}
-
-
-
 
 /*
  * sftp: sftp object to pass in
@@ -615,44 +619,39 @@ function recurDownload(sftp, selectedFile, pathToSend) {
     });
 }
 
-/*
- * Login function when logging in from the connection history window.
- */
-function loginFromHistoryWindow(){
-    var newUsername, newServer, newPort, newPassword;
 
-    newUsername = document.getElementById("username").value;
-    newServer = document.getElementById("server").value;
-    newPort = document.getElementById("port").value;
-    newPassword = document.getElementById("newPassword").value;
+function countTotalFilesRemote(sftp, selectedFile){
+    sftp.readdir(selectedFile, function(err, list){
+        if(err) throw err;
+        totalFiles += list.length;
+        for(var i = 0; i < list.length; i++){
+            var newPath = selectedFile + "/" + list[i].filename;
 
-    var connSettings = {
-        host:       newServer,
-        port:       22,
-        username:   newUsername,
-        password:   newPassword
-    };
-
-    ipcRenderer.send('close-history-window', connSettings);
+            totalSize += list[i].attrs.size;
+            if(list[i].longname.toString().charAt(0) === 'd'){
+                countTotalFilesRemote(sftp, newPath);
+            }
+        }
+    });
 }
 
-/*
- * Login function when logging in from the bookmarks window.
- */
-function loginFromBookmarksWindow() {
-    var newUsername, newServer, newPort, newPassword;
+function countTotalFilesLocal(selectedFile){
+    fs.readdir(selectedFile, function (err, files) {
+        if (err) throw err;
+        totalFiles += files.length;
+        for(var i = 0; i < files.length; i++){
+            var newPath = selectedFile + slash + files[i];
 
-    newUsername = document.getElementById("username").value;
-    newServer = document.getElementById("server").value;
-    newPort = document.getElementById("port").value;
-    newPassword = document.getElementById("newPassword").value;
+            if(fs.lstatSync(newPath).isDirectory()){
+                countTotalFilesLocal(newPath);
+            }
+            else{
+                fs.lstat(newPath, function(err, stats){
+                    totalSize += stats.size;
+                });
+            }
 
-    var connSettings = {
-        host:       newServer,
-        port:       22,
-        username:   newUsername,
-        password:   newPassword
-    };
+        }
+    });
 
-    ipcRenderer.send('close-bookmarks-window', connSettings);
 }
