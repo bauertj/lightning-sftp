@@ -143,6 +143,34 @@ function initTree(jsonContent) {
                                 }
                             }
                         }
+                    },
+                    "Create Folder":{
+                        "label": "Create New Folder",
+                        "action": function(obj){
+                            //create the node for the folder
+                            var parentNode = $node.id ;
+                            var nodeData = parentNode + slash + "New Folder" ;
+                            var newNode = {text: "New Folder", icon: "", id: nodeData, parent: parentNode, type: 'folder'};
+                            if(!$('#jstree').jstree(true).get_node(newNode.id)) {
+                                $node = $('#jstree').jstree('create_node', parentNode, newNode)
+                                fs.mkdirSync(newNode.id)
+                                curTree.edit($node);
+                            }
+                            else{
+                                var i = 1;
+                                while(true){
+                                    if(!$('#jstree').jstree(true).get_node(newNode.id + " (" + i + ")")){
+                                        nodeData = nodeData + " (" + i + ")" ;
+                                        newNode = {text: "New Folder" + " (" + i + ")", icon: "", id: nodeData, parent: parentNode, type: 'folder'};
+                                        $node = $('#jstree').jstree('create_node', parentNode, newNode)
+                                        fs.mkdirSync(newNode.id)
+                                        curTree.edit($node);
+                                        break;
+                                    }
+                                    i++;
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -468,7 +496,7 @@ function createTree(jsonData){
 
             "contextmenu":{
                 "items":    function($node){
-                    var curTree = $('#jstree').jstree(true) ;
+                    var curTree = $('#jstree2').jstree(true) ;
                     return{
                         "Rename": {
                             "label": "Rename",
@@ -506,6 +534,34 @@ function createTree(jsonData){
                                         if(!$('#jstree').jstree(true).get_node(newNode.id)){
                                             $('#jstree').jstree('create_node', '#', newNode);
                                         }
+                                    }
+                                }
+                            }
+                        },
+                        "Create Folder":{
+                            "label": "Create New Folder",
+                            "action": function(obj){
+                                //create the node for the folder
+                                var parentNode = $node.id ;
+                                var nodeData = parentNode + "/" + "New Folder" ;
+                                var newNode = {text: "New Folder", icon: "", id: nodeData, parent: parentNode, type: 'folder'};
+                                if(!$('#jstree2').jstree(true).get_node(newNode.id)) {
+                                    $node = $('#jstree2').jstree('create_node', parentNode, newNode)
+                                    globalSftp.mkdir(newNode.id)
+                                    curTree.edit($node);
+                                }
+                                else{
+                                    var i = 1;
+                                    while(true){
+                                        if(!$('#jstree2').jstree(true).get_node(newNode.id + " (" + i + ")")){
+                                            nodeData = nodeData + " (" + i + ")" ;
+                                            newNode = {text: "New Folder" + " (" + i + ")", icon: "", id: nodeData, parent: parentNode, type: 'folder'};
+                                            $node = $('#jstree2').jstree('create_node', parentNode, newNode)
+                                            globalSftp.mkdir(newNode.id)
+                                            curTree.edit($node);
+                                            break;
+                                        }
+                                        i++;
                                     }
                                 }
                             }
@@ -645,12 +701,12 @@ function createTree(jsonData){
         .on('rename_node.jstree', function(e, data) {
             var curNode = $('#jstree2').jstree(true).get_node(data.node);    //The selected node to rename
             var oldpath = data.node.id;             //The name of the old path
-            var parentpath = data.node.parent + slash;     //The name of the parent's path
+            var parentpath = data.node.parent + "/";     //The name of the parent's path
             var typeDone = data.node.type           //The type of the node
             console.log("oldpath: " + oldpath) ;   //for reference
 
             //For use when renaming something in the current root
-            if(parentpath == "#" + slash){
+            if(parentpath == "#" + "/"){
                 parentpath = remotePath ;
             }
             console.log("parentpath: " + parentpath) ;   //for reference
@@ -675,7 +731,7 @@ function createTree(jsonData){
                 //for each child get new path name and update the id
                 for(var i = 0; i < data.node.children.length; i++){
                     var curChild = $('#jstree2').jstree(true).get_node(data.node.children[i]);
-                    var newChildPath = curNode.id + slash + curChild.text
+                    var newChildPath = curNode.id + "/" + curChild.text
                     console.log(curNode.id) ;
                     $('#jstree2').jstree(true).set_id(curChild, newChildPath);
                 }
@@ -704,7 +760,10 @@ function createTree(jsonData){
             }
             //else folders, calls recursive function
             else{
-                delDirRecurRemote(data.node.id);
+                delDirRecurRemote(data.node.id, data.node.id);
+                var msg = "folder - " + data.node.id + " was removed successfully" + "\n";
+                document.getElementById("area").innerHTML += msg;
+                log.info(msg);
             }
         })
 
@@ -712,9 +771,9 @@ function createTree(jsonData){
         .on("copy_node.jstree", function(e, data){
             checkDelete = true;
             var filename = data.node.text;
-            var newPath = data.parent + slash + filename;
+            var newPath = data.parent + "/" + filename;
             var curNode = $('#jstree2').jstree(true).get_node(data.node);
-            var newId = data.node.parent + slash + filename ;
+            var newId = data.node.parent + "/" + filename ;
             $('#jstree2').jstree(true).set_id(curNode, newId);
 
             // checks whether the parent of the current node is on the top layer. handles accordingly
@@ -816,44 +875,39 @@ function delDirRecurLocal(path) {
 /*
  * Used for local delete of folders
  */
-function delDirRecurRemote(path) {
-
-    console.log(path)
+function delDirRecurRemote(path, origPath) {
     //reads each file in path (dir)
     globalSftp.readdir(path, function(err, files) {
-        if (err) throw err;
-        var i = 0;
-        files.forEach(function (file) {
-            console.log(file)
-            //var that represents each file being looked at
-            var curPath = path + "/" + file.filename;
-            var child = $('#jstree2').jstree(true).get_node(curPath) ;
-            console.log(child) ;
-            console.log(curPath) ;
-            //if it is a dir, go in and delete it's contents too
-            if (file.longname.charAt(0) == "d") {
-                //recursion
-                delDirRecurRemote(curPath);
-            } else {
-                //removes all the files by unlink
-                globalSftp.unlink(curPath, function(err){
-                    console.log(curPath) ;
-                    if (err) throw err ;
-                });
+        if (err){
 
-            }
+        }
+        else if(files.length == 0){
+            globalSftp.rmdir(path, function(err){
+                if (err) console.log(err) ;
+                delDirRecurRemote(origPath, origPath)
+            });
+        }
+        else{
+            var index = 0;
+            files.forEach(function (file, index) {
+                console.log(index) ;
+                //var that represents each file being looked at
+                var curPath = path + "/" + file.filename;
 
-            i++;
-            if(i == files.length){
-                //removes the folder of what was called once it is empty
-                globalSftp.rmdir(path, function(err){
-                    console.log(curPath) ;
-                    if (err) throw err ;
-                });
-                var msg = "file - " + path + " was removed successfully" + "\n";
-                document.getElementById("area").innerHTML += msg;
-                log.info(msg);
-            }
-        });
+                //if it is a dir, go in and delete it's contents too
+                if (file.longname.charAt(0) == "d") {
+                    //recursion
+                    delDirRecurRemote(curPath, origPath);
+                }
+                else {
+                    //removes all the files by unlink
+                    globalSftp.unlink(curPath, function(err){
+                        console.log(curPath) ;
+                        if (err) throw err ;
+                    });
+                }
+
+            })
+        }
     });
 };
