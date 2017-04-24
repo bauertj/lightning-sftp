@@ -30,7 +30,7 @@ function populateBookmarks(){
     }
     for(var i = 0; i < bookmarksContent.Bookmarks.length; i++){
         $(bookmarksMenu).append('<li>' +
-            '<span class="item item'+i+'"> '+
+            '<span class="itemBookmark item item'+i+'"> '+
             '<span class="item-left">'+
             '<span class="bookmarkClicked bookmark'+i+'">'+ bookmarksContent.Bookmarks[i].username + '@' + bookmarksContent.Bookmarks[i].host + '</span>' +
             '</span>' +
@@ -55,7 +55,7 @@ function populateHistory(){
     for(var i = historyContent.connectionHistory.length-1; i > 0; i--){
         if(historyContent.connectionHistory[i] != null){
             $(historyMenu).append('<li>' +
-                    '<span class="item item'+i+'">' +
+                    '<span class="itemHistory item item'+i+'">' +
                         '<span class="item-left">' +
                             '<span class="historyClicked history'+i+'">'+ historyContent.connectionHistory[i].username + '@' +
                             historyContent.connectionHistory[i].host +'</span>' +
@@ -81,7 +81,7 @@ function init() {
     populateBookmarks();
 
     // when a bookmark is clicked, information will be added to the text boxes
-    $('.bookmarkClicked').click(function(){
+    $('.itemBookmark').click(function(){
         var classname = this.className;
         classname = classname.replace(/[^\d.]/g, '');
         var pos = bookmarksContent.Bookmarks[parseInt(classname)];
@@ -123,7 +123,7 @@ function init() {
     populateHistory();
 
     // when a history option is clicked, information will be added to the text boxes
-    $('.historyClicked').click(function(){
+    $('.itemHistory').click(function(){
         var classname = this.className;
         classname = classname.replace(/[^\d.]/g, '');
         var pos = historyContent.connectionHistory[parseInt(classname)];
@@ -495,8 +495,8 @@ function progressBar(read, write, stats, selectedFile){
         var sizeInMB = totalSize/1000000;
 
         var fileToShow = selectedFile;
-        if(fileToShow.length > 20){
-            fileToShow = selectedFile.substring(0, 8) + '...' + selectedFile.substring(selectedFile.length-8, selectedFile.length);
+        if(fileToShow.length > 40){
+            fileToShow = selectedFile.substring(0, 14) + '...' + selectedFile.substring(selectedFile.length-22, selectedFile.length);
         }
 
         document.getElementById('itemTransferred').innerHTML = fileToShow + '&nbsp;';

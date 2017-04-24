@@ -58,6 +58,10 @@ header {
 
 }
 
+.item{
+    cursor: pointer;
+}
+
 /*.fileTransfer:after{
     visibility: hidden;
     display: inline-block;

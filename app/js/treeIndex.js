@@ -179,7 +179,7 @@ function initTree(jsonContent) {
 
     // event for whenever something is changed in tree
     $('#jstree').on("changed.jstree", function (e, data) {
-        console.log(data.selected);
+
     })
 
     // loads the select menu for parent directories once the tree is loaded
@@ -195,7 +195,11 @@ function initTree(jsonContent) {
         }
         var tempPath = "";
         var appendedPath = "";
-        $('#upperLevel').prepend($('<button type="button" id="upperLevels" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">' + somepath + '<span class="caret"></span> </button>'));
+        var subSome = somepath;
+        if(subSome.length > 30){
+            subSome = subSome.substring(0, 12) + "..." + subSome.substring(subSome.length - 13, subSome.length);
+        }
+        $('#upperLevel').prepend($('<button type="button" id="upperLevels" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">' + subSome + '<span class="caret"></span> </button>'));
 
 
         // loops through the current directory path string
@@ -217,7 +221,6 @@ function initTree(jsonContent) {
 
 
         $('.localDirClicked').click(function () {
-            console.log(this.text);
             somepath = this.text;
 
             var newJson = setTree(somepath);
@@ -275,8 +278,7 @@ function initTree(jsonContent) {
     .bind("dblclick.jstree", function(event){
         // parentNode is the node that is double clicked
         var parentNode = $('#jstree').jstree(true).get_node(event.target.parentNode.id);
-
-        console.log(parentNode);
+        
         // if it is a folder, create a new tree with that as the root
         if(parentNode.type === "folder") {
             somepath = event.target.parentNode.id + slash;
@@ -421,7 +423,8 @@ function getTreeData(dir) {
         try {
             globalSftp.readdir(dir, function (err, list) {
                 if (err) {
-                    console.log(err)
+                    alert(err);
+
                 }
                 else{
                     // retrieves a list of files on the default path and loops through to populate json object
@@ -586,7 +589,11 @@ function createTree(jsonData){
             var tempPath = "";
             var appendedPath = "";
 
-            $('#upperLevel2').prepend($('<button type="button" id="upperLevels2" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">' + remotePath + '<span class="caret"></span> </button>'));
+            var subPath = remotePath;
+            if(subPath.length > 30){
+                subPath = subPath.substring(0, 12) + "..." + subPath.substring(subPath.length - 13, subPath.length);
+            }
+            $('#upperLevel2').prepend($('<button type="button" id="upperLevels2" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">' + subPath + '<span class="caret"></span> </button>'));
 
             // loops through the current directory path string
             for(var i = 0; i < remotePath.length; i++){
@@ -608,8 +615,17 @@ function createTree(jsonData){
                 remotePath = this.text;
 
                 $('#jstree2').jstree('destroy');
+                globalSftp.readdir(remotePath, function(err){
+                   if(err) {
+                       alert(err);
+                       remotePath = oldpath;
+                       getTreeData(oldpath);
+                   }
+                   else{
+                       getTreeData(remotePath);
+                   }
+                });
 
-                getTreeData(remotePath);
             });
         })
 
