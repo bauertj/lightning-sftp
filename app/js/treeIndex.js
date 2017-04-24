@@ -760,7 +760,10 @@ function createTree(jsonData){
             }
             //else folders, calls recursive function
             else{
-                delDirRecurRemote(data.node.id);
+                delDirRecurRemote(data.node.id, data.node.id);
+                var msg = "folder - " + data.node.id + " was removed successfully" + "\n";
+                document.getElementById("area").innerHTML += msg;
+                log.info(msg);
             }
         })
 
@@ -872,44 +875,39 @@ function delDirRecurLocal(path) {
 /*
  * Used for local delete of folders
  */
-function delDirRecurRemote(path) {
-
-    console.log(path)
+function delDirRecurRemote(path, origPath) {
     //reads each file in path (dir)
     globalSftp.readdir(path, function(err, files) {
-        if (err) throw err;
-        var i = 0;
-        files.forEach(function (file) {
-            console.log(file)
-            //var that represents each file being looked at
-            var curPath = path + "/" + file.filename;
-            var child = $('#jstree2').jstree(true).get_node(curPath) ;
-            console.log(child) ;
-            console.log(curPath) ;
-            //if it is a dir, go in and delete it's contents too
-            if (file.longname.charAt(0) == "d") {
-                //recursion
-                delDirRecurRemote(curPath);
-            } else {
-                //removes all the files by unlink
-                globalSftp.unlink(curPath, function(err){
-                    console.log(curPath) ;
-                    if (err) throw err ;
-                });
+        if (err){
 
-            }
+        }
+        else if(files.length == 0){
+            globalSftp.rmdir(path, function(err){
+                if (err) console.log(err) ;
+                delDirRecurRemote(origPath, origPath)
+            });
+        }
+        else{
+            var index = 0;
+            files.forEach(function (file, index) {
+                console.log(index) ;
+                //var that represents each file being looked at
+                var curPath = path + "/" + file.filename;
 
-            i++;
-            if(i == files.length){
-                //removes the folder of what was called once it is empty
-                globalSftp.rmdir(path, function(err){
-                    console.log(curPath) ;
-                    if (err) throw err ;
-                });
-                var msg = "file - " + path + " was removed successfully" + "\n";
-                document.getElementById("area").innerHTML += msg;
-                log.info(msg);
-            }
-        });
+                //if it is a dir, go in and delete it's contents too
+                if (file.longname.charAt(0) == "d") {
+                    //recursion
+                    delDirRecurRemote(curPath, origPath);
+                }
+                else {
+                    //removes all the files by unlink
+                    globalSftp.unlink(curPath, function(err){
+                        console.log(curPath) ;
+                        if (err) throw err ;
+                    });
+                }
+
+            })
+        }
     });
 };
