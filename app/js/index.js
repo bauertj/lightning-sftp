@@ -154,12 +154,21 @@ function init() {
  * @returns {{host: *, port: number, username: *, password: *}|*}
  */
 function getLoginInfo(){
-    var connSettings, uname, pass, server, port;
+    var connSettings, uname, pass, server, port, keyname;
     // Initializes variables, gets from html
     uname = document.getElementById("username").value;
     pass = document.getElementById("password").value;
     server = document.getElementById("serverName").value;
     port = document.getElementById("port").value;
+    keyname = document.getElementById("keyname").value;
+
+    try{
+        var getKey = fs.readFileSync(os.homedir() + path.sep + ".ssh" + path.sep + keyname);
+    }
+    catch(err){
+        console.log(err);
+        getKey = "" ;
+    }
 
     // Initialize connection settings, default port for now is 22
     connSettings = {
@@ -167,7 +176,7 @@ function getLoginInfo(){
         port:       port,
         username:   uname,
         password:   pass,
-        privateKey: fs.readFileSync(os.homedir() + path.sep + ".ssh" + path.sep + "id_rsa")
+        privateKey: getKey
     };
     return connSettings;
 }
@@ -283,6 +292,7 @@ function logoutFunction(){
         document.getElementById("port").value = "";
         document.getElementById("serverName").value = "";
         document.getElementById("password").value = "";
+        document.getElementById("keyname").value = "";
 
         document.getElementById("bookmarkThis").checked = false;
     }
