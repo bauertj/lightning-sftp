@@ -179,7 +179,7 @@ function initTree(jsonContent) {
 
     // event for whenever something is changed in tree
     $('#jstree').on("changed.jstree", function (e, data) {
-        console.log(data.selected);
+
     })
 
     // loads the select menu for parent directories once the tree is loaded
@@ -195,7 +195,11 @@ function initTree(jsonContent) {
         }
         var tempPath = "";
         var appendedPath = "";
-        $('#upperLevel').prepend($('<button type="button" id="upperLevels" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">' + somepath + '<span class="caret"></span> </button>'));
+        var subSome = somepath;
+        if(subSome.length > 30){
+            subSome = subSome.substring(0, 12) + "..." + subSome.substring(subSome.length - 13, subSome.length);
+        }
+        $('#upperLevel').prepend($('<button type="button" id="upperLevels" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">' + subSome + '<span class="caret"></span> </button>'));
 
 
         // loops through the current directory path string
@@ -217,7 +221,6 @@ function initTree(jsonContent) {
 
 
         $('.localDirClicked').click(function () {
-            console.log(this.text);
             somepath = this.text;
 
             var newJson = setTree(somepath);
@@ -276,7 +279,6 @@ function initTree(jsonContent) {
         // parentNode is the node that is double clicked
         var parentNode = $('#jstree').jstree(true).get_node(event.target.parentNode.id);
 
-        console.log(parentNode);
         // if it is a folder, create a new tree with that as the root
         if(parentNode.type === "folder") {
             somepath = event.target.parentNode.id + slash;
@@ -421,7 +423,8 @@ function getTreeData(dir) {
         try {
             globalSftp.readdir(dir, function (err, list) {
                 if (err) {
-                    console.log(err)
+                    alert(err);
+
                 }
                 else{
                     // retrieves a list of files on the default path and loops through to populate json object
@@ -586,7 +589,11 @@ function createTree(jsonData){
             var tempPath = "";
             var appendedPath = "";
 
-            $('#upperLevel2').prepend($('<button type="button" id="upperLevels2" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">' + remotePath + '<span class="caret"></span> </button>'));
+            var subPath = remotePath;
+            if(subPath.length > 30){
+                subPath = subPath.substring(0, 12) + "..." + subPath.substring(subPath.length - 13, subPath.length);
+            }
+            $('#upperLevel2').prepend($('<button type="button" id="upperLevels2" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">' + subPath + '<span class="caret"></span> </button>'));
 
             // loops through the current directory path string
             for(var i = 0; i < remotePath.length; i++){
@@ -608,8 +615,17 @@ function createTree(jsonData){
                 remotePath = this.text;
 
                 $('#jstree2').jstree('destroy');
+                globalSftp.readdir(remotePath, function(err){
+                   if(err) {
+                       alert(err);
+                       remotePath = oldpath;
+                       getTreeData(oldpath);
+                   }
+                   else{
+                       getTreeData(remotePath);
+                   }
+                });
 
-                getTreeData(remotePath);
             });
         })
 
@@ -774,18 +790,45 @@ function createTree(jsonData){
             var newPath = data.parent + "/" + filename;
             var curNode = $('#jstree2').jstree(true).get_node(data.node);
             var newId = data.node.parent + "/" + filename ;
-            $('#jstree2').jstree(true).set_id(curNode, newId);
+            if($('#jstree2').jstree(true).get_node(newID)){
+                //pop up menu
 
-            // checks whether the parent of the current node is on the top layer. handles accordingly
-            if(curNode.parent == "#"){
-                selectUpload(data.original.id, remotePath + filename);
+                //yes confirmation
+                if(confirm("File exists. Overwrite?")) {
+                    $('#jstree2').jstree(true).set_id(curNode, newId);
+
+                    // checks whether the parent of the current node is on the top layer. handles accordingly
+                    if (curNode.parent == "#") {
+                        selectUpload(data.original.id, remotePath + filename);
+                    }
+                    else {
+                        selectUpload(data.original.id, newPath);
+                    }
+
+                    // redraws the tree when done, making sure it is up to date
+                    $('#jstree2').jstree(true).redraw();
+                }
+
+                //if no
+                //do nothing
+
+
             }
             else{
-                selectUpload(data.original.id, newPath);
+                $('#jstree2').jstree(true).set_id(curNode, newId);
+
+                // checks whether the parent of the current node is on the top layer. handles accordingly
+                if (curNode.parent == "#") {
+                    selectUpload(data.original.id, remotePath + filename);
+                }
+                else {
+                    selectUpload(data.original.id, newPath);
+                }
+
+                // redraws the tree when done, making sure it is up to date
+                $('#jstree2').jstree(true).redraw();
             }
 
-            // redraws the tree when done, making sure it is up to date
-            $('#jstree2').jstree(true).redraw();
         });
 
     });
@@ -808,6 +851,7 @@ $(document).on("dnd_stop.vakata", function(e, data){
 
             if (!(data.data.origin.element[0].id === "jstree2")) {
                 console.log("1");
+
                 selectUpload(selectedId, remotePath + data.element.text);
 
                 var selectNode = $('#jstree').jstree(true).get_node(selectedId);

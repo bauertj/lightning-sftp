@@ -30,7 +30,7 @@ function populateBookmarks(){
     }
     for(var i = 0; i < bookmarksContent.Bookmarks.length; i++){
         $(bookmarksMenu).append('<li>' +
-            '<span class="item item'+i+'"> '+
+            '<span class="itemBookmark item item'+i+'"> '+
             '<span class="item-left">'+
             '<span class="bookmarkClicked bookmark'+i+'">'+ bookmarksContent.Bookmarks[i].username + '@' + bookmarksContent.Bookmarks[i].host + '</span>' +
             '</span>' +
@@ -55,7 +55,7 @@ function populateHistory(){
     for(var i = historyContent.connectionHistory.length-1; i > 0; i--){
         if(historyContent.connectionHistory[i] != null){
             $(historyMenu).append('<li>' +
-                    '<span class="item item'+i+'">' +
+                    '<span class="itemHistory item item'+i+'">' +
                         '<span class="item-left">' +
                             '<span class="historyClicked history'+i+'">'+ historyContent.connectionHistory[i].username + '@' +
                             historyContent.connectionHistory[i].host +'</span>' +
@@ -81,7 +81,7 @@ function init() {
     populateBookmarks();
 
     // when a bookmark is clicked, information will be added to the text boxes
-    $('.bookmarkClicked').click(function(){
+    $('.itemBookmark').click(function(){
         var classname = this.className;
         classname = classname.replace(/[^\d.]/g, '');
         var pos = bookmarksContent.Bookmarks[parseInt(classname)];
@@ -123,7 +123,7 @@ function init() {
     populateHistory();
 
     // when a history option is clicked, information will be added to the text boxes
-    $('.historyClicked').click(function(){
+    $('.itemHistory').click(function(){
         var classname = this.className;
         classname = classname.replace(/[^\d.]/g, '');
         var pos = historyContent.connectionHistory[parseInt(classname)];
@@ -297,54 +297,87 @@ function logoutFunction(){
   * Creates directory, if it is a directory, and does not currently exist in the local path.
  */
 function selectDownload(selectedFile, pathToSend){
-    //create connection to sftp
-    conn.sftp(function(err, sftp){
-        if(err) throw err;
-
-        //determine if file or folder
-        console.log("selectedFile: " + selectedFile) ;
-        sftp.lstat(selectedFile, function(err, stats){
-            if (err){
-                alert("Error: remote file does not exist");
+    fs.open(pathToSend, 'r', (err, fd) =>{
+            if(err){
+                console.log("transferred " + err);
+                go();
             }
-            else{
-                //Check if the selected file is a directory or not
-                var isDir = stats.isDirectory() ;
-                //if folder, recursive download
-                if(isDir == true){
-                    // Creates directory locally if it does not exist already
-                    if(fs.existsSync(pathToSend) == false){
-                        fs.mkdir(pathToSend,function(err){
-                            if (err) throw err;
-                        });
 
-                    }
-                    //Recursive download to download files inside directory
-
-                    if(totalDone == totalFiles){
-                        clearProgress();
-                        setInterval(function(){
-                            interval = interval +1;
-                        }, 1000);
-                    }
-
-                    countTotalFilesRemote(sftp, selectedFile);
-                    recurDownload(sftp, selectedFile, pathToSend) ;
-                }
-                //if file, call download
-                else if(isDir == false){
-                    totalFiles += 1;
-                    download(sftp, selectedFile, pathToSend);
-                }
-                // Something went wrong if this happens...
-                else{
-                    alert("something's gone wrong. isDir is null.");
-                    console.log(isDir) ;
-                }
+            else {
+                document.getElementById("dialog").innerHTML = pathToSend + " already exists. Overwrite?";
+                $("#dialog").dialog({
+                    dialogClass: "no-close",
+                    buttons: [
+                        {
+                            text: "OK",
+                            click: function () {
+                                go();
+                                $(this).dialog("close");
+                            }
+                        },
+                        {
+                            text: "No",
+                            click: function () {
+                                $(this).dialog("close");
+                            }
+                        }
+                    ]
+                });
             }
         });
 
-    });
+
+    function go() {
+        //create connection to sftp
+        conn.sftp(function (err, sftp) {
+            if (err) throw err;
+
+            //determine if file or folder
+            console.log("selectedFile: " + selectedFile);
+            sftp.lstat(selectedFile, function (err, stats) {
+                if (err) {
+                    alert("Error: remote file does not exist");
+                }
+                else {
+                    //Check if the selected file is a directory or not
+                    var isDir = stats.isDirectory();
+                    //if folder, recursive download
+                    if (isDir == true) {
+                        // Creates directory locally if it does not exist already
+                        if (fs.existsSync(pathToSend) == false) {
+                            fs.mkdir(pathToSend, function (err) {
+                                if (err) throw err;
+                            });
+
+                        }
+                        //Recursive download to download files inside directory
+
+                        if (totalDone == totalFiles) {
+                            clearProgress();
+                            setInterval(function () {
+                                interval = interval + 1;
+                            }, 1000);
+                        }
+
+                        countTotalFilesRemote(sftp, selectedFile);
+                        recurDownload(sftp, selectedFile, pathToSend);
+                    }
+                    //if file, call download
+                    else if (isDir == false) {
+                        totalFiles += 1;
+
+                        download(sftp, selectedFile, pathToSend);
+                    }
+                    // Something went wrong if this happens...
+                    else {
+                        alert("something's gone wrong. isDir is null.");
+                        console.log(isDir);
+                    }
+                }
+            });
+
+        });
+    }
 }
 
 
@@ -362,39 +395,70 @@ function selectUpload(selectedFile, pathToSend){
     conn.sftp(function(err, sftp){
         if(err) throw err;
 
-        //used to determine which function to call
 
-        // !! If something breaks, wet spaghetti !!
-        var isDir = fs.lstatSync(selectedFile).isDirectory();
+        sftp.lstat(pathToSend, function(err, stats){
+                if(err){
+                    // assume the file does not exist on server already
+                    go();
+                }
 
-        //if folder, recursive upload
-        if(isDir){
-            sftp.mkdir(pathToSend,function(err){
-                if (err) console.log("Error: make dir pathToSend");
+                else{
+                    document.getElementById("dialog").innerHTML = pathToSend + " already exists. Overwrite?";
+                    $("#dialog").dialog({
+                        dialogClass: "no-close",
+                        buttons: [
+                            {text: "OK",
+                                click: function() {
+                                    go();
+                                    $( this ).dialog( "close" );
+                                }},
+                            { text: "No",
+                                click: function(){
+                                    $( this ).dialog("close");
+                                }
+                            }
+                        ]
+                    });
+                }
+
             });
 
-            if(totalDone == totalFiles){
-                clearProgress();
-                setInterval(function(){
-                    interval = interval +1;
-                }, 1000);
+
+        //used to determine which function to call
+
+            function go() {
+                // !! If something breaks, wet spaghetti !!
+                var isDir = fs.lstatSync(selectedFile).isDirectory();
+
+                //if folder, recursive upload
+                if (isDir) {
+                    sftp.mkdir(pathToSend, function (err) {
+                        if (err) console.log("Error: make dir pathToSend");
+                    });
+
+                    if (totalDone == totalFiles) {
+                        clearProgress();
+                        setInterval(function () {
+                            interval = interval + 1;
+                        }, 1000);
+                    }
+
+                    countTotalFilesLocal(selectedFile);
+                    recurUpload(sftp, selectedFile, pathToSend);
+                }
+                //if file, call upload
+                else if (!isDir) {
+                    totalFiles += 1;
+                    upload(sftp, selectedFile, pathToSend);
+                }
+                // If this happens, something terrible is afoot...
+                else {
+                    alert("something's gone wrong. isDir is null.");
+                    console.log(isDir);
+                }
             }
-
-            countTotalFilesLocal(selectedFile);
-            recurUpload(sftp, selectedFile, pathToSend) ;
-        }
-        //if file, call upload
-        else if(!isDir){
-            totalFiles += 1;
-            upload(sftp, selectedFile, pathToSend);
-        }
-        // If this happens, something terrible is afoot...
-        else{
-            alert("something's gone wrong. isDir is null.");
-            console.log(isDir) ;
-        }
-
     });
+
 }
 
 /*
@@ -405,6 +469,9 @@ function selectUpload(selectedFile, pathToSend){
  * Downloads a single file.
  */
 function download(sftp, selectedFile, pathToSend){
+
+
+
     // Creating read and write streams
     var read = sftp.createReadStream(selectedFile);
     var write = fs.createWriteStream(pathToSend);
@@ -417,12 +484,12 @@ function download(sftp, selectedFile, pathToSend){
 
 
     // Logs info
-    write.on('close',function (){
+    write.on('close', function () {
         document.getElementById("area").innerHTML += selectedFile + "- file transferred successfully\n";
         log.info(selectedFile + "- file transferred successfully\n");
     });
 
-    write.on('end', function() {
+    write.on('end', function () {
         document.getElementById("area").innerHTML += "sftp conn closed\n";
         log.info("sftp conn closed\n");
         conn.close();
@@ -430,6 +497,7 @@ function download(sftp, selectedFile, pathToSend){
 
     // Reads from the remote, writes to local
     read.pipe(write);
+
 
 }
 
@@ -442,6 +510,7 @@ function download(sftp, selectedFile, pathToSend){
  * Uploads a single file.
  */
 function upload(sftp, selectedFile, pathToSend){
+
     // Creating read and write streams
     var read = fs.createReadStream(selectedFile);
     var write = sftp.createWriteStream(pathToSend);
@@ -454,13 +523,13 @@ function upload(sftp, selectedFile, pathToSend){
     });
 
     // Logs info
-    write.on('close',function (){
+    write.on('close', function () {
         document.getElementById("area").innerHTML += selectedFile + "- file transferred successfully" + "\n";
         log.info(selectedFile + "- file transferred successfully" + "\n");
 
     });
 
-    write.on('end', function() {
+    write.on('end', function () {
         document.getElementById("area").innerHTML += "sftp conn closed" + "\n";
         log.info("sftp conn closed" + "\n");
         conn.close();
@@ -468,6 +537,7 @@ function upload(sftp, selectedFile, pathToSend){
 
     // Reads from the remote, writes to local
     read.pipe(write);
+
 }
 
 
@@ -495,8 +565,8 @@ function progressBar(read, write, stats, selectedFile){
         var sizeInMB = totalSize/1000000;
 
         var fileToShow = selectedFile;
-        if(fileToShow.length > 20){
-            fileToShow = selectedFile.substring(0, 8) + '...' + selectedFile.substring(selectedFile.length-8, selectedFile.length);
+        if(fileToShow.length > 40){
+            fileToShow = selectedFile.substring(0, 14) + '...' + selectedFile.substring(selectedFile.length-22, selectedFile.length);
         }
 
         document.getElementById('itemTransferred').innerHTML = fileToShow + '&nbsp;';

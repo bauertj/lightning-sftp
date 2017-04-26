@@ -49,32 +49,6 @@ const template = [
         label: 'File',
         submenu: [
             {
-                // opens up bookmarks page from file menu
-                label: 'Bookmarks',
-                accelerator: 'CmdOrCtrl+B',
-                click() {
-                    var bookmarksWindow = new BrowserWindow({
-                        autoHideMenuBar: true,
-                        icon: "./app/images/testIcon.png"
-                    });
-
-                    bookmarksWindow.loadURL('file://' + __dirname + '/app/bookmarksWindow.html');
-                }
-
-            },
-            {
-                // opens up bookmarks page from file menu
-                label: 'History',
-                click() {
-                    var historyWindow = new BrowserWindow({
-                        autoHideMenuBar: true,
-                        icon: "./app/images/testIcon.png"
-                    });
-
-                    historyWindow.loadURL('file://' + __dirname + '/app/historyWindow.html');
-                }
-            },
-            {
                 // closes window
                 label: 'Exit',
                 role: 'close'
@@ -110,72 +84,3 @@ Menu.setApplicationMenu(menu);
 
 // ipcMain is used to communicate events
 const {ipcMain} = require('electron');
-
-// TODO when the main window is closed, application is closed
-ipcMain.on('close-main-window', function () {
-   app.quit();
-});
-
-// initializes the history window
-var historyWindow = null;
-ipcMain.on('open-history-window', function () {
-    // will not create new history window if it is already open
-    if(historyWindow){
-        return;
-    }
-
-    // sets properties to history window
-    historyWindow = new BrowserWindow({
-        height: 500,
-        width: 1024,
-        alwaysOnTop: true,
-        icon: "./app/images/testIcon.png"
-    });
-
-    // loads historyWindow.html
-    historyWindow.loadURL('file://' + __dirname + '/app/historyWindow.html');
-
-    // sets back to null when the window is closed
-    historyWindow.on('closed', function () {
-        historyWindow = null;
-    });
-
-});
-
-// event for when closing the history window
-ipcMain.on('close-history-window', function (event, arg) {
-    // sends event message to other web pages
-    mainWindow.webContents.send('close-history-window', arg);
-    historyWindow.close();
-});
-
-// initializes bookmarks window
-var bookmarksWindow = null;
-ipcMain.on('open-bookmarks-window', function () {
-
-    // will not create bookmarks window if it is already created
-    if(bookmarksWindow){
-        return;
-    }
-
-    // sets these properties when it is opened
-    bookmarksWindow = new BrowserWindow({
-        autoHideMenuBar: true,
-        icon: "./app/images/testIcon.png"
-    });
-
-    // loads bookmarksWindow.html
-    bookmarksWindow.loadURL('file://' + __dirname + '/app/bookmarksWindow.html');
-
-    // sets back to null when the window is closed
-    bookmarksWindow.on('closed', function () {
-        bookmarksWindow = null;
-    });
-});
-
-// event for when closing the bookmarks window
-ipcMain.on('close-bookmarks-window', function (event, arg) {
-    // sends event message to other web pages
-    mainWindow.webContents.send('close-bookmarks-window', arg);
-    bookmarksWindow.close();
-});
