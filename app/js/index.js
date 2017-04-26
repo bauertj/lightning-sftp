@@ -166,9 +166,9 @@ function getLoginInfo(){
         host:       server,
         port:       port,
         username:   uname,
-        password:   pass
+        password:   pass,
+        privateKey: fs.readFileSync(os.homedir() + path.sep + ".ssh" + path.sep + "id_rsa")
     };
-
     return connSettings;
 }
 
@@ -194,7 +194,7 @@ function loginFunction( connSettings ) {
 
     // Connects to server with connection settings the user inputted, pushes connection onto ConnectionHistory JSON file
 
-    if(connSettings.host=="" || connSettings.username=="" || connSettings.password==""){
+    if(connSettings.host=="" || connSettings.username==""){
         alert("Please enter all required information");
     }
     else {
