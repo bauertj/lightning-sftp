@@ -278,7 +278,7 @@ function initTree(jsonContent) {
     .bind("dblclick.jstree", function(event){
         // parentNode is the node that is double clicked
         var parentNode = $('#jstree').jstree(true).get_node(event.target.parentNode.id);
-        
+
         // if it is a folder, create a new tree with that as the root
         if(parentNode.type === "folder") {
             somepath = event.target.parentNode.id + slash;
@@ -790,18 +790,45 @@ function createTree(jsonData){
             var newPath = data.parent + "/" + filename;
             var curNode = $('#jstree2').jstree(true).get_node(data.node);
             var newId = data.node.parent + "/" + filename ;
-            $('#jstree2').jstree(true).set_id(curNode, newId);
+            if($('#jstree2').jstree(true).get_node(newID)){
+                //pop up menu
 
-            // checks whether the parent of the current node is on the top layer. handles accordingly
-            if(curNode.parent == "#"){
-                selectUpload(data.original.id, remotePath + filename);
+                //yes confirmation
+                if(confirm("File exists. Overwrite?")) {
+                    $('#jstree2').jstree(true).set_id(curNode, newId);
+
+                    // checks whether the parent of the current node is on the top layer. handles accordingly
+                    if (curNode.parent == "#") {
+                        selectUpload(data.original.id, remotePath + filename);
+                    }
+                    else {
+                        selectUpload(data.original.id, newPath);
+                    }
+
+                    // redraws the tree when done, making sure it is up to date
+                    $('#jstree2').jstree(true).redraw();
+                }
+
+                //if no
+                //do nothing
+
+
             }
             else{
-                selectUpload(data.original.id, newPath);
+                $('#jstree2').jstree(true).set_id(curNode, newId);
+
+                // checks whether the parent of the current node is on the top layer. handles accordingly
+                if (curNode.parent == "#") {
+                    selectUpload(data.original.id, remotePath + filename);
+                }
+                else {
+                    selectUpload(data.original.id, newPath);
+                }
+
+                // redraws the tree when done, making sure it is up to date
+                $('#jstree2').jstree(true).redraw();
             }
 
-            // redraws the tree when done, making sure it is up to date
-            $('#jstree2').jstree(true).redraw();
         });
 
     });
@@ -824,6 +851,7 @@ $(document).on("dnd_stop.vakata", function(e, data){
 
             if (!(data.data.origin.element[0].id === "jstree2")) {
                 console.log("1");
+
                 selectUpload(selectedId, remotePath + data.element.text);
 
                 var selectNode = $('#jstree').jstree(true).get_node(selectedId);

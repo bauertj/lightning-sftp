@@ -171,3 +171,7 @@ ul.bookmark-dropdown li .item:after{
     overflow-y: scroll;
     overflow-x: hidden;
 }
+
+#dialog{
+    display: none;
+}
