@@ -452,8 +452,13 @@ function download(sftp, selectedFile, pathToSend){
     var read = sftp.createReadStream(selectedFile);
     var write = fs.createWriteStream(pathToSend);
 
+    var atime, mtime;
     // PROGRESS BAR START
     sftp.lstat(selectedFile, function (err, stats) {
+        console.log(stats.mtime);
+        atime = stats.atime;
+        mtime = stats.mtime;
+
         progressBar(read, write, stats, selectedFile);
     }); // END PROGRESS BAR
 
@@ -465,6 +470,13 @@ function download(sftp, selectedFile, pathToSend){
 
     // Reads from the remote, writes to local
     read.pipe(write);
+
+    // updates the access/modify times
+    write.on('close', function(){
+        fs.utimes(pathToSend, atime, mtime, function(){
+            console.log("done");
+        });
+    })
 }
 
 
@@ -480,7 +492,10 @@ function upload(sftp, selectedFile, pathToSend){
     var read = fs.createReadStream(selectedFile);
     var write = sftp.createWriteStream(pathToSend);
 
+    var atime, mtime;
     fs.stat(selectedFile, function (err, stats) {
+        atime = stats.atime;
+        mtime = stats.mtime;
         progressBar(read, write, stats, selectedFile);
     });
 
@@ -489,6 +504,10 @@ function upload(sftp, selectedFile, pathToSend){
         document.getElementById("area").innerHTML += selectedFile + "- file transferred successfully" + "\n";
         log.info(selectedFile + "- file transferred successfully" + "\n");
 
+        // maintain modify / access times
+        sftp.utimes(pathToSend, atime, mtime, function(err){
+            if(err) console.log(err);
+        });
     });
 
     // Reads from the remote, writes to local
