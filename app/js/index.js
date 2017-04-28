@@ -21,7 +21,7 @@ function populateBookmarks(){
     var bookmarksContent = JSON.parse(contents);
     var bookmarksMenu = document.getElementById("bookmarks");
     var bookChildren = document.getElementById("bookmarks");
-    
+
     while(bookChildren.firstChild){
         bookChildren.removeChild(bookChildren.firstChild);
     }

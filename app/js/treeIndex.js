@@ -644,31 +644,35 @@ function createTree(jsonData){
                 }
             }
             globalSftp.readdir(data.node.id, function(err, list){
-                for(var i = 0; i < list.length; i++) {
+                if(err) alert(err);
 
-                    var filename = list[i].filename;
-                    var longname = list[i].longname;
-                    var fulldir = data.node.id + "/" + filename;
+                else{
+                    for(var i = 0; i < list.length; i++) {
 
-                    var parent = $('#jstree2').jstree(true).get_node(data.node.id);
+                        var filename = list[i].filename;
+                        var longname = list[i].longname;
+                        var fulldir = data.node.id + "/" + filename;
 
-                    // if it is not a directory, create as a file
-                    if (longname.substring(0, 1) != "d") {
-                        var child = {text: filename, icon: "jstree-file", id: fulldir, type: "file"};
-                        if(!($('#jstree2').jstree(true).get_node(child.id))) {
-                            $('#jstree2').jstree('create_node', parent, child);
+                        var parent = $('#jstree2').jstree(true).get_node(data.node.id);
 
+                        // if it is not a directory, create as a file
+                        if (longname.substring(0, 1) != "d") {
+                            var child = {text: filename, icon: "jstree-file", id: fulldir, type: "file"};
+                            if(!($('#jstree2').jstree(true).get_node(child.id))) {
+                                $('#jstree2').jstree('create_node', parent, child);
+
+                            }
                         }
-                    }
 
-                    // if the file is a directory it will create it as a directory
-                    else {
-                        var child = {text: filename, icon: "", id: fulldir, type: "folder"};
-                        if(!($('#jstree2').jstree(true).get_node(child.id))) {
-                            $('#jstree2').jstree('create_node', parent, child);
-                            var arbitraryNode = {text: "test", icon: "jstree-file", id: "test" + arbitraryCounter, parent: fulldir};
-                            $('#jstree2').jstree('create_node', child, arbitraryNode);
-                            arbitraryCounter++;
+                        // if the file is a directory it will create it as a directory
+                        else {
+                            var child = {text: filename, icon: "", id: fulldir, type: "folder"};
+                            if(!($('#jstree2').jstree(true).get_node(child.id))) {
+                                $('#jstree2').jstree('create_node', parent, child);
+                                var arbitraryNode = {text: "test", icon: "jstree-file", id: "test" + arbitraryCounter, parent: fulldir};
+                                $('#jstree2').jstree('create_node', child, arbitraryNode);
+                                arbitraryCounter++;
+                            }
                         }
                     }
                 }
@@ -679,13 +683,22 @@ function createTree(jsonData){
         .bind("dblclick.jstree", function(event){
             // parent node is the node that is double clicked
             var parentNode = $('#jstree2').jstree(true).get_node(event.target.parentNode.id);
-
+            var oldpath = remotePath ;
             //console.log(parentNode);
             // will open the directory as the new root when double clicked
             if(parentNode.type === "folder") {
                 remotePath = event.target.parentNode.id + "/";
                 $('#jstree2').jstree('destroy');
-                getTreeData(remotePath);
+                globalSftp.readdir(remotePath, function(err){
+                    if(err) {
+                        alert(err);
+                        remotePath = oldpath;
+                        getTreeData(oldpath);
+                    }
+                    else{
+                        getTreeData(remotePath);
+                    }
+                });
             }
             
             // double click file to download
