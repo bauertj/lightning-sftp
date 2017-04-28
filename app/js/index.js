@@ -191,6 +191,24 @@ function loginFunction( connSettings ) {
     else {
         // for when the client is connected to the server
         conn.on('ready', function() {
+
+            //TEST AREA --
+            if(document.getElementById("genKeyPair").checked){
+                var keypair = require('keypair');
+                var pair = keypair();
+                var privKeyName = "testKeyRSA";
+                console.log(pair.public);
+
+                fs.writeFile(os.homedir() + path.sep + ".ssh" + path.sep + privKeyName, pair.private, function(err) {
+                    if(err) {
+                        return console.log(err);
+                    }
+                    console.log("Private Key saved");
+                });
+                
+            }
+            //END AREA
+
             if(document.getElementById("bookmarkThis").checked){
                 contents = fs.readFileSync("Bookmarks.json");
                 var found = false;
