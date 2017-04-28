@@ -9,10 +9,15 @@ var fs = require('fs');
 // initializes the main window when the application is launched
 var mainWindow = null;
 app.on('ready', function() {
+    const {width, height} = electron.screen.getPrimaryDisplay().workAreaSize;
+
+    var tempWidth = width * .9;
+    var tempHeight = height * .8;
+    console.log(tempWidth + " " + tempHeight);
     // sets as new browser windows with these properties
     mainWindow = new BrowserWindow({
-        height: 900,
-        width: 1200,
+        height: parseInt(tempHeight),
+        width: parseInt(tempWidth),
         fullscreenable: false,
         title: "Lightning SFTP",
         icon: "./app/images/testIcon.png"

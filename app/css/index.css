@@ -35,63 +35,45 @@ header {
     position: relative;
     width: 20%;
     height: 25px;
-    background-color: grey;
+    background-color: #d6d8db;
 }
 #myBar {
     position: relative;
     width: 0%;
     height: 25px;
-    background-color: green;
+    background-color: #5bc0de;
 
 }#myProgress2 {
     position: relative;
     width: 20%;
-     height: 25px;
-    background-color: grey;
+    height: 25px;
+    background-color: #d6d8db;
 
 }
 #myBar2 {
     position: relative;
     width: 0%;
     height: 25px;
-    background-color: green;
+    background-color: #5bc0de;
 
+}
+#progressLabel{
+    color: black;
+    font-weight: bold;
+}#progressLabel2{
+    color: black;
+    font-weight: bold;
 }
 
 .item{
     cursor: pointer;
 }
 
-/*.fileTransfer:after{
-    visibility: hidden;
-    display: inline-block;
-    font-size: 0;
-    content: "";
-    clear: both;
-    height: 0;
-}
-
-.progressSpan:after{
-    visibility: hidden;
-    display: block;
-    font-size: 0;
-    content: " ";
-    clear: both;
-    height: 0;
-}*/
-
-
 textarea{
     overflow: auto;
     width: 99%;
     position: relative;
 }
-
-/*#progressLabel{
-    text-align: center;
-    line-height: 30px;
-    color: white;
-}*/
 
 #fileForm{
     position: relative;
@@ -116,6 +98,11 @@ textarea{
 }
 .offToRight {
     float: right;
+    margin-right: 4px;
+}
+.offToLeft {
+    float: left;
+    margin-left: 2px;
 }
 #numberOfItems{
     float: right;
@@ -174,4 +161,9 @@ ul.bookmark-dropdown li .item:after{
 
 #dialog{
     display: none;
+}
+
+footer{
+    margin-bottom: 0;
+    overflow: hidden;
 }
