@@ -1,7 +1,6 @@
 'use strict';
 
 // REQUIRE SECTION //
-
 var electron = require('electron');
 var Client = require('ssh2').Client;
 var conn;
@@ -393,7 +392,6 @@ function selectUpload(selectedFile, pathToSend){
     conn.sftp(function(err, sftp){
         if(err) throw err;
 
-
         sftp.lstat(pathToSend, function(err, stats){
                 if(err){
                     // assume the file does not exist on server already
@@ -597,8 +595,6 @@ function recurDownload(sftp, selectedFile, pathToSend) {
 
 // TODO Documentation
 function progressBar(read, write, stats, selectedFile){
-
-
     read.on('data', (chunk) => {
 
         amountWritten += chunk.length;
@@ -624,10 +620,13 @@ function progressBar(read, write, stats, selectedFile){
             fileToShow = selectedFile.substring(0, 14) + '...' + selectedFile.substring(selectedFile.length-22, selectedFile.length);
         }
 
+        var eta = (sizeInMB - amountWrittenMB) / mbPerSecond;
+
         document.getElementById('itemTransferred').innerHTML = fileToShow + '&nbsp;';
         document.getElementById('totalItems').innerHTML = totalDone + ' / ' + totalFiles + '&nbsp;&nbsp;';
         document.getElementById('amountDone').innerHTML = amountWrittenMB.toFixed(2) + ' / ' + sizeInMB.toFixed(2) + ' MB&nbsp;';
-        document.getElementById('perSecond').innerHTML = mbPerSecond.toFixed(2) + ' mB/s &nbsp;';
+        document.getElementById('perSecond').innerHTML = "&nbsp;<span class='label label-info'>Transfer Rate &nbsp;</span>" + mbPerSecond.toFixed(2) + ' mB/s &nbsp;';
+        document.getElementById('eta').innerHTML = "&nbsp;<span class='label label-info'>ETA &nbsp;</span>" + eta.toFixed(0) + 's remaining &nbsp;';
 
         var elem = document.getElementById("myBar");
         setTimeout(frame, 10);
@@ -668,6 +667,8 @@ function clearProgress(){
     document.getElementById('amountDone').innerHTML = '';
     document.getElementById('totalItems').innerHTML = '';
     document.getElementById('perSecond').innerHTML = '';
+    document.getElementById('eta').innerHTML = '';
+
 
     totalFiles = 0;
     totalDone = 0;
