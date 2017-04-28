@@ -10,7 +10,10 @@ var fs = require("fs");
 var jsonfile = require('jsonfile');
 var $ = require("jquery");
 
-var totalFiles, totalDone, totalSize, amountWritten = 0;
+var totalFiles = 0;
+var totalDone = 0;
+var totalSize = 0;
+var amountWritten = 0;
 var interval = 1;
 
 function populateBookmarks(){
@@ -18,8 +21,7 @@ function populateBookmarks(){
     var bookmarksContent = JSON.parse(contents);
     var bookmarksMenu = document.getElementById("bookmarks");
     var bookChildren = document.getElementById("bookmarks");
-
-
+    
     while(bookChildren.firstChild){
         bookChildren.removeChild(bookChildren.firstChild);
     }
@@ -79,13 +81,11 @@ function init() {
     var bookmarksContent = JSON.parse(contents);
 
     populateBookmarks();
-
     // when a bookmark is clicked, information will be added to the text boxes
     $('.itemBookmark').click(function(){
         var classname = this.className;
         classname = classname.replace(/[^\d.]/g, '');
         var pos = bookmarksContent.Bookmarks[parseInt(classname)];
-
         document.getElementById("username").value = pos.username;
         document.getElementById("port").value = pos.port;
         document.getElementById("serverName").value = pos.host;
@@ -98,14 +98,10 @@ function init() {
         console.log(this);
         var contents = fs.readFileSync("Bookmarks.json");
         var jsonContent = JSON.parse(contents);
-
         var classname = this.className;
         classname = classname.replace(/[^\d.]/g, '');
-
         jsonContent.Bookmarks.splice(classname, 1);
-
         $(".item"+classname).remove();
-
         if(jsonContent.Bookmarks.length == 0){
             var bookmark = document.getElementById("bookmarks");
             $(bookmark).append('<li> <span class="empty glyphicon glyphicon-star-empty"> &nbsp; No Bookmarks Yet</span></li>');
@@ -117,33 +113,25 @@ function init() {
     // gets all content for connection history drop down menu from json file
     contents = fs.readFileSync("ConnectionHistory.json");
     var historyContent = JSON.parse(contents);
-    var historyMenu = document.getElementById("history");
-
 
     populateHistory();
-
     // when a history option is clicked, information will be added to the text boxes
     $('.itemHistory').click(function(){
         var classname = this.className;
         classname = classname.replace(/[^\d.]/g, '');
         var pos = historyContent.connectionHistory[parseInt(classname)];
-
         document.getElementById("username").value = pos.username;
         document.getElementById("port").value = pos.port;
         document.getElementById("serverName").value = pos.host;
-
         $('#password').select();
     });
 
     $('.historyDelete').click(function(){
         var contents = fs.readFileSync("ConnectionHistory.json");
         var jsonContent = JSON.parse(contents);
-
         var classname = this.className;
         classname = classname.replace(/[^\d.]/g, '');
-
         jsonContent.connectionHistory.splice(classname, 1);
-
         $(".item"+classname).remove();
         jsonfile.writeFile('ConnectionHistory.json', jsonContent);
     })
@@ -181,25 +169,19 @@ function getLoginInfo(){
     return connSettings;
 }
 
-
-
 // Will attempt to connect to server when log in button is pressed
 // Connection will stay active ( for now )
 function loginFunction( connSettings ) {
     conn = new Client();
-
     // Sets up connection history json file
     var file = 'ConnectionHistory.json';
-
     var contents = fs.readFileSync("ConnectionHistory.json");
     var jsonContent = JSON.parse(contents);
-
     // Retrieves current date and adds to JSON file for connection history data
     var curDate = new Date();
     var curTime = curDate.getHours()+":"+curDate.getMinutes()+":"+curDate.getSeconds();
     var curDay = (curDate.getMonth()+1) + "-" + curDate.getDate() + "-" + (curDate.getYear()+1900);
     var obj = {host: connSettings.host, port: connSettings.port, username: connSettings.username, password: "", time: curTime, day: curDay};
-
 
     // Connects to server with connection settings the user inputted, pushes connection onto ConnectionHistory JSON file
 
@@ -209,7 +191,6 @@ function loginFunction( connSettings ) {
     else {
         // for when the client is connected to the server
         conn.on('ready', function() {
-
             if(document.getElementById("bookmarkThis").checked){
                 contents = fs.readFileSync("Bookmarks.json");
                 var found = false;
@@ -225,19 +206,14 @@ function loginFunction( connSettings ) {
                     tempJson.Bookmarks.push(tempObj);
                     jsonfile.writeFileSync("Bookmarks.json", tempJson);
                 }
-
             }
-
             console.log("You are now connected");
             //document.getElementById("loginText").innerHTML = "Connected to " + connSettings.host;
             jsonContent.connectionHistory.push(obj);
             jsonfile.writeFileSync(file, jsonContent);
 
-
             var legend = document.getElementById('legend');
-
             legend.textContent = connSettings.host;
-
             $(legend).append('&nbsp;<div class="btn-group" id="upperLevel2"> <ul class="dropdown-menu" id="upperLevelsRemote"> </ul></div>' +
                 '<div class="btn-group"> <div class="btn-group">'+
                 '<button type="button" value="Logout" id="logoutConn" class="btn btn-default">Logout</button> </div></div>');
@@ -248,8 +224,6 @@ function loginFunction( connSettings ) {
             });
 
             document.getElementById("logoutConn").disabled = false;
-
-
         }).connect(connSettings);
         // for when there is an error with the connection
         conn.on('error', function(err){
@@ -260,7 +234,6 @@ function loginFunction( connSettings ) {
             console.log("You disconnected from " + connSettings.host);
         });
    }
-
    retrieveData(remotePath);
 }
 
@@ -287,17 +260,14 @@ function logoutFunction(){
             '</ul></div></div>');
 
         init();
-
         document.getElementById("username").value = "";
         document.getElementById("port").value = "";
         document.getElementById("serverName").value = "";
         document.getElementById("password").value = "";
         document.getElementById("keyname").value = "";
-
         document.getElementById("bookmarkThis").checked = false;
     }
 }
-
 
 /*
   * selectedFile : file path to download
@@ -307,41 +277,41 @@ function logoutFunction(){
   * Creates directory, if it is a directory, and does not currently exist in the local path.
  */
 function selectDownload(selectedFile, pathToSend){
+    // checks to see if the file already exists on local machine
     fs.open(pathToSend, 'r', (err, fd) =>{
-            if(err){
-                console.log("transferred " + err);
-                go();
-            }
-
-            else {
-                document.getElementById("dialog").innerHTML = pathToSend + " already exists. Overwrite?";
-                $("#dialog").dialog({
-                    dialogClass: "no-close",
-                    buttons: [
-                        {
-                            text: "OK",
-                            click: function () {
-                                go();
-                                $(this).dialog("close");
-                            }
-                        },
-                        {
-                            text: "No",
-                            click: function () {
-                                $(this).dialog("close");
-                            }
+        // if it does not, will result in an error which automatically goes to transfer by default
+        if(err){
+            console.log("transferred " + err);
+            go();
+        }
+        // if it is found, prompt the user to decide to overwrite or not
+        else {
+            document.getElementById("dialog").innerHTML = pathToSend + " already exists. Overwrite?";
+            $("#dialog").dialog({
+                dialogClass: "no-close",
+                buttons: [
+                    {
+                        text: "OK",
+                        click: function () {
+                            go();
+                            $(this).dialog("close");
                         }
-                    ]
-                });
-            }
+                    },
+                    {
+                        text: "No",
+                        click: function () {
+                            $(this).dialog("close");
+                        }
+                    }
+                ]
+            });
+        }
         });
-
 
     function go() {
         //create connection to sftp
         conn.sftp(function (err, sftp) {
             if (err) throw err;
-
             //determine if file or folder
             console.log("selectedFile: " + selectedFile);
             sftp.lstat(selectedFile, function (err, stats) {
@@ -351,6 +321,14 @@ function selectDownload(selectedFile, pathToSend){
                 else {
                     //Check if the selected file is a directory or not
                     var isDir = stats.isDirectory();
+
+                    if (totalDone == totalFiles) {
+                        clearProgress();
+                        setInterval(function () {
+                            interval = interval + 1;
+                        }, 1000);
+                    }
+
                     //if folder, recursive download
                     if (isDir == true) {
                         // Creates directory locally if it does not exist already
@@ -361,21 +339,15 @@ function selectDownload(selectedFile, pathToSend){
 
                         }
                         //Recursive download to download files inside directory
-
-                        if (totalDone == totalFiles) {
-                            clearProgress();
-                            setInterval(function () {
-                                interval = interval + 1;
-                            }, 1000);
-                        }
-
                         countTotalFilesRemote(sftp, selectedFile);
                         recurDownload(sftp, selectedFile, pathToSend);
                     }
                     //if file, call download
                     else if (isDir == false) {
                         totalFiles += 1;
-
+                        sftp.stat(selectedFile, function(err, stats){
+                            totalSize += stats.size;
+                        });
                         download(sftp, selectedFile, pathToSend);
                     }
                     // Something went wrong if this happens...
@@ -385,7 +357,6 @@ function selectDownload(selectedFile, pathToSend){
                     }
                 }
             });
-
         });
     }
 }
@@ -400,7 +371,6 @@ function selectDownload(selectedFile, pathToSend){
  * Creates directory, if it is a directory, and does not currently exist in the remote path.
  */
 function selectUpload(selectedFile, pathToSend){
-
     //create connection to sftp
     conn.sftp(function(err, sftp){
         if(err) throw err;
@@ -433,42 +403,41 @@ function selectUpload(selectedFile, pathToSend){
 
             });
 
+        function go() {
+            // !! If something breaks, wet spaghetti !!
+            var isDir = fs.lstatSync(selectedFile).isDirectory();
 
-        //used to determine which function to call
-
-            function go() {
-                // !! If something breaks, wet spaghetti !!
-                var isDir = fs.lstatSync(selectedFile).isDirectory();
-
-                //if folder, recursive upload
-                if (isDir) {
-                    sftp.mkdir(pathToSend, function (err) {
-                        if (err) console.log("Error: make dir pathToSend");
-                    });
-
-                    if (totalDone == totalFiles) {
-                        clearProgress();
-                        setInterval(function () {
-                            interval = interval + 1;
-                        }, 1000);
-                    }
-
-                    countTotalFilesLocal(selectedFile);
-                    recurUpload(sftp, selectedFile, pathToSend);
-                }
-                //if file, call upload
-                else if (!isDir) {
-                    totalFiles += 1;
-                    upload(sftp, selectedFile, pathToSend);
-                }
-                // If this happens, something terrible is afoot...
-                else {
-                    alert("something's gone wrong. isDir is null.");
-                    console.log(isDir);
-                }
+            if (totalDone == totalFiles) {
+                clearProgress();
+                setInterval(function () {
+                    interval = interval + 1;
+                }, 1000);
             }
-    });
 
+            //if folder, recursive upload
+            if (isDir) {
+                sftp.mkdir(pathToSend, function (err) {
+                    if (err) console.log("Error: make dir pathToSend");
+                });
+
+                countTotalFilesLocal(selectedFile);
+                recurUpload(sftp, selectedFile, pathToSend);
+            }
+            //if file, call upload
+            else if (!isDir) {
+                totalFiles += 1;
+                fs.lstat(selectedFile, function(err, stats){
+                    totalSize += stats.size;
+                });
+                upload(sftp, selectedFile, pathToSend);
+            }
+            // If this happens, something terrible is afoot...
+            else {
+                alert("something's gone wrong. isDir is null.");
+                console.log(isDir);
+            }
+        }
+    });
 }
 
 /*
@@ -479,19 +448,14 @@ function selectUpload(selectedFile, pathToSend){
  * Downloads a single file.
  */
 function download(sftp, selectedFile, pathToSend){
-
-
-
     // Creating read and write streams
     var read = sftp.createReadStream(selectedFile);
     var write = fs.createWriteStream(pathToSend);
 
     // PROGRESS BAR START
     sftp.lstat(selectedFile, function (err, stats) {
-
         progressBar(read, write, stats, selectedFile);
     }); // END PROGRESS BAR
-
 
     // Logs info
     write.on('close', function () {
@@ -499,16 +463,8 @@ function download(sftp, selectedFile, pathToSend){
         log.info(selectedFile + "- file transferred successfully\n");
     });
 
-    write.on('end', function () {
-        document.getElementById("area").innerHTML += "sftp conn closed\n";
-        log.info("sftp conn closed\n");
-        conn.close();
-    });
-
     // Reads from the remote, writes to local
     read.pipe(write);
-
-
 }
 
 
@@ -520,13 +476,9 @@ function download(sftp, selectedFile, pathToSend){
  * Uploads a single file.
  */
 function upload(sftp, selectedFile, pathToSend){
-
     // Creating read and write streams
     var read = fs.createReadStream(selectedFile);
     var write = sftp.createWriteStream(pathToSend);
-
-    //console.log(selectedFile);
-    //console.log(pathToSend);
 
     fs.stat(selectedFile, function (err, stats) {
         progressBar(read, write, stats, selectedFile);
@@ -539,21 +491,77 @@ function upload(sftp, selectedFile, pathToSend){
 
     });
 
-    write.on('end', function () {
-        document.getElementById("area").innerHTML += "sftp conn closed" + "\n";
-        log.info("sftp conn closed" + "\n");
-        conn.close();
-    });
-
     // Reads from the remote, writes to local
     read.pipe(write);
-
 }
 
+/*
+ * sftp: sftp object to pass in
+ * selectedFile: directory to upload
+ * pathToSend: path to send the selected directory to
+ *
+ * Uploads a directory with all contained files.
+ */
+function recurUpload(sftp, selectedFile, pathToSend){
+    fs.readdir(selectedFile, function (err, files) {
+        if (err) throw err;
+        //for each file in the dir
+        for(var i=0; i<files.length; i++) {
+            //for each file, set new selected filename string and path to send string
+            var newPath = selectedFile + slash + files[i];
+            var newSend = pathToSend + "/" + files[i];
+            //if file is a dir, create local copy, then recursively go into each folder and create dir and download files inside it
+            if (fs.lstatSync(newPath).isDirectory()) {
+                sftp.mkdir(newSend,function(err){});
+                recurUpload(sftp, newPath, newSend);
+                totalDone++;
+            }
+            //else, it is a file, so download it locally
+            else{
+                upload(sftp, newPath, newSend) ;
+            }
+        }
+    });
+}
+
+/*
+ * sftp: sftp object to pass in
+ * selectedFile: directory to download
+ * pathToSend: path to send the selected directory to
+ *
+ * Downloads a directory with all containing files.
+ */
+function recurDownload(sftp, selectedFile, pathToSend) {
+    sftp.readdir(selectedFile, function (err, list) {
+        if (err) throw err;
+        //for each file in the dir
+        for(var i=0; i<list.length; i++) {
+            //for each file, set new selected filename string and path to send string
+            var newPath = selectedFile + "/" + list[i].filename;
+            var newSend = pathToSend + "/" + list[i].filename;
+            //if file is a dir, create local copy, then recursively go into each folder and create dir and download files inside it
+            if (list[i].longname.toString().charAt(0) == "d") {
+                if(fs.existsSync(newSend) == false){
+                    fs.mkdir(newSend,function(err){
+                        if (err) throw err;
+                    });
+                }
+                totalDone++;
+                recurDownload(sftp, newPath, newSend) ;
+            }
+            //else, it is a file, so download it locally
+            else{
+                download(sftp, newPath, newSend) ;
+            }
+        }
+    });
+}
 
 
 // TODO Documentation
 function progressBar(read, write, stats, selectedFile){
+
+
     read.on('data', (chunk) => {
 
         amountWritten += chunk.length;
@@ -631,82 +639,18 @@ function clearProgress(){
     interval = 1;
 }
 
-/*
- * sftp: sftp object to pass in
- * selectedFile: directory to upload
- * pathToSend: path to send the selected directory to
- *
- * Uploads a directory with all contained files.
- */
-function recurUpload(sftp, selectedFile, pathToSend){
-    fs.readdir(selectedFile, function (err, files) {
-        if (err) throw err;
 
-        //for each file in the dir
-        for(var i=0; i<files.length; i++) {
-            //for each file, set new selected filename string and path to send string
-            var newPath = selectedFile + slash + files[i];
-            var newSend = pathToSend + "/" + files[i];
-            //if file is a dir, create local copy, then recursively go into each folder and create dir and download files inside it
-            if (fs.lstatSync(newPath).isDirectory()) {
-                sftp.mkdir(newSend,function(err){});
-                recurUpload(sftp, newPath, newSend);
-
-                totalDone++;
-            }
-
-            //else, it is a file, so download it locally
-            else{
-
-                upload(sftp, newPath, newSend) ;
-            }
-        }
-    });
-}
 
 /*
- * sftp: sftp object to pass in
- * selectedFile: directory to download
- * pathToSend: path to send the selected directory to
- *
- * Downloads a directory with all containing files.
+Counts the total amount of file in a directory on the remote server being transferred.
+Also adds the size of each file in bytes to the totalSize variable to know how large the directory is total.
  */
-function recurDownload(sftp, selectedFile, pathToSend) {
-
-    sftp.readdir(selectedFile, function (err, list) {
-        if (err) throw err;
-        //for each file in the dir
-        for(var i=0; i<list.length; i++) {
-            //for each file, set new selected filename string and path to send string
-            var newPath = selectedFile + "/" + list[i].filename;
-            var newSend = pathToSend + "/" + list[i].filename;
-            //if file is a dir, create local copy, then recursively go into each folder and create dir and download files inside it
-            if (list[i].longname.toString().charAt(0) == "d") {
-                if(fs.existsSync(newSend) == false){
-                    fs.mkdir(newSend,function(err){
-                        if (err) throw err;
-                    });
-
-                }
-                totalDone++;
-                recurDownload(sftp, newPath, newSend) ;
-            }
-            //else, it is a file, so download it locally
-            else{
-                download(sftp, newPath, newSend) ;
-            }
-        }
-    });
-}
-
-
 function countTotalFilesRemote(sftp, selectedFile){
     sftp.readdir(selectedFile, function(err, list){
         if(err) throw err;
         totalFiles += list.length;
         for(var i = 0; i < list.length; i++){
             var newPath = selectedFile + "/" + list[i].filename;
-
             totalSize += list[i].attrs.size;
             if(list[i].longname.toString().charAt(0) === 'd'){
                 countTotalFilesRemote(sftp, newPath);
@@ -715,13 +659,16 @@ function countTotalFilesRemote(sftp, selectedFile){
     });
 }
 
+/*
+ Counts the total amount of file in a directory on the local machine being uploaded
+ Also adds the size of each file in bytes to the totalSize variable to know how large the directory is total.
+ */
 function countTotalFilesLocal(selectedFile){
     fs.readdir(selectedFile, function (err, files) {
         if (err) throw err;
         totalFiles += files.length;
         for(var i = 0; i < files.length; i++){
             var newPath = selectedFile + slash + files[i];
-
             if(fs.lstatSync(newPath).isDirectory()){
                 countTotalFilesLocal(newPath);
             }
@@ -730,8 +677,6 @@ function countTotalFilesLocal(selectedFile){
                     totalSize += stats.size;
                 });
             }
-
         }
     });
-
 }
