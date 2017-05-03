@@ -52,6 +52,10 @@ function populateHistory(){
     while(historyChildren.firstChild){
         historyChildren.removeChild(historyChildren.firstChild);
     }
+    if(historyContent.connectionHistory.length == 0){
+        $(historyMenu).append('<li>' +
+            '<span class="empty glyphicon glyphicon-star-empty"> &nbsp; No History Yet</span></li>');
+    }
 
     for(var i = historyContent.connectionHistory.length-1; i > 0; i--){
         if(historyContent.connectionHistory[i] != null){
