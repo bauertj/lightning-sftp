@@ -57,7 +57,7 @@ function populateHistory(){
             '<span class="empty glyphicon glyphicon-star-empty"> &nbsp; No History Yet</span></li>');
     }
 
-    for(var i = historyContent.connectionHistory.length-1; i > 0; i--){
+    for(var i = historyContent.connectionHistory.length-1; i >= 0; i--){
         if(historyContent.connectionHistory[i] != null){
             $(historyMenu).append('<li>' +
                     '<span class="itemHistory item item'+i+'">' +
@@ -79,13 +79,14 @@ $(document).ready(function(){
 });
 
 function init() {
-    // gets all content for bookmark dropdown menu from the json file
-    var contents = fs.readFileSync("Bookmarks.json");
-    var bookmarksContent = JSON.parse(contents);
 
+    // gets all content for bookmark dropdown menu from the json file
     populateBookmarks();
+
     // when a bookmark is clicked, information will be added to the text boxes
     $('.itemBookmark').click(function(){
+        var contents = fs.readFileSync("Bookmarks.json");
+        var bookmarksContent = JSON.parse(contents);
         var classname = this.className;
         classname = classname.replace(/[^\d.]/g, '');
         var pos = bookmarksContent.Bookmarks[parseInt(classname)];
@@ -114,12 +115,12 @@ function init() {
 
 
     // gets all content for connection history drop down menu from json file
-    contents = fs.readFileSync("ConnectionHistory.json");
-    var historyContent = JSON.parse(contents);
-
     populateHistory();
+
     // when a history option is clicked, information will be added to the text boxes
     $('.itemHistory').click(function(){
+        var contents = fs.readFileSync("ConnectionHistory.json");
+        var historyContent = JSON.parse(contents);
         var classname = this.className;
         classname = classname.replace(/[^\d.]/g, '');
         var pos = historyContent.connectionHistory[parseInt(classname)];
@@ -194,23 +195,6 @@ function loginFunction( connSettings ) {
     else {
         // for when the client is connected to the server
         conn.on('ready', function() {
-
-            //TEST AREA --
-            if(document.getElementById("genKeyPair").checked){
-                var keypair = require('keypair');
-                var pair = keypair();
-                var privKeyName = "testKeyRSA";
-                console.log(pair.public);
-
-                fs.writeFile(os.homedir() + path.sep + ".ssh" + path.sep + privKeyName, pair.private, function(err) {
-                    if(err) {
-                        return console.log(err);
-                    }
-                    console.log("Private Key saved");
-                });
-                
-            }
-            //END AREA
 
             if(document.getElementById("bookmarkThis").checked){
                 contents = fs.readFileSync("Bookmarks.json");
