@@ -98,7 +98,7 @@ function initTree(jsonContent) {
             },
             dblclick_toggle: false
         },
-        plugins: ["dnd", "sort", "contextmenu", "types"],
+        plugins: ["dnd", "sort", "contextmenu", "types", "unique"],
 
         "contextmenu":{
             "items":    function($node){
@@ -495,7 +495,7 @@ function createTree(jsonData){
                 },
                 dblclick_toggle: false
             },
-            plugins: ["dnd", "sort", "contextmenu", "types"],
+            plugins: ["dnd", "sort", "contextmenu", "types", "unique"],
 
             "contextmenu":{
                 "items":    function($node){
