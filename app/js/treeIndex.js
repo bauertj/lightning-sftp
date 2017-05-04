@@ -98,7 +98,7 @@ function initTree(jsonContent) {
             },
             dblclick_toggle: false
         },
-        plugins: ["dnd", "sort", "contextmenu", "types", "unique"],
+        plugins: ["dnd", "sort", "contextmenu", "types"],
 
         "contextmenu":{
             "items":    function($node){
@@ -495,7 +495,7 @@ function createTree(jsonData){
                 },
                 dblclick_toggle: false
             },
-            plugins: ["dnd", "sort", "contextmenu", "types", "unique"],
+            plugins: ["dnd", "sort", "contextmenu", "types"],
 
             "contextmenu":{
                 "items":    function($node){
@@ -630,7 +630,7 @@ function createTree(jsonData){
         })
 
         .on("changed.jstree", function(e, data){
-          //  console.log(data.selected);
+           console.log(data.selected);
         })
 
         // event for when a node is opened
@@ -803,44 +803,26 @@ function createTree(jsonData){
             var newPath = data.parent + "/" + filename;
             var curNode = $('#jstree2').jstree(true).get_node(data.node);
             var newId = data.node.parent + "/" + filename ;
-            if($('#jstree2').jstree(true).get_node(newID)){
-                //pop up menu
 
-                //yes confirmation
-                if(confirm("File exists. Overwrite?")) {
-                    $('#jstree2').jstree(true).set_id(curNode, newId);
-
-                    // checks whether the parent of the current node is on the top layer. handles accordingly
-                    if (curNode.parent == "#") {
-                        selectUpload(data.original.id, remotePath + filename);
-                    }
-                    else {
-                        selectUpload(data.original.id, newPath);
-                    }
-
-                    // redraws the tree when done, making sure it is up to date
-                    $('#jstree2').jstree(true).redraw();
-                }
-
-                //if no
-                //do nothing
-
-
+            console.log(newId);
+            console.log(newPath);
+            if($('#jstree2').jstree(true).get_node(remotePath+filename)){
+               event.preventDefault();
             }
-            else{
-                $('#jstree2').jstree(true).set_id(curNode, newId);
 
-                // checks whether the parent of the current node is on the top layer. handles accordingly
-                if (curNode.parent == "#") {
-                    selectUpload(data.original.id, remotePath + filename);
-                }
-                else {
-                    selectUpload(data.original.id, newPath);
-                }
+            $('#jstree2').jstree(true).set_id(curNode, remotePath + filename);
 
-                // redraws the tree when done, making sure it is up to date
-                $('#jstree2').jstree(true).redraw();
+            // checks whether the parent of the current node is on the top layer. handles accordingly
+            if (curNode.parent == "#") {
+                selectUpload(data.original.id, remotePath + filename);
             }
+            else {
+                selectUpload(data.original.id, newPath);
+            }
+
+            // redraws the tree when done, making sure it is up to date
+            $('#jstree2').jstree(true).redraw();
+
 
         });
 

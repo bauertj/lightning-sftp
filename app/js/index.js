@@ -85,7 +85,7 @@ function init() {
 
     var bookmarkDeleted = 0;
     var historyDeleted = JSON.parse(fs.readFileSync("ConnectionHistory.json")).connectionHistory.length;
-    
+
     // when a bookmark is clicked, information will be added to the text boxes
     $('.itemBookmark').click(function(){
         var contents = fs.readFileSync("Bookmarks.json");
