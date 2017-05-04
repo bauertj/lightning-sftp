@@ -31,12 +31,12 @@ function populateBookmarks(){
     }
     for(var i = 0; i < bookmarksContent.Bookmarks.length; i++){
         $(bookmarksMenu).append('<li>' +
-            '<span class="itemBookmark item item'+i+'"> '+
+            '<span class="itemBookmark item bookmarkItem'+i+'"> '+
             '<span class="item-left">'+
             '<span class="bookmarkClicked bookmark'+i+'">'+ bookmarksContent.Bookmarks[i].username + '@' + bookmarksContent.Bookmarks[i].host + '</span>' +
             '</span>' +
             '<span class="item-right">' +
-            '<button class="btn btn-xs pull-right btn-danger bookmarkDelete danger' +i+'">x</button>' +
+            '<button type="button" class="btn btn-xs pull-right btn-danger bookmarkDelete danger' +i+'">x</button>' +
             '</span>' +
             '</span>' +
             '</li>');
@@ -60,13 +60,13 @@ function populateHistory(){
     for(var i = historyContent.connectionHistory.length-1; i >= 0; i--){
         if(historyContent.connectionHistory[i] != null){
             $(historyMenu).append('<li>' +
-                    '<span class="itemHistory item item'+i+'">' +
+                    '<span class="itemHistory item historyItem'+i+'">' +
                         '<span class="item-left">' +
                             '<span class="historyClicked history'+i+'">'+ historyContent.connectionHistory[i].username + '@' +
                             historyContent.connectionHistory[i].host +'</span>' +
                         '</span>'+
                         '<span class="item-right">'+
-                            '<button class="btn btn-xs pull-right btn-danger historyDelete danger'+i+'">x</button>'+
+                            '<button type="button" class="btn btn-xs pull-right btn-danger historyDelete danger'+i+'">x</button>'+
                         '</span>'+
                     '</span>'+
                 '</li>');
@@ -83,6 +83,9 @@ function init() {
     // gets all content for bookmark dropdown menu from the json file
     populateBookmarks();
 
+    var bookmarkDeleted = 0;
+    var historyDeleted = JSON.parse(fs.readFileSync("ConnectionHistory.json")).connectionHistory.length;
+    
     // when a bookmark is clicked, information will be added to the text boxes
     $('.itemBookmark').click(function(){
         var contents = fs.readFileSync("Bookmarks.json");
@@ -99,18 +102,23 @@ function init() {
     });
 
     $('.bookmarkDelete').click(function(){
-        console.log(this);
         var contents = fs.readFileSync("Bookmarks.json");
         var jsonContent = JSON.parse(contents);
         var classname = this.className;
         classname = classname.replace(/[^\d.]/g, '');
-        jsonContent.Bookmarks.splice(classname, 1);
-        $(".item"+classname).remove();
+        if(classname>=bookmarkDeleted) {
+            jsonContent.Bookmarks.splice(classname - bookmarkDeleted, 1);
+        }
+        else {
+            jsonContent.Bookmarks.splice(classname, 1);
+        }
+        $(".bookmarkItem"+classname).remove();
+        jsonfile.writeFile('Bookmarks.json', jsonContent);
         if(jsonContent.Bookmarks.length == 0){
             var bookmark = document.getElementById("bookmarks");
             $(bookmark).append('<li> <span class="empty glyphicon glyphicon-star-empty"> &nbsp; No Bookmarks Yet</span></li>');
         }
-        jsonfile.writeFile('Bookmarks.json', jsonContent);
+        bookmarkDeleted++;
     });
 
 
@@ -135,10 +143,22 @@ function init() {
         var jsonContent = JSON.parse(contents);
         var classname = this.className;
         classname = classname.replace(/[^\d.]/g, '');
-        jsonContent.connectionHistory.splice(classname, 1);
-        $(".item"+classname).remove();
+        if(classname < historyDeleted) {
+            jsonContent.connectionHistory.splice(classname, 1);
+        }
+        else{
+            jsonContent.connectionHistory.splice(classname - historyDeleted, 1);
+        }
+        $(".historyItem"+classname).remove();
         jsonfile.writeFile('ConnectionHistory.json', jsonContent);
-    })
+        if(jsonContent.connectionHistory.length==0){
+            var his = document.getElementById("history");
+            $(his).append('<li>' +
+                '<span class="empty glyphicon glyphicon-star-empty"> &nbsp; No History Yet</span></li>');
+        }
+
+        historyDeleted--;
+    });
 }
 
 /**
